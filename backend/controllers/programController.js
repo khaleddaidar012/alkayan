@@ -22,15 +22,63 @@ exports.getPrograms = async (req, res) => {
       const activeCustomers = await Customer.countDocuments({ program: p.name, status: 'subscribed' });
       const totalEnrollments = await Customer.countDocuments({ program: p.name });
       const activeCampaigns = await Campaign.countDocuments({ program: p._id, status: 'active' });
+      const revenue = await Customer.aggregate([
+        { $match: { program: p.name, status: 'subscribed' } },
+        { $group: { _id: null, expectedRevenue: { $sum: '$payment.totalPrice' }, collectedRevenue: { $sum: '$payment.paidAmount' } } }
+      ]);
       return {
         ...p.toObject(),
         activeCustomers,
         totalEnrollments,
-        activeCampaigns
+        activeCampaigns,
+        expectedRevenue: revenue[0]?.expectedRevenue || 0,
+        collectedRevenue: revenue[0]?.collectedRevenue || 0
       };
     }));
 
     res.json({ programs: enriched, count: enriched.length });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+exports.getProgramsOverview = async (req, res) => {
+  try {
+    const [programCount, activeProgramCount, customerAgg, campaignAgg, revenueAgg] = await Promise.all([
+      Course.countDocuments(),
+      Course.countDocuments({ status: 'active' }),
+      Customer.aggregate([
+        { $group: { _id: '$status', count: { $sum: 1 } } }
+      ]),
+      Campaign.aggregate([
+        { $group: { _id: '$status', count: { $sum: 1 } } }
+      ]),
+      Customer.aggregate([
+        { $match: { status: 'subscribed' } },
+        { $group: { _id: null, expectedRevenue: { $sum: '$payment.totalPrice' }, collectedRevenue: { $sum: '$payment.paidAmount' } } }
+      ])
+    ]);
+
+    const customerMap = {};
+    customerAgg.forEach(s => { customerMap[s._id] = s.count; });
+    const campaignMap = {};
+    campaignAgg.forEach(s => { campaignMap[s._id] = s.count; });
+
+    const stats = {
+      totalPrograms: programCount,
+      activePrograms: activeProgramCount,
+      totalRegistered: customerAgg.reduce((sum, s) => sum + s.count, 0),
+      activeCustomers: customerMap['subscribed'] || 0,
+      potentialCustomers: customerMap['potential'] || 0,
+      totalCampaigns: campaignAgg.reduce((sum, s) => sum + s.count, 0),
+      activeCampaigns: campaignMap['active'] || 0,
+      completedCampaigns: campaignMap['completed'] || 0,
+      expectedRevenue: revenueAgg[0]?.expectedRevenue || 0,
+      collectedRevenue: revenueAgg[0]?.collectedRevenue || 0,
+      updatedAt: new Date().toISOString()
+    };
+
+    res.json({ stats });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }

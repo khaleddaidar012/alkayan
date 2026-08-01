@@ -17,7 +17,7 @@ function canManageCampaigns() { const u = getUser(); return u && (u.role === 'ad
 function getUser() { try { return JSON.parse(localStorage.getItem('alkayan_user')); } catch { return null; } }
 function getToken() { return localStorage.getItem('alkayan_token') || sessionStorage.getItem('alkayan_token'); }
 function redirectToLogin() { window.location.href = 'login.html'; }
-function t(k) { const s = i18n[currentLang]?.programs || i18n[currentLang]?.dashboard || i18n[currentLang]?.login || i18n[currentLang]; return s[k] || k; }
+function t(k) { const s = i18n[currentLang]?.programs || i18n[currentLang]?.nav || i18n[currentLang]?.dashboard || i18n[currentLang]?.login || i18n[currentLang]; return s[k] || k; }
 function showToast(msg, type) {
   const c = document.getElementById('toastContainer'); if (!c) return;
   const t = document.createElement('div'); t.className = 'toast ' + (type || 'success'); t.textContent = msg; c.appendChild(t);
@@ -67,12 +67,38 @@ function closeExportModal() { document.getElementById('exportModal').classList.r
 function openComingSoon(msg) { const e = document.getElementById('comingSoonMessage'); if (e && msg) e.textContent = msg; document.getElementById('comingSoonModal').classList.add('show'); document.body.classList.add('modal-open'); }
 function closeComingSoon() { document.getElementById('comingSoonModal').classList.remove('show'); document.body.classList.remove('modal-open'); }
 
-async function loadPrograms() {
-  showSkeletons(); hideError();
+async function loadPrograms(silent) {
+  if (!silent) showSkeletons(); hideError();
   const d = await apiFetch('/programs');
   if (!d) { hideSkeletons(); showError(); return; }
   allPrograms = d.programs || [];
   hideSkeletons(); renderStats(); applyFilters();
+  if (!silent) loadOverview();
+}
+
+let overviewTimer = null;
+async function loadOverview() {
+  const s = document.getElementById('liveRevenue');
+  const u = document.getElementById('lastUpdated');
+  if (s) s.innerHTML = '💰 ' + t('expectedRevenue') + ': \u2014';
+  const d = await apiFetch('/programs/stats');
+  if (!d || !d.stats) return;
+  const st = d.stats;
+  document.getElementById('statTotal').textContent = st.totalPrograms || 0;
+  document.getElementById('statActive').textContent = st.activeCustomers || 0;
+  document.getElementById('statTotalCustomers').textContent = st.totalRegistered || 0;
+  document.getElementById('statActiveCampaigns').textContent = st.activeCampaigns || 0;
+  if (s) s.innerHTML = '💰 ' + t('expectedRevenue') + ': <strong>' + formatCurrency(st.expectedRevenue || 0) + '</strong>';
+  if (u) u.textContent = t('lastUpdated') + ': ' + new Date(st.updatedAt || Date.now()).toLocaleTimeString(currentLang === 'ar' ? 'ar-EG' : 'en-US', { hour: '2-digit', minute: '2-digit' });
+}
+
+function startAutoRefresh() {
+  if (overviewTimer) clearInterval(overviewTimer);
+  overviewTimer = setInterval(() => {
+    if (document.body.classList.contains('modal-open')) return;
+    if (document.getElementById('programDetails')?.style.display === 'block') return;
+    loadPrograms(true);
+  }, 30000);
 }
 function showSkeletons() {
   const grid = document.getElementById('programsGrid');
@@ -89,7 +115,7 @@ function hideError() { const e = document.getElementById('programsError'); if (e
 
 function renderStats() {
   document.getElementById('statTotal').textContent = allPrograms.length;
-  document.getElementById('statActive').textContent = allPrograms.filter(p => p.status === 'active').length;
+  document.getElementById('statActive').textContent = allPrograms.reduce((s, p) => s + (p.activeCustomers || 0), 0);
   document.getElementById('statTotalCustomers').textContent = allPrograms.reduce((s, p) => s + (p.totalEnrollments || 0), 0);
   document.getElementById('statActiveCampaigns').textContent = allPrograms.reduce((s, p) => s + (p.activeCampaigns || 0), 0);
 }
@@ -114,11 +140,13 @@ function renderPrograms(programs) {
   if (empty) empty.classList.remove('show');
   grid.innerHTML = items.map((p, i) => {
     const sc = p.status || 'draft'; const rev = p.expectedRevenue;
+    const dynPrice = (rev > 0) ? rev : (p.price || 0);
+    const priceLabel = (rev > 0) ? t('expectedRevenue') : t('price');
     return '<div class="program-card" data-id="' + p._id + '" style="animation-delay:' + Math.min(i * 0.05, 0.4) + 's">' +
       '<div class="program-card-top"><div class="program-card-icon">📚</div><div class="program-card-title-area"><div class="program-card-name">' + p.name + '</div>' +
       ((p.instructor || p.duration) ? '<div class="program-card-instructor">' + (p.instructor ? '👨‍🏫 ' + p.instructor : '') + (p.instructor && p.duration ? ' \u00b7 ' : '') + (p.duration ? '\u23f1\ufe0f ' + p.duration : '') + '</div>' : '') + '</div>' +
       '<span class="program-status-badge ' + sc + '">' + t(sc) + '</span></div>' +
-      '<div class="program-card-price">' + priceDisplay('💰 ' + t('price'), p.price, { size: 'lg' }) + '</div>' +
+      '<div class="program-card-price">' + priceDisplay('💰 ' + priceLabel, dynPrice, { size: 'lg' }) + '</div>' +
       '<div class="program-card-stats">' +
       '<div class="program-stat-tile"><div class="program-stat-tile-header"><span class="program-stat-tile-icon">👥</span><span class="program-stat-tile-label">' + t('activeCustomers') + '</span></div><div class="program-stat-tile-value">' + (p.activeCustomers || 0) + '</div></div>' +
       '<div class="program-stat-tile"><div class="program-stat-tile-header"><span class="program-stat-tile-icon">📊</span><span class="program-stat-tile-label">' + t('totalEnrollments') + '</span></div><div class="program-stat-tile-value">' + (p.totalEnrollments || 0) + '</div></div>' +
@@ -889,7 +917,10 @@ function initPrograms() {
   document.getElementById('paymentModal').addEventListener('click', function(e) { if (e.target === this) closePaymentModal(); });
   document.getElementById('payForm').addEventListener('submit', handlePaymentFormSubmit);
   document.getElementById('payFormAmount').addEventListener('input', function() { this.style.borderColor = ''; });
+  const refreshBtn = document.getElementById('refreshStatsBtn');
+  if (refreshBtn) refreshBtn.addEventListener('click', function() { loadPrograms(); });
   loadPrograms();
+  startAutoRefresh();
 }
 
 document.addEventListener('DOMContentLoaded', initPrograms);

@@ -45,8 +45,8 @@ function initDashboard() {
   if (nameEl) nameEl.textContent = user.name;
   if (roleEl) roleEl.textContent = user.role;
 
-  // Apply user preferences
-  if (user.lang) {
+  // Apply user preferences (only set language when the user has no saved preference yet)
+  if (user.lang && (user.lang === 'ar' || user.lang === 'en') && !localStorage.getItem('alkayan_lang')) {
     currentLang = user.lang;
     localStorage.setItem('alkayan_lang', currentLang);
     setDirection(currentLang);

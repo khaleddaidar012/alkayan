@@ -82,7 +82,7 @@ async function handleLogin(e) {
     if (data.user.theme) {
       setTheme(data.user.theme);
     }
-    if (data.user.lang) {
+    if (data.user.lang && (data.user.lang === 'ar' || data.user.lang === 'en')) {
       currentLang = data.user.lang;
       localStorage.setItem('alkayan_lang', currentLang);
     }

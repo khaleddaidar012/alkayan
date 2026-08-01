@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title data-i18n="title">Al Kayan Al Arabi - Programs</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌟</text></svg>">
-<link rel="stylesheet" href="css/style.css?v=5">
-<link rel="stylesheet" href="css/dashboard.css?v=5">
-<link rel="stylesheet" href="css/customers.css?v=5">
-<link rel="stylesheet" href="css/programs.css?v=5">
+<link rel="stylesheet" href="css/style.css?v=6">
+<link rel="stylesheet" href="css/dashboard.css?v=6">
+<link rel="stylesheet" href="css/customers.css?v=6">
+<link rel="stylesheet" href="css/programs.css?v=7">
 </head>
 <body>
   <div class="dashboard">
@@ -117,6 +117,16 @@
         </button>
       </div>
 
+      <!-- Live metrics / auto-refresh -->
+      <div class="live-metrics-bar">
+        <span class="live-revenue" id="liveRevenue">💰 <span data-i18n="expectedRevenue">Expected Revenue</span>: --</span>
+        <span class="live-updated" id="lastUpdated"></span>
+        <button class="btn btn-ghost btn-sm" id="refreshStatsBtn" title="Refresh">
+          <span>🔄</span>
+          <span data-i18n="refresh">Refresh</span>
+        </button>
+      </div>
+
       <!-- Stats -->
       <div class="customers-stats" id="programsStats">
         <div class="stat-card" data-stat="total">
@@ -130,7 +140,7 @@
           <div class="stat-icon stat-icon-green">✅</div>
           <div class="stat-info">
             <span class="stat-number" id="statActive">0</span>
-            <span class="stat-label" data-i18n="activePrograms">Active</span>
+            <span class="stat-label" data-i18n="activeClients">Active Clients</span>
           </div>
         </div>
         <div class="stat-card" data-stat="customers">
@@ -750,8 +760,8 @@
   <!-- Toast -->
   <div class="toast-container" id="toastContainer"></div>
 
-<script src="js/i18n.js?v=4"></script>
+<script src="js/i18n.js?v=5"></script>
 <script src="js/theme.js?v=4"></script>
-<script src="js/programs.js?v=4"></script>
+<script src="js/programs.js?v=5"></script>
 </body>
 </html>

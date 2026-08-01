@@ -1,5 +1,19 @@
 const i18n = {
   ar: {
+    nav: {
+      dashboard: 'لوحة التحكم',
+      programs: 'البرامج',
+      customers: 'العملاء',
+      tasks: 'المهام',
+      reports: 'التقارير',
+      users: 'المستخدمين',
+      settings: 'الإعدادات',
+      logout: 'تسجيل الخروج',
+      langSwitch: 'English',
+      themeLight: 'وضع فاتح',
+      themeDark: 'وضع مظلم',
+      welcome: 'مرحباً بعودتك'
+    },
     login: {
       title: 'تسجيل الدخول',
       subtitle: 'منصة الكيان العربي التعليمية',
@@ -250,6 +264,7 @@ const i18n = {
       delete: 'حذف',
       totalPrograms: 'إجمالي البرامج',
       activePrograms: 'النشطة',
+      activeClients: 'العملاء النشطون',
       totalEnrollments: 'إجمالي المسجلين',
       activeCampaigns: 'حملات نشطة',
       loadError: 'فشل تحميل البرامج',
@@ -275,6 +290,7 @@ const i18n = {
       notes: 'ملاحظات',
       expectedRevenue: 'الإيراد المتوقع',
       collectedRevenue: 'الإيراد المحصل',
+      refresh: 'تحديث',
       remainingPayments: 'المدفوعات المتبقية',
       totalCustomers: 'إجمالي العملاء',
       potentialCustomers: 'عملاء محتملين',
@@ -470,6 +486,20 @@ const i18n = {
     }
   },
   en: {
+    nav: {
+      dashboard: 'Dashboard',
+      programs: 'Programs',
+      customers: 'Customers',
+      tasks: 'Tasks',
+      reports: 'Reports',
+      users: 'Users',
+      settings: 'Settings',
+      logout: 'Logout',
+      langSwitch: 'العربية',
+      themeLight: 'Light',
+      themeDark: 'Dark',
+      welcome: 'Welcome back'
+    },
     login: {
       title: 'Sign In',
       subtitle: 'Al Kayan Al Arabi Educational Platform',
@@ -720,6 +750,7 @@ const i18n = {
       delete: 'Delete',
       totalPrograms: 'Total Programs',
       activePrograms: 'Active',
+      activeClients: 'Active Clients',
       totalEnrollments: 'Total Enrollments',
       activeCampaigns: 'Active Campaigns',
       loadError: 'Failed to load programs',
@@ -745,6 +776,7 @@ const i18n = {
       notes: 'Notes',
       expectedRevenue: 'Expected Revenue',
       collectedRevenue: 'Collected Revenue',
+      refresh: 'Refresh',
       remainingPayments: 'Remaining Payments',
       totalCustomers: 'Total Customers',
       potentialCustomers: 'Potential Customers',
@@ -964,6 +996,10 @@ function resolveKey(section, key) {
   if (sectionKeys && typeof sectionKeys[key] === 'string') {
     return sectionKeys[key];
   }
+  const navKeys = getSectionKeys('nav');
+  if (navKeys && typeof navKeys[key] === 'string') {
+    return navKeys[key];
+  }
   const langObj = i18n[currentLang] || {};
   if (langObj[key] && typeof langObj[key] === 'string') {
     return langObj[key];
@@ -1001,15 +1037,18 @@ function switchLang() {
 function updateLangToggle() {
   const btn = document.getElementById('langToggle') || document.getElementById('langToggle2');
   if (btn) {
-    const s = i18n[currentLang]?.[currentSection] || i18n[currentLang]?.dashboard || i18n[currentLang]?.login || i18n[currentLang];
-    btn.innerHTML = `<span class="icon">🌐</span> ${(s && s.langSwitch) || ''}`;
+    const label = resolveKey(currentSection, 'langSwitch');
+    btn.innerHTML = `<span class="icon">🌐</span> ${label !== null ? label : ''}`;
   }
 }
 
 function initI18n(page, section) {
   const savedLang = localStorage.getItem('alkayan_lang');
-  if (savedLang) {
+  if (savedLang === 'ar' || savedLang === 'en') {
     currentLang = savedLang;
+  } else if (savedLang) {
+    localStorage.setItem('alkayan_lang', 'ar');
+    currentLang = 'ar';
   }
   currentPage = page || 'dashboard';
   currentSection = section || page || 'dashboard';

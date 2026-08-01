@@ -23,7 +23,7 @@ function getToken() {
 function redirectToLogin() { window.location.href = 'login.html'; }
 
 function t(key) {
-  const section = i18n[currentLang]?.importWizard || i18n[currentLang]?.dashboard || i18n[currentLang]?.login || i18n[currentLang];
+  const section = i18n[currentLang]?.importWizard || i18n[currentLang]?.nav || i18n[currentLang]?.dashboard || i18n[currentLang]?.login || i18n[currentLang];
   return section[key] || key;
 }
 

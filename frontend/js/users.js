@@ -27,7 +27,7 @@ function redirectToLogin() {
 }
 
 function t(key) {
-  const section = i18n[currentLang]?.users || i18n[currentLang]?.login || i18n[currentLang];
+  const section = i18n[currentLang]?.users || i18n[currentLang]?.nav || i18n[currentLang]?.login || i18n[currentLang];
   return section[key] || key;
 }
 
