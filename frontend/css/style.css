@@ -1,0 +1,245 @@
+:root {
+  --gold: #C9A84C;
+  --gold-light: #E2C96E;
+  --gold-dark: #A8892E;
+  --dark-blue: #0D1B2A;
+  --dark-blue-2: #1B2A4A;
+  --dark-blue-3: #243B5E;
+  --white: #FFFFFF;
+  --off-white: #F8F9FA;
+  --gray-100: #E9ECEF;
+  --gray-200: #DEE2E6;
+  --gray-300: #CED4DA;
+  --gray-400: #ADB5BD;
+  --gray-500: #6C757D;
+  --gray-600: #495057;
+  --gray-700: #343A40;
+  --gray-800: #212529;
+  --danger: #DC3545;
+  --success: #28A745;
+  --warning: #FFC107;
+  --info: #17A2B8;
+  --bg-primary: var(--off-white);
+  --bg-secondary: var(--white);
+  --bg-card: var(--white);
+  --text-primary: var(--gray-800);
+  --text-secondary: var(--gray-600);
+  --text-muted: var(--gray-500);
+  --border-color: var(--gray-200);
+  --hover-bg: rgba(0,0,0,0.05);
+  --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-lg: 16px;
+  --transition: 0.3s ease;
+  --font-primary: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-arabic: 'Segoe UI', 'Arabic Typesetting', 'Traditional Arabic', Tahoma, sans-serif;
+  --toggle-bg: rgba(0,0,0,0.05);
+  --toggle-color: var(--text-secondary);
+  --toggle-border: var(--border-color);
+  --toggle-hover-bg: rgba(0,0,0,0.08);
+  --toggle-hover-color: var(--text-primary);
+}
+
+[data-theme="dark"] {
+  --bg-primary: #0A0F1A;
+  --bg-secondary: #111827;
+  --bg-card: #1A2332;
+  --text-primary: #E5E7EB;
+  --text-secondary: #9CA3AF;
+  --text-muted: #6B7280;
+  --border-color: #1F2937;
+  --hover-bg: rgba(255,255,255,0.06);
+  --shadow: 0 2px 12px rgba(0,0,0,0.3);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.4);
+  --toggle-bg: rgba(255,255,255,0.08);
+  --toggle-color: rgba(255,255,255,0.7);
+  --toggle-border: rgba(255,255,255,0.1);
+  --toggle-hover-bg: rgba(255,255,255,0.14);
+  --toggle-hover-color: var(--white);
+}
+
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-primary);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  transition: background var(--transition), color var(--transition);
+  min-height: 100vh;
+}
+
+[dir="rtl"] body {
+  font-family: var(--font-arabic);
+}
+
+a {
+  text-decoration: none;
+  color: var(--gold);
+  transition: color var(--transition);
+}
+
+a:hover {
+  color: var(--gold-light);
+}
+
+ul { list-style: none; }
+img { max-width: 100%; }
+button { cursor: pointer; border: none; outline: none; }
+input { outline: none; border: none; }
+
+.gold-text { color: var(--gold); }
+.gradient-bg {
+  background: linear-gradient(135deg, var(--dark-blue), var(--dark-blue-2));
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+
+/* Glass effect */
+.glass {
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+[data-theme="dark"] .glass {
+  background: rgba(26,35,50,0.7);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+/* Button styles */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  font-weight: 600;
+  transition: all var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  color: var(--white);
+  box-shadow: 0 4px 15px rgba(201,168,76,0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(201,168,76,0.4);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.btn-ghost:hover {
+  background: var(--border-color);
+}
+
+/* Toggle buttons - shared across login and dashboard */
+.toggle-btn,
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: var(--toggle-bg);
+  color: var(--toggle-color);
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid var(--toggle-border);
+  transition: all var(--transition);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.toggle-btn:hover,
+.theme-toggle:hover {
+  background: var(--toggle-hover-bg);
+  color: var(--toggle-hover-color);
+}
+
+.toggle-btn .icon,
+.theme-toggle .icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+/* Input styles */
+.input-group {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 14px 16px;
+  padding-left: 44px;
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 14px;
+  transition: all var(--transition);
+}
+
+[dir="rtl"] .input-group input {
+  padding-left: 16px;
+  padding-right: 44px;
+}
+
+.input-group input:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(201,168,76,0.1);
+}
+
+.input-group input::placeholder {
+  color: var(--text-muted);
+}
+
+.input-group .input-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  font-size: 18px;
+  pointer-events: none;
+  transition: color var(--transition);
+}
+
+[dir="rtl"] .input-group .input-icon {
+  left: auto;
+  right: 14px;
+}
+
+.input-group input:focus ~ .input-icon {
+  color: var(--gold);
+}

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="title">Al Kayan Al Arabi - Admin Tasks</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✅</text></svg>">
+  <link rel="stylesheet" href="css/style.css?v=5">
+  <link rel="stylesheet" href="css/dashboard.css?v=5">
+  <link rel="stylesheet" href="css/tasks.css?v=5">
+</head>
+<body>
+  <div class="dashboard">
+
+    <!-- Sidebar Backdrop -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="20" cy="20" r="19.5" stroke="#C9A84C" stroke-width="1.5" fill="none"/>
+            <text x="20" y="24" text-anchor="middle" font-size="12" fill="#C9A84C" font-family="serif">ك</text>
+          </svg>
+        </div>
+        <div class="logo-text"><span>Al Kayan</span> Al Arabi</div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-item" data-nav="dashboard">
+          <span class="nav-icon">📊</span>
+          <span data-i18n="dashboard">Dashboard</span>
+        </div>
+        <div class="nav-item" data-nav="programs">
+          <span class="nav-icon">📚</span>
+          <span data-i18n="programs">Programs</span>
+          <span class="badge">12</span>
+        </div>
+        <div class="nav-item" data-nav="customers">
+          <span class="nav-icon">👥</span>
+          <span data-i18n="customers">Customers</span>
+          <span class="badge">48</span>
+        </div>
+        <div class="nav-item active" data-nav="tasks">
+          <span class="nav-icon">✅</span>
+          <span data-i18n="tasks">Tasks</span>
+          <span class="badge">5</span>
+        </div>
+        <div class="nav-item" data-nav="reports">
+          <span class="nav-icon">📈</span>
+          <span data-i18n="reports">Reports</span>
+        </div>
+        <div class="nav-item" data-nav="users">
+          <span class="nav-icon">👤</span>
+          <span data-i18n="users">Users</span>
+        </div>
+        <div class="nav-item" data-nav="settings">
+          <span class="nav-icon">⚙️</span>
+          <span data-i18n="settings">Settings</span>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="avatar" id="userAvatar">A</div>
+          <div>
+            <div class="user-name" id="userName">Admin</div>
+            <div class="user-role" id="userRole">admin</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+      <!-- Header -->
+      <header class="dashboard-header">
+        <div class="header-left">
+          <button class="hamburger" id="hamburger" aria-label="Menu">☰</button>
+          <div>
+            <h1 data-i18n="tasksTitle">Admin Tasks Management</h1>
+            <p class="welcome-text">Manage employee tasks and track performance</p>
+          </div>
+        </div>
+        <div class="header-right">
+          <button class="toggle-btn" id="langToggle2" type="button">
+            <span class="icon">🌐</span>
+            <span>English</span>
+          </button>
+          <button class="theme-toggle" id="themeToggle2" type="button">
+            <span class="icon">☀️</span>
+            <span>Light</span>
+          </button>
+          <button class="header-btn" id="logoutBtn" title="Logout">🚪</button>
+        </div>
+      </header>
+
+      <!-- Tasks Content -->
+      <div class="tasks-content">
+        <!-- Toolbar -->
+        <div class="tasks-toolbar">
+          <div class="toolbar-left">
+            <button class="btn-primary" id="addTaskBtn" data-i18n="addTask">Add New Task</button>
+            <div class="search-box">
+              <input type="text" id="taskSearch" placeholder="Search tasks..." data-i18n-placeholder="searchTasks">
+              <button id="searchBtn">🔍</button>
+            </div>
+          </div>
+          <div class="toolbar-right">
+            <div class="filter-group">
+              <select id="employeeFilter">
+                <option value="">All Employees</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <select id="statusFilter">
+                <option value="">All Statuses</option>
+                <option value="pending">Pending</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <select id="dateFilter">
+                <option value="">All Dates</option>
+                <option value="today">Today</option>
+                <option value="thisWeek">This Week</option>
+                <option value="thisMonth">This Month</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tasks Grid -->
+        <div class="tasks-grid" id="tasksGrid">
+          <!-- Tasks will be loaded dynamically -->
+          <div class="loading-message">Loading tasks...</div>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+          <div class="empty-icon">✅</div>
+          <h3>No Tasks Found</h3>
+          <p>Start creating tasks for your employees</p>
+          <button class="btn-primary" id="addTaskFromEmpty">Add Your First Task</button>
+        </div>
+      </div>
+    </main>
+
+    <!-- Add Task Modal -->
+    <div class="modal" id="addTaskModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Add New Task</h2>
+          <button class="modal-close" id="closeModal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form id="addTaskForm">
+            <div class="form-group">
+              <label>Task Title</label>
+              <input type="text" name="title" required>
+            </div>
+            <div class="form-group">
+              <label>Description</label>
+              <textarea name="description" rows="3"></textarea>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Assigned Employee</label>
+                <select name="assignedTo" required>
+                  <option value="">Select Employee</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Deadline</label>
+                <input type="date" name="deadline" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Task Type</label>
+              <select name="type">
+                <option value="general">General</option>
+                <option value="follow_up">Follow Up</option>
+                <option value="payment">Payment</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Priority</label>
+              <select name="priority">
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+                <option value="urgent">Urgent</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Related Clients</label>
+              <div class="checkbox-group" id="clientsContainer">
+                <!-- Clients checkboxes will be loaded dynamically -->
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Related Campaign (Optional)</label>
+              <select name="relatedCampaign">
+                <option value="">No Campaign</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Related Program (Optional)</label>
+              <select name="relatedProgram">
+                <option value="">No Program</option>
+              </select>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn-secondary" id="cancelAddTask">Cancel</button>
+              <button type="submit" class="btn-primary">Create Task</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Task Modal (for future use) -->
+    <div class="modal" id="editTaskModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Edit Task</h2>
+          <button class="modal-close" id="closeEditModal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form id="editTaskForm">
+            <input type="hidden" name="id">
+            <div class="form-group">
+              <label>Task Title</label>
+              <input type="text" name="title" required>
+            </div>
+            <div class="form-group">
+              <label>Status</label>
+              <select name="status">
+                <option value="pending">Pending</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn-secondary" id="cancelEditTask">Cancel</button>
+              <button type="submit" class="btn-primary">Save Changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/i18n.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/tasks.js"></script>
+  </div>
+</body>
+</html>

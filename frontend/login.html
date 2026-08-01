@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="title">Al Kayan Al Arabi - Login</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌟</text></svg>">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/login.css">
+</head>
+<body class="login-page">
+
+  <!-- Animated Background -->
+  <div class="animated-bg">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- Particles -->
+  <div class="particles" id="particles"></div>
+
+  <!-- Login Container -->
+  <div class="login-container">
+    <div class="login-card">
+
+      <!-- Logo -->
+      <div class="logo-area">
+        <div class="logo-icon">
+          <svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="36" cy="36" r="35" stroke="#C9A84C" stroke-width="2" fill="none"/>
+            <text x="36" y="42" text-anchor="middle" font-size="22" fill="#C9A84C" font-family="serif">ك</text>
+            <path d="M20 52 Q36 28 52 52" stroke="#C9A84C" stroke-width="1.5" fill="none" opacity="0.5"/>
+            <circle cx="36" cy="24" r="3" fill="#C9A84C" opacity="0.7"/>
+          </svg>
+        </div>
+        <div class="logo-text"><span>Al Kayan</span> Al Arabi</div>
+        <div class="logo-subtitle" data-i18n="subtitle">منصة الكيان العربي التعليمية</div>
+      </div>
+
+      <!-- Toggle Row: Lang + Theme -->
+      <div class="toggle-row">
+        <button class="toggle-btn" id="langToggle" type="button">
+          <span class="icon">🌐</span>
+          <span data-i18n="langSwitch">English</span>
+        </button>
+        <button class="theme-toggle" id="themeToggle" type="button">
+          <span class="icon">☀️</span>
+          <span data-i18n="themeLight">Light</span>
+        </button>
+      </div>
+
+      <!-- Error Message -->
+      <div class="error-msg" id="errorMsg">
+        <span>⚠️</span>
+        <span class="error-text"></span>
+      </div>
+
+      <!-- Login Form -->
+      <form id="loginForm" novalidate>
+        <div class="input-group">
+          <span class="input-icon">✉️</span>
+          <input
+            type="email"
+            id="email"
+            data-i18n-placeholder="emailPlaceholder"
+            placeholder="أدخل البريد الإلكتروني"
+            autocomplete="email"
+            required
+          >
+        </div>
+
+        <div class="input-group">
+          <span class="input-icon">🔒</span>
+          <input
+            type="password"
+            id="password"
+            data-i18n-placeholder="passwordPlaceholder"
+            placeholder="أدخل كلمة المرور"
+            autocomplete="current-password"
+            required
+          >
+        </div>
+
+        <div class="login-options">
+          <label class="remember-me">
+            <input type="checkbox" id="remember">
+            <span data-i18n="remember">تذكرني</span>
+          </label>
+          <a href="#" class="forgot-link" data-i18n="forgot">نسيت كلمة المرور؟</a>
+        </div>
+
+        <button type="submit" class="login-btn" id="loginBtn">
+          <span>
+            <span class="btn-text" data-i18n="loginBtn">تسجيل الدخول</span>
+            <span class="spinner"></span>
+          </span>
+        </button>
+      </form>
+
+      <div class="login-footer" data-i18n="footer">© 2024 الكيان العربي. جميع الحقوق محفوظة.</div>
+
+    </div>
+  </div>
+
+  <script src="js/i18n.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/login.js"></script>
+</body>
+</html>

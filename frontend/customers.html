@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="title">Al Kayan Al Arabi - Customers</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌟</text></svg>">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/customers.css">
+</head>
+<body>
+  <div class="dashboard">
+
+    <!-- Sidebar Backdrop -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="20" cy="20" r="19.5" stroke="#C9A84C" stroke-width="1.5" fill="none"/>
+            <text x="20" y="24" text-anchor="middle" font-size="12" fill="#C9A84C" font-family="serif">ك</text>
+          </svg>
+        </div>
+        <div class="logo-text"><span>Al Kayan</span> Al Arabi</div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-item" data-nav="dashboard">
+          <span class="nav-icon">📊</span>
+          <span data-i18n="dashboard">Dashboard</span>
+        </div>
+        <div class="nav-item" data-nav="programs">
+          <span class="nav-icon">📚</span>
+          <span data-i18n="programs">Programs</span>
+          <span class="badge">12</span>
+        </div>
+        <div class="nav-item active" data-nav="customers">
+          <span class="nav-icon">👥</span>
+          <span data-i18n="customers">Customers</span>
+          <span class="badge">48</span>
+        </div>
+        <div class="nav-item" data-nav="tasks">
+          <span class="nav-icon">✅</span>
+          <span data-i18n="tasks">Tasks</span>
+          <span class="badge">5</span>
+        </div>
+        <div class="nav-item" data-nav="reports">
+          <span class="nav-icon">📈</span>
+          <span data-i18n="reports">Reports</span>
+        </div>
+        <div class="nav-item" data-nav="users">
+          <span class="nav-icon">👤</span>
+          <span data-i18n="users">Users</span>
+        </div>
+        <div class="nav-item" data-nav="settings">
+          <span class="nav-icon">⚙️</span>
+          <span data-i18n="settings">Settings</span>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="avatar" id="userAvatar">A</div>
+          <div>
+            <div class="user-name" id="userName">Admin</div>
+            <div class="user-role" id="userRole">admin</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+      <!-- Header -->
+      <header class="dashboard-header">
+        <div class="header-left">
+          <button class="hamburger" id="hamburger" aria-label="Menu">☰</button>
+          <div>
+            <h1 data-i18n="title">Customers</h1>
+          </div>
+        </div>
+        <div class="header-right">
+          <button class="toggle-btn" id="langToggle2" type="button">
+            <span class="icon">🌐</span>
+            <span>English</span>
+          </button>
+          <button class="theme-toggle" id="themeToggle2" type="button">
+            <span class="icon">☀️</span>
+            <span>Light</span>
+          </button>
+          <button class="header-btn" id="logoutBtn" title="Logout">🚪</button>
+        </div>
+      </header>
+
+      <!-- Toolbar -->
+      <div class="customers-toolbar">
+        <div class="customers-search">
+          <span class="customers-search-icon">🔍</span>
+          <input type="text" id="searchInput" data-i18n-placeholder="search" placeholder="Search customers...">
+        </div>
+        <button class="btn btn-primary" id="addCustomerBtn">
+          <span>＋</span>
+          <span data-i18n="addCustomer">Add Customer</span>
+        </button>
+        <button class="btn btn-secondary" id="importBtn" style="gap:6px">
+          <span>📥</span>
+          <span data-i18n="import">Import</span>
+        </button>
+      </div>
+
+      <!-- Stats -->
+      <div class="customers-stats" id="customersStats">
+        <div class="stat-card" data-stat="total">
+          <div class="stat-icon">👥</div>
+          <div class="stat-info">
+            <span class="stat-number" id="statTotal">0</span>
+            <span class="stat-label" data-i18n="totalCustomers">Total Customers</span>
+          </div>
+        </div>
+        <div class="stat-card" data-stat="subscribed">
+          <div class="stat-icon stat-icon-green">✅</div>
+          <div class="stat-info">
+            <span class="stat-number" id="statSubscribed">0</span>
+            <span class="stat-label" data-i18n="subscribedCount">Subscribed</span>
+          </div>
+        </div>
+        <div class="stat-card" data-stat="potential">
+          <div class="stat-icon stat-icon-gold">⭐</div>
+          <div class="stat-info">
+            <span class="stat-number" id="statPotential">0</span>
+            <span class="stat-label" data-i18n="potentialCount">Potential</span>
+          </div>
+        </div>
+        <div class="stat-card" data-stat="rejected">
+          <div class="stat-icon stat-icon-red">❌</div>
+          <div class="stat-info">
+            <span class="stat-number" id="statRejected">0</span>
+            <span class="stat-label" data-i18n="rejectedCount">Rejected</span>
+          </div>
+        </div>
+        <div class="stat-card" data-stat="expected">
+          <div class="stat-icon" style="background:rgba(201,168,76,0.12)">💰</div>
+          <div class="stat-info">
+            <span class="stat-number" id="statExpectedRev">0</span>
+            <span class="stat-label" data-i18n="expectedRevenue">Expected Revenue</span>
+          </div>
+        </div>
+        <div class="stat-card" data-stat="received">
+          <div class="stat-icon" style="background:rgba(40,167,69,0.12)">✅</div>
+          <div class="stat-info">
+            <span class="stat-number" id="statReceivedRev">0</span>
+            <span class="stat-label" data-i18n="collectedRevenue">Collected Revenue</span>
+          </div>
+        </div>
+        <div class="stat-card" data-stat="remaining">
+          <div class="stat-icon" style="background:rgba(220,53,69,0.12)">⏳</div>
+          <div class="stat-info">
+            <span class="stat-number" id="statRemainingRev">0</span>
+            <span class="stat-label" data-i18n="remainingPayments">Remaining Payments</span>
+          </div>
+        </div>
+        <div class="stat-card" data-stat="paid">
+          <div class="stat-icon stat-icon-green">✅</div>
+          <div class="stat-info">
+            <span class="stat-number" id="statFullyPaid">0</span>
+            <span class="stat-label" data-i18n="fullyPaidClients">Fully Paid</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="customers-filters" id="filtersBar">
+        <div class="filter-group">
+          <select id="filterStatus" data-i18n-placeholder="filterStatus">
+            <option value="" data-i18n="allStatuses">All Statuses</option>
+            <option value="subscribed" data-i18n="subscribed">Subscribed</option>
+            <option value="potential" data-i18n="potential">Potential</option>
+            <option value="thinking" data-i18n="thinking">Thinking</option>
+            <option value="noResponse" data-i18n="noResponse">No Response</option>
+            <option value="rejected" data-i18n="rejected">Rejected</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <select id="filterProgram" data-i18n-placeholder="filterProgram">
+            <option value="" data-i18n="allPrograms">All Programs</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <select id="filterEmployee" data-i18n-placeholder="filterEmployee">
+            <option value="" data-i18n="allEmployees">All Employees</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Card Grid -->
+      <div class="customers-grid" id="customersGrid">
+        <!-- Dynamic cards -->
+      </div>
+
+      <!-- Empty State -->
+      <div class="customers-empty" id="customersEmpty">
+        <div class="customers-empty-icon">👥</div>
+        <p data-i18n="noCustomers">No customers found</p>
+      </div>
+
+      <!-- Error State (API down) -->
+      <div class="customers-error" id="customersError" style="display:none;">
+        <div class="customers-error-icon">⚠️</div>
+        <p data-i18n="loadError">Failed to load customers</p>
+        <button class="btn btn-primary" id="retryBtn">🔄 <span data-i18n="retry">Retry</span></button>
+      </div>
+
+      <!-- Details View (hidden by default) -->
+      <div class="customer-details" id="customerDetails" style="display:none;">
+        <button class="btn btn-ghost" id="backToListBtn">
+          <span>←</span>
+          <span data-i18n="back">Back</span>
+        </button>
+        <div id="detailsContent">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Add/Edit Customer Modal -->
+  <div class="modal-overlay" id="customerModal">
+    <div class="modal-container modal-premium">
+      <div class="modal-premium-header">
+        <div class="modal-premium-header-left">
+          <div class="modal-premium-icon">👤</div>
+          <div>
+            <h2 id="modalTitle" data-i18n="addCustomer">إضافة عميل جديد</h2>
+            <p class="modal-premium-subtitle" data-i18n="addCustomerSubtitle">أدخل بيانات العميل الأساسية</p>
+          </div>
+        </div>
+        <button class="modal-premium-close" id="modalClose">✕</button>
+      </div>
+      <form id="customerForm" novalidate>
+        <div class="modal-premium-body">
+          <!-- Contact Section -->
+          <div class="modal-section">
+            <div class="modal-section-title">
+              <span class="modal-section-icon">📞</span>
+              <span data-i18n="contactSection">بيانات التواصل</span>
+            </div>
+            <div class="modal-two-col">
+              <div class="form-group-premium">
+                <label data-i18n="name">الاسم</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">👤</span>
+                  <input type="text" id="formName" required placeholder=" ">
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="phone">الهاتف</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">📱</span>
+                  <input type="text" id="formPhone" required placeholder=" ">
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="whatsapp">واتساب</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">💬</span>
+                  <input type="text" id="formWhatsapp" placeholder=" ">
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="email">البريد الإلكتروني</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">✉️</span>
+                  <input type="email" id="formEmail" placeholder=" ">
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="address">العنوان</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">📍</span>
+                  <input type="text" id="formAddress" placeholder=" ">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Registration Section -->
+          <div class="modal-section">
+            <div class="modal-section-title">
+              <span class="modal-section-icon">📋</span>
+              <span data-i18n="registrationSection">بيانات التسجيل</span>
+            </div>
+            <div class="modal-two-col">
+              <div class="form-group-premium">
+                <label data-i18n="program">البرنامج</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">📚</span>
+                  <input type="text" id="formProgram" list="programList" placeholder=" ">
+                  <datalist id="programList"></datalist>
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="campaign">الحملة</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">📢</span>
+                  <select id="formCampaign">
+                    <option value="" data-i18n="none">بدون</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="assignedEmployee">الموظف المسؤول</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">👨‍💼</span>
+                  <select id="formEmployee">
+                    <option value="" data-i18n="none">بدون</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="registrationDate">تاريخ التسجيل</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">📅</span>
+                  <input type="date" id="formDate">
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="status">الحالة</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">🏷️</span>
+                  <select id="formStatus">
+                    <option value="subscribed" data-i18n="subscribed">مشترك</option>
+                    <option value="potential" data-i18n="potential">قد يشترك</option>
+                    <option value="thinking" data-i18n="thinking">متفكر</option>
+                    <option value="noResponse" data-i18n="noResponse">لا رد</option>
+                    <option value="rejected" data-i18n="rejected">رافضون</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Notes Section -->
+          <div class="modal-section">
+            <div class="modal-section-title">
+              <span class="modal-section-icon">📝</span>
+              <span data-i18n="notesSection">ملاحظات</span>
+            </div>
+            <div class="input-wrapper">
+              <span class="input-icon input-icon-textarea">📝</span>
+              <textarea id="formNotes" rows="4" placeholder=" "></textarea>
+            </div>
+          </div>
+
+          <!-- Payment Section (shown when status = subscribed) -->
+          <div class="modal-section" id="formPaymentSection" style="display:none;">
+            <div class="modal-section-title">
+              <span class="modal-section-icon">💰</span>
+              <span data-i18n="payment">معلومات الدفع</span>
+            </div>
+            <div class="modal-two-col">
+              <div class="form-group-premium">
+                <label data-i18n="programPrice">سعر البرنامج</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">🏷️</span>
+                  <input type="number" id="formPayProgramPrice" min="0" step="1" placeholder=" ">
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="discount">الخصم</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">➖</span>
+                  <input type="number" id="formPayDiscount" min="0" step="1" placeholder=" ">
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="totalAmount">إجمالي المبلغ</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">💵</span>
+                  <input type="number" id="formPayTotal" min="0" step="1" placeholder=" ">
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="initialPayment">الدفعة الأولى</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">💳</span>
+                  <input type="number" id="formPayInitial" min="0" step="1" placeholder=" ">
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="paidAmount">المبلغ المدفوع</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">✅</span>
+                  <input type="number" id="formPayPaid" min="0" step="1" placeholder=" ">
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="remainingAmount">المبلغ المتبقي</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">📊</span>
+                  <span id="formPayRemaining" class="form-pay-display form-pay-remaining">0 EGP</span>
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="paymentStatus">حالة الدفع</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">🏷️</span>
+                  <span id="formPayStatusDisplay" class="form-pay-display form-pay-status">—</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-premium-footer">
+          <button type="button" class="btn btn-ghost premium-cancel-btn" id="formCancel" data-i18n="cancel">إلغاء</button>
+          <button type="submit" class="btn btn-primary premium-save-btn" id="formSubmit" data-i18n="save">💾 حفظ العميل</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Confirm Modal -->
+  <div class="modal-overlay" id="deleteModal">
+    <div class="modal-container modal-sm">
+      <div class="modal-header">
+        <h2 data-i18n="deleteCustomer">Delete Customer</h2>
+        <button class="modal-close" id="deleteModalClose">✕</button>
+      </div>
+      <div class="modal-body">
+        <p data-i18n="confirmDelete">Are you sure you want to delete this customer?</p>
+        <p class="delete-customer-name" id="deleteCustomerName"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" id="deleteCancel" data-i18n="cancel">Cancel</button>
+        <button type="button" class="btn btn-primary" id="deleteConfirm" style="background:var(--danger);box-shadow:none;" data-i18n="delete">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payment Modal -->
+  <div class="modal-overlay" id="paymentModal">
+    <div class="modal-container modal-sm">
+      <div class="modal-header">
+        <h2 id="payModalTitle" data-i18n="addPayment">Add Payment</h2>
+        <button class="modal-close" id="payModalClose">&#10005;</button>
+      </div>
+      <form id="payForm" novalidate>
+        <div class="modal-body">
+          <div class="details-row">
+            <span class="details-label" data-i18n="remainingAmount">Remaining Amount</span>
+            <span class="details-value" id="payFormRemaining">0 EGP</span>
+          </div>
+          <div class="details-row">
+            <span class="details-label" data-i18n="amount">Amount</span>
+            <input type="number" id="payFormAmount" class="details-input" min="1" required step="1">
+          </div>
+          <div class="details-row">
+            <span class="details-label" data-i18n="paymentMethod">Payment Method</span>
+            <select id="payFormMethod" class="details-select">
+              <option value="cash" data-i18n="cash">Cash</option>
+              <option value="instapay" data-i18n="instapay">InstaPay</option>
+              <option value="bankTransfer" data-i18n="bankTransfer">Bank Transfer</option>
+              <option value="vodafoneCash" data-i18n="vodafoneCash">Vodafone Cash</option>
+              <option value="other" data-i18n="other">Other</option>
+            </select>
+          </div>
+          <div class="details-row">
+            <span class="details-label" data-i18n="date">Date</span>
+            <span class="details-value" id="payFormDateDisplay" style="font-size:13px;color:var(--text-muted)"></span>
+            <input type="date" id="payFormDate" class="details-input" style="margin-top:6px;display:none">
+          </div>
+          <div class="details-row">
+            <span class="details-label" data-i18n="referenceNumber">Reference Number</span>
+            <input type="text" id="payFormReference" class="details-input" placeholder="">
+          </div>
+          <div class="details-row">
+            <span class="details-label" data-i18n="notes">Notes</span>
+            <textarea id="payFormNotes" class="details-input" rows="2" placeholder=" "></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" id="payFormCancel" data-i18n="cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="payFormSubmit" data-i18n="addPayment">Add Payment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="js/i18n.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/customers.js"></script>
+</body>
+</html>

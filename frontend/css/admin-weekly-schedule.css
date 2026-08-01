@@ -1,0 +1,217 @@
+/* Admin Weekly Schedule Styles */
+.weekly-schedule-content {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.schedule-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg-card);
+  padding: 20px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin-bottom: 24px;
+}
+
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.filter-group select {
+  padding: 10px 15px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-width: 150px;
+}
+
+.weekly-schedule-grid {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  margin-bottom: 30px;
+}
+
+.schedule-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background: var(--bg-secondary);
+  border-bottom: 2px solid var(--border-color);
+}
+
+.day-header {
+  padding: 15px 10px;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: center;
+  border-right: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+}
+
+.schedule-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  min-height: 600px;
+}
+
+.day-column {
+  border-right: 1px solid var(--border-color);
+  padding: 10px;
+  background: var(--bg-card);
+  transition: background 0.2s;
+}
+
+.day-column:hover {
+  background: var(--hover-bg);
+}
+
+.day-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+  padding: 8px 12px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-sm);
+  text-align: center;
+}
+
+.day-tasks {
+  min-height: 100px;
+  padding: 10px;
+  overflow-y: auto;
+}
+
+.task-card-schedule {
+  background: var(--bg-card);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  margin-bottom: 10px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.task-card-schedule:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--gold);
+}
+
+.task-title-schedule {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.task-employee-schedule {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.task-deadline-schedule {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--danger);
+  margin-bottom: 6px;
+}
+
+.task-status-badge-schedule {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+}
+
+.status-pending-schedule {
+  background: #FEF3C7;
+  color: #D97706;
+}
+
+.status-in_progress-schedule {
+  background: #DBEAFE;
+  color: #2563EB;
+}
+
+.status-completed-schedule {
+  background: #D1FAE5;
+  color: #059669;
+}
+
+.empty-day {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100px;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-style: italic;
+}
+
+.loading-message-schedule {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-secondary);
+  font-size: 16px;
+  animation: pulse 1.5s infinite;
+}
+
+.empty-state-schedule {
+  text-align: center;
+  padding: 80px 20px;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  border: 2px dashed var(--border-color);
+  margin-top: 40px;
+}
+
+.empty-icon-schedule {
+  font-size: 48px;
+  margin-bottom: 20px;
+  opacity: 0.5;
+}
+
+.empty-state-schedule h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: var(--text-primary);
+}
+
+.empty-state-schedule p {
+  color: var(--text-secondary);
+  margin-bottom: 30px;
+  font-size: 16px;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}

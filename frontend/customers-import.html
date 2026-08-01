@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="importTitle">Al Kayan Al Arabi - Import Wizard</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📥</text></svg>">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/customers-import.css">
+</head>
+<body>
+  <div class="dashboard">
+
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="20" cy="20" r="19.5" stroke="#C9A84C" stroke-width="1.5" fill="none"/>
+            <text x="20" y="24" text-anchor="middle" font-size="12" fill="#C9A84C" font-family="serif">ك</text>
+          </svg>
+        </div>
+        <div class="logo-text"><span>Al Kayan</span> Al Arabi</div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-item" data-nav="dashboard">
+          <span class="nav-icon">📊</span>
+          <span data-i18n="dashboard">Dashboard</span>
+        </div>
+        <div class="nav-item" data-nav="programs">
+          <span class="nav-icon">📚</span>
+          <span data-i18n="programs">Programs</span>
+          <span class="badge">12</span>
+        </div>
+        <div class="nav-item" data-nav="customers">
+          <span class="nav-icon">👥</span>
+          <span data-i18n="customers">Customers</span>
+          <span class="badge">48</span>
+        </div>
+        <div class="nav-item" data-nav="tasks">
+          <span class="nav-icon">✅</span>
+          <span data-i18n="tasks">Tasks</span>
+          <span class="badge">5</span>
+        </div>
+        <div class="nav-item" data-nav="reports">
+          <span class="nav-icon">📈</span>
+          <span data-i18n="reports">Reports</span>
+        </div>
+        <div class="nav-item" data-nav="users">
+          <span class="nav-icon">👤</span>
+          <span data-i18n="users">Users</span>
+        </div>
+        <div class="nav-item" data-nav="settings">
+          <span class="nav-icon">⚙️</span>
+          <span data-i18n="settings">Settings</span>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="avatar" id="userAvatar">A</div>
+          <div>
+            <div class="user-name" id="userName">Admin</div>
+            <div class="user-role" id="userRole">admin</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+
+      <header class="dashboard-header">
+        <div class="header-left">
+          <button class="hamburger" id="hamburger" aria-label="Menu">☰</button>
+          <div>
+            <h1 data-i18n="importTitle">Import Wizard</h1>
+          </div>
+        </div>
+        <div class="header-right">
+          <button class="toggle-btn" id="langToggle2" type="button">
+            <span class="icon">🌐</span>
+            <span>English</span>
+          </button>
+          <button class="theme-toggle" id="themeToggle2" type="button">
+            <span class="icon">☀️</span>
+            <span>Light</span>
+          </button>
+          <button class="header-btn" id="logoutBtn" title="Logout">🚪</button>
+        </div>
+      </header>
+
+      <!-- Stepper -->
+      <div class="import-stepper" id="importStepper">
+        <div class="stepper-step active" data-step="1">
+          <div class="step-number">1</div>
+          <div class="step-info">
+            <span class="step-label" data-i18n="stepSource">Source</span>
+            <span class="step-desc" data-i18n="stepSourceDesc">Choose import source</span>
+          </div>
+        </div>
+        <div class="stepper-connector"></div>
+        <div class="stepper-step" data-step="2">
+          <div class="step-number">2</div>
+          <div class="step-info">
+            <span class="step-label" data-i18n="stepMapping">Mapping</span>
+            <span class="step-desc" data-i18n="stepMappingDesc">Match columns</span>
+          </div>
+        </div>
+        <div class="stepper-connector"></div>
+        <div class="stepper-step" data-step="3">
+          <div class="step-number">3</div>
+          <div class="step-info">
+            <span class="step-label" data-i18n="stepPreview">Preview</span>
+            <span class="step-desc" data-i18n="stepPreviewDesc">Review data</span>
+          </div>
+        </div>
+        <div class="stepper-connector"></div>
+        <div class="stepper-step" data-step="4">
+          <div class="step-number">4</div>
+          <div class="step-info">
+            <span class="step-label" data-i18n="stepImport">Import</span>
+            <span class="step-desc" data-i18n="stepImportDesc">Import to CRM</span>
+          </div>
+        </div>
+        <div class="stepper-connector"></div>
+        <div class="stepper-step" data-step="5">
+          <div class="step-number">5</div>
+          <div class="step-info">
+            <span class="step-label" data-i18n="stepDone">Done</span>
+            <span class="step-desc" data-i18n="stepDoneDesc">Summary</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wizard Content -->
+      <div class="wizard-content" id="wizardContent">
+
+        <!-- Step 1: Source Selection -->
+        <div class="wizard-step active" id="step1">
+          <div class="wizard-step-header">
+            <h2 data-i18n="chooseSource">Choose Import Source</h2>
+            <p data-i18n="chooseSourceDesc">Select where you want to import data from</p>
+          </div>
+          <div class="source-cards">
+            <div class="source-card" data-source="google">
+              <div class="source-icon">
+                <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#C9A84C" stroke-width="1.5">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/>
+                  <path d="M3 9h18M9 3v18"/>
+                </svg>
+              </div>
+              <h3 data-i18n="googleSheets">Google Sheets</h3>
+              <p data-i18n="googleSheetsDesc">Import from a public Google Sheet</p>
+            </div>
+            <div class="source-card" data-source="excel">
+              <div class="source-icon">
+                <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#28A745" stroke-width="1.5">
+                  <rect x="4" y="2" width="16" height="20" rx="2"/>
+                  <path d="M8 8l4 4-4 4M16 8l-4 4 4 4"/>
+                </svg>
+              </div>
+              <h3 data-i18n="excelFile">Excel (.xlsx)</h3>
+              <p data-i18n="excelDesc">Upload an Excel workbook</p>
+            </div>
+            <div class="source-card" data-source="csv">
+              <div class="source-icon">
+                <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#6B7280" stroke-width="1.5">
+                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="8" y1="13" x2="16" y2="13"/>
+                  <line x1="8" y1="17" x2="16" y2="17"/>
+                </svg>
+              </div>
+              <h3 data-i18n="csvFile">CSV File</h3>
+              <p data-i18n="csvDesc">Upload a CSV file</p>
+            </div>
+          </div>
+
+          <!-- Google Sheets input -->
+          <div class="source-input-area" id="googleInput" style="display:none">
+            <div class="input-wrapper import-url-wrapper">
+              <span class="input-icon">🔗</span>
+              <input type="url" id="googleSheetUrl" placeholder="https://docs.google.com/spreadsheets/d/..." data-i18n-placeholder="googlePlaceholder">
+            </div>
+            <button class="btn btn-primary" id="fetchGoogleBtn" data-i18n="fetchSheet">Fetch Sheet</button>
+          </div>
+
+          <!-- File upload area -->
+          <div class="source-input-area" id="fileInput" style="display:none">
+            <div class="drop-zone" id="dropZone">
+              <div class="drop-zone-icon">📂</div>
+              <p data-i18n="dropFile">Drop file here or click to browse</p>
+              <span class="drop-zone-hint" data-i18n="supportedFormats">Supports .xlsx and .csv</span>
+              <input type="file" id="filePicker" accept=".xlsx,.csv" style="display:none">
+              <button class="btn btn-secondary" id="browseBtn" data-i18n="browse">Browse Files</button>
+            </div>
+            <div class="file-info" id="fileInfo" style="display:none">
+              <span class="file-info-icon">📄</span>
+              <span id="fileName"></span>
+              <button class="file-remove" id="fileRemove">✕</button>
+            </div>
+          </div>
+
+          <div class="wizard-nav">
+            <button class="btn btn-primary" id="step1Next" data-i18n="next" disabled>Next</button>
+          </div>
+        </div>
+
+        <!-- Step 2: Column Mapping -->
+        <div class="wizard-step" id="step2">
+          <div class="wizard-step-header">
+            <h2 data-i18n="columnMapping">Column Mapping</h2>
+            <p data-i18n="mappingDesc">Map your columns to CRM fields</p>
+          </div>
+          <div class="mapping-container" id="mappingContainer">
+            <div class="mapping-header">
+              <span data-i18n="yourColumns">Your Columns</span>
+              <span></span>
+              <span data-i18n="crmFields">CRM Fields</span>
+            </div>
+            <div id="mappingRows"></div>
+          </div>
+          <div class="wizard-nav">
+            <button class="btn btn-ghost" id="step2Back" data-i18n="back">Back</button>
+            <button class="btn btn-primary" id="step2Next" data-i18n="next">Next</button>
+          </div>
+        </div>
+
+        <!-- Step 3: Preview -->
+        <div class="wizard-step" id="step3">
+          <div class="wizard-step-header">
+            <h2 data-i18n="previewData">Preview Data</h2>
+            <p data-i18n="previewDesc">Review your data before import</p>
+          </div>
+          <div class="preview-stats" id="previewStats">
+            <div class="preview-stat"><span class="stat-val" id="previewTotal">0</span><span class="stat-lbl" data-i18n="totalRows">Total Rows</span></div>
+            <div class="preview-stat"><span class="stat-val" id="previewValid">0</span><span class="stat-lbl" data-i18n="validRows">Valid</span></div>
+            <div class="preview-stat"><span class="stat-val" id="previewErrors">0</span><span class="stat-lbl" data-i18n="rowsWithErrors">Errors</span></div>
+            <div class="preview-stat"><span class="stat-val" id="previewDuplicates">0</span><span class="stat-lbl" data-i18n="duplicates">Duplicates</span></div>
+          </div>
+          <div class="preview-duplicate-options">
+            <label data-i18n="duplicateBehavior">If duplicate found:</label>
+            <select id="duplicateBehavior">
+              <option value="skip" data-i18n="skipDuplicate">Skip duplicate</option>
+              <option value="update" data-i18n="updateExisting">Update existing customer</option>
+              <option value="create" data-i18n="createAnyway">Create new anyway</option>
+            </select>
+          </div>
+          <div class="preview-table-wrapper">
+            <table class="preview-table" id="previewTable">
+              <thead id="previewHead"></thead>
+              <tbody id="previewBody"></tbody>
+            </table>
+          </div>
+          <div class="wizard-nav">
+            <button class="btn btn-ghost" id="step3Back" data-i18n="back">Back</button>
+            <button class="btn btn-primary" id="step3Next" data-i18n="startImport">Start Import</button>
+          </div>
+        </div>
+
+        <!-- Step 4: Import Progress -->
+        <div class="wizard-step" id="step4">
+          <div class="wizard-step-header">
+            <h2 data-i18n="importing">Importing Data</h2>
+            <p data-i18n="importingDesc">Please wait while your data is being imported</p>
+          </div>
+          <div class="import-progress">
+            <div class="progress-ring" id="progressRing">
+              <svg viewBox="0 0 120 120" class="progress-svg">
+                <circle cx="60" cy="60" r="52" class="progress-track"/>
+                <circle cx="60" cy="60" r="52" class="progress-fill" id="progressFill"/>
+              </svg>
+              <div class="progress-text">
+                <span id="progressPercent">0%</span>
+              </div>
+            </div>
+            <div class="progress-details">
+              <span id="progressCount">0 / 0</span>
+              <span data-i18n="rowsImported">rows imported</span>
+            </div>
+            <div class="progress-bar-wrapper">
+              <div class="progress-bar" id="progressBar"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 5: Done / Summary -->
+        <div class="wizard-step" id="step5">
+          <div class="wizard-step-header">
+            <h2 data-i18n="importComplete">Import Complete</h2>
+            <p data-i18n="importCompleteDesc">Here is your import summary</p>
+          </div>
+          <div class="summary-grid" id="summaryGrid">
+            <div class="summary-card success">
+              <div class="summary-icon">✅</div>
+              <span class="summary-number" id="summaryImported">0</span>
+              <span class="summary-label" data-i18n="importedSuccessfully">Imported Successfully</span>
+            </div>
+            <div class="summary-card warning">
+              <div class="summary-icon">⏭️</div>
+              <span class="summary-number" id="summarySkipped">0</span>
+              <span class="summary-label" data-i18n="duplicatesSkipped">Duplicates Skipped</span>
+            </div>
+            <div class="summary-card info">
+              <div class="summary-icon">🔄</div>
+              <span class="summary-number" id="summaryUpdated">0</span>
+              <span class="summary-label" data-i18n="updatedCustomers">Updated Customers</span>
+            </div>
+            <div class="summary-card danger">
+              <div class="summary-icon">❌</div>
+              <span class="summary-number" id="summaryErrors">0</span>
+              <span class="summary-label" data-i18n="failedRows">Failed Rows</span>
+            </div>
+          </div>
+          <div class="summary-actions">
+            <button class="btn btn-primary" id="doneBtn" data-i18n="finish">Finish</button>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- SheetJS for Excel parsing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/customers-import.js"></script>
+</body>
+</html>

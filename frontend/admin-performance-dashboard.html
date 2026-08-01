@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="title">Al Kayan Al Arabi - Admin Performance Dashboard</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📈</text></svg>">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/admin-performance-dashboard.css">
+</head>
+<body>
+  <div class="dashboard">
+
+    <!-- Sidebar Backdrop -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="20" cy="20" r="19.5" stroke="#C9A84C" stroke-width="1.5" fill="none"/>
+            <text x="20" y="24" text-anchor="middle" font-size="12" fill="#C9A84C" font-family="serif">ك</text>
+          </svg>
+        </div>
+        <div class="logo-text"><span>Al Kayan</span> Al Arabi</div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-item" data-nav="dashboard">
+          <span class="nav-icon">📊</span>
+          <span data-i18n="dashboard">Dashboard</span>
+        </div>
+        <div class="nav-item" data-nav="programs">
+          <span class="nav-icon">📚</span>
+          <span data-i18n="programs">Programs</span>
+          <span class="badge">12</span>
+        </div>
+        <div class="nav-item" data-nav="customers">
+          <span class="nav-icon">👥</span>
+          <span data-i18n="customers">Customers</span>
+          <span class="badge">48</span>
+        </div>
+        <div class="nav-item" data-nav="tasks">
+          <span class="nav-icon">✅</span>
+          <span data-i18n="tasks">Tasks</span>
+          <span class="badge">5</span>
+        </div>
+        <div class="nav-item" data-nav="weekly-schedule">
+          <span class="nav-icon">📅</span>
+          <span data-i18n="weeklySchedule">Weekly Schedule</span>
+        </div>
+        <div class="nav-item active" data-nav="performance">
+          <span class="nav-icon">📈</span>
+          <span data-i18n="performance">Performance</span>
+        </div>
+        <div class="nav-item" data-nav="reports">
+          <span class="nav-icon">📈</span>
+          <span data-i18n="reports">Reports</span>
+        </div>
+        <div class="nav-item" data-nav="users">
+          <span class="nav-icon">👤</span>
+          <span data-i18n="users">Users</span>
+        </div>
+        <div class="nav-item" data-nav="settings">
+          <span class="nav-icon">⚙️</span>
+          <span data-i18n="settings">Settings</span>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="avatar" id="userAvatar">A</div>
+          <div>
+            <div class="user-name" id="userName">Admin Name</div>
+            <div class="user-role" id="userRole">admin</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+      <!-- Header -->
+      <header class="dashboard-header">
+        <div class="header-left">
+          <button class="hamburger" id="hamburger" aria-label="Menu">☰</button>
+          <div>
+            <h1 data-i18n="performanceTitle">Admin Performance Dashboard</h1>
+            <p class="welcome-text">Comprehensive performance tracking and analytics</p>
+          </div>
+        </div>
+        <div class="header-right">
+          <button class="toggle-btn" id="langToggle2" type="button">
+            <span class="icon">🌐</span>
+            <span>English</span>
+          </button>
+          <button class="theme-toggle" id="themeToggle2" type="button">
+            <span class="icon">☀️</span>
+            <span>Light</span>
+          </button>
+          <button class="header-btn" id="logoutBtn" title="Logout">🚪</button>
+        </div>
+      </header>
+
+      <!-- Performance Dashboard Content -->
+      <div class="performance-dashboard-content">
+        <!-- Period Selector -->
+        <div class="period-selector">
+          <button class="period-btn active" data-period="today">Today</button>
+          <button class="period-btn" data-period="thisWeek">This Week</button>
+          <button class="period-btn" data-period="lastWeek">Last Week</button>
+          <button class="period-btn" data-period="thisMonth">This Month</button>
+          <button class="period-btn" data-period="lastMonth">Last Month</button>
+          <button class="period-btn" data-period="thisYear">This Year</button>
+          <button class="period-btn" data-period="previousYears">Previous Years</button>
+        </div>
+
+        <!-- Statistics Grid -->
+        <div class="statistics-grid">
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <h3>Total Tasks</h3>
+              <span class="stat-icon">📋</span>
+            </div>
+            <div class="stat-value" id="totalTasksStat">0</div>
+            <div class="stat-change positive">
+              <span class="change-arrow">↑</span>
+              <span class="change-text">From previous period</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <h3>Completed Tasks</h3>
+              <span class="stat-icon">✅</span>
+            </div>
+            <div class="stat-value" id="completedTasksStat">0</div>
+            <div class="stat-change positive">
+              <span class="change-arrow">↑</span>
+              <span class="change-text">From previous period</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <h3>Pending Tasks</h3>
+              <span class="stat-icon">⏳</span>
+            </div>
+            <div class="stat-value" id="pendingTasksStat">0</div>
+            <div class="stat-change negative">
+              <span class="change-arrow">↓</span>
+              <span class="change-text">From previous period</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <h3>Late Tasks</h3>
+              <span class="stat-icon">⚠️</span>
+            </div>
+            <div class="stat-value" id="lateTasksStat">0</div>
+            <div class="stat-change positive">
+              <span class="change-arrow">↑</span>
+              <span class="change-text">From previous period</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <h3>Completion Rate</h3>
+              <span class="stat-icon">📊</span>
+            </div>
+            <div class="stat-value" id="completionRateStat">0%</div>
+            <div class="stat-change positive">
+              <span class="change-arrow">↑</span>
+              <span class="change-text">From previous period</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <h3>Goal Completion Rate</h3>
+              <span class="stat-icon">🎯</span>
+            </div>
+            <div class="stat-value" id="goalCompletionRateStat">0%</div>
+            <div class="stat-change positive">
+              <span class="change-arrow">↑</span>
+              <span class="change-text">From previous period</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-section">
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3>Tasks Distribution by Status</h3>
+            </div>
+            <div class="chart-container" id="statusChartContainer">
+              <div class="chart-placeholder">
+                <div class="placeholder-icon">📊</div>
+                <p>Chart will be rendered here</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3>Tasks Trend Over Time</h3>
+            </div>
+            <div class="chart-container" id="trendChartContainer">
+              <div class="chart-placeholder">
+                <div class="placeholder-icon">📈</div>
+                <p>Chart will be rendered here</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Employee Performance Section -->
+        <div class="employee-performance-section">
+          <div class="section-header">
+            <h3>Employee Performance</h3>
+            <button class="btn-outline" id="toggleEmployeeTable">Toggle Details</button>
+          </div>
+          <div class="employee-performance-table" id="employeePerformanceTable">
+            <div class="table-header">
+              <div class="header-cell">Employee Name</div>
+              <div class="header-cell">Tasks Completed</div>
+              <div class="header-cell">Tasks Created</div>
+              <div class="header-cell">Completion Rate</div>
+              <div class="header-cell">Avg Tasks Per Day</div>
+              <div class="header-cell">Performance Score</div>
+            </div>
+            <div class="table-body" id="employeeTableBody">
+              <div class="loading-row">
+                <div class="loading-message">Loading employee performance data...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Goal Completion Section -->
+        <div class="goal-completion-section">
+          <div class="section-header">
+            <h3>Goal Completion Statistics</h3>
+            <button class="btn-outline" id="toggleGoalDetails">Toggle Details</button>
+          </div>
+          <div class="goal-completion-grid" id="goalCompletionGrid">
+            <div class="goal-completion-card">
+              <div class="goal-completion-icon">🎯</div>
+              <div class="goal-completion-content">
+                <h4>Daily Goals</h4>
+                <div class="goal-completion-stats">
+                  <div class="goal-stat">
+                    <span class="stat-label">Set:</span>
+                    <span class="stat-value" id="dailyGoalsSet">0</span>
+                  </div>
+                  <div class="goal-stat">
+                    <span class="stat-label">Completed:</span>
+                    <span class="stat-value" id="dailyGoalsCompleted">0</span>
+                  </div>
+                  <div class="goal-stat">
+                    <span class="stat-label">Rate:</span>
+                    <span class="stat-value" id="dailyGoalsRate">0%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="goal-completion-card">
+              <div class="goal-completion-icon">🗓</div>
+              <div class="goal-completion-content">
+                <h4>Weekly Goals</h4>
+                <div class="goal-completion-stats">
+                  <div class="goal-stat">
+                    <span class="stat-label">Set:</span>
+                    <span class="stat-value" id="weeklyGoalsSet">0</span>
+                  </div>
+                  <div class="goal-stat">
+                    <span class="stat-label">Completed:</span>
+                    <span class="stat-value" id="weeklyGoalsCompleted">0</span>
+                  </div>
+                  <div class="goal-stat">
+                    <span class="stat-label">Rate:</span>
+                    <span class="stat-value" id="weeklyGoalsRate">0%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="goal-completion-card">
+              <div class="goal-completion-icon">🗓🗓</div>
+              <div class="goal-completion-content">
+                <h4>Monthly Goals</h4>
+                <div class="goal-completion-stats">
+                  <div class="goal-stat">
+                    <span class="stat-label">Set:</span>
+                    <span class="stat-value" id="monthlyGoalsSet">0</span>
+                  </div>
+                  <div class="goal-stat">
+                    <span class="stat-label">Completed:</span>
+                    <span class="stat-value" id="monthlyGoalsCompleted">0</span>
+                  </div>
+                  <div class="goal-stat">
+                    <span class="stat-label">Rate:</span>
+                    <span class="stat-value" id="monthlyGoalsRate">0%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Analytics Modal -->
+      <div class="modal" id="analyticsModal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2>Performance Analytics</h2>
+            <button class="modal-close" id="closeAnalyticsModal">&times;</button>
+          </div>
+          <div class="modal-body">
+            <div id="analyticsContent">
+              <!-- Analytics content will be loaded dynamically -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <script src="js/i18n.js"></script>
+      <script src="js/theme.js"></script>
+      <script src="js/admin-performance-dashboard.js"></script>
+    </main>
+  </div>
+</body>
+</html>

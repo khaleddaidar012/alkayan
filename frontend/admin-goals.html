@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="title">Al Kayan Al Arabi - Admin Goals Management</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/admin-goals.css">
+</head>
+<body>
+  <div class="dashboard">
+
+    <!-- Sidebar Backdrop -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="20" cy="20" r="19.5" stroke="#C9A84C" stroke-width="1.5" fill="none"/>
+            <text x="20" y="24" text-anchor="middle" font-size="12" fill="#C9A84C" font-family="serif">ك</text>
+          </svg>
+        </div>
+        <div class="logo-text"><span>Al Kayan</span> Al Arabi</div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-item" data-nav="dashboard">
+          <span class="nav-icon">📊</span>
+          <span data-i18n="dashboard">Dashboard</span>
+        </div>
+        <div class="nav-item" data-nav="programs">
+          <span class="nav-icon">📚</span>
+          <span data-i18n="programs">Programs</span>
+          <span class="badge">12</span>
+        </div>
+        <div class="nav-item" data-nav="customers">
+          <span class="nav-icon">👥</span>
+          <span data-i18n="customers">Customers</span>
+          <span class="badge">48</span>
+        </div>
+        <div class="nav-item" data-nav="tasks">
+          <span class="nav-icon">✅</span>
+          <span data-i18n="tasks">Tasks</span>
+          <span class="badge">5</span>
+        </div>
+        <div class="nav-item active" data-nav="goals">
+          <span class="nav-icon">🎯</span>
+          <span data-i18n="goals">Goals</span>
+          <span class="badge">8</span>
+        </div>
+        <div class="nav-item" data-nav="reports">
+          <span class="nav-icon">📈</span>
+          <span data-i18n="reports">Reports</span>
+        </div>
+        <div class="nav-item" data-nav="users">
+          <span class="nav-icon">👤</span>
+          <span data-i18n="users">Users</span>
+        </div>
+        <div class="nav-item" data-nav="settings">
+          <span class="nav-icon">⚙️</span>
+          <span data-i18n="settings">Settings</span>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="avatar" id="userAvatar">A</div>
+          <div>
+            <div class="user-name" id="userName">Admin Name</div>
+            <div class="user-role" id="userRole">admin</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+      <!-- Header -->
+      <header class="dashboard-header">
+        <div class="header-left">
+          <button class="hamburger" id="hamburger" aria-label="Menu">☰</button>
+          <div>
+            <h1 data-i18n="goalsTitle">Admin Goals Management</h1>
+            <p class="welcome-text">Create and manage employee goals and track completion</p>
+          </div>
+        </div>
+        <div class="header-right">
+          <button class="toggle-btn" id="langToggle2" type="button">
+            <span class="icon">🌐</span>
+            <span>English</span>
+          </button>
+          <button class="theme-toggle" id="themeToggle2" type="button">
+            <span class="icon">☀️</span>
+            <span>Light</span>
+          </button>
+          <button class="header-btn" id="logoutBtn" title="Logout">🚪</button>
+        </div>
+      </header>
+
+      <!-- Goals Content -->
+      <div class="admin-goals-content">
+        <!-- Goals Toolbar -->
+        <div class="goals-toolbar">
+          <div class="toolbar-left">
+            <button class="btn-primary" id="addGoalBtn" data-i18n="addGoal">Add New Goal</button>
+            <div class="search-box">
+              <input type="text" id="goalSearch" placeholder="Search goals..." data-i18n-placeholder="searchGoals">
+              <button id="searchBtn">🔍</button>
+            </div>
+          </div>
+          <div class="toolbar-right">
+            <div class="filter-group">
+              <select id="employeeFilter">
+                <option value="">All Employees</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <select id="periodFilter">
+                <option value="">All Periods</option>
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+                <option value="yearly">Yearly</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <select id="completedFilter">
+                <option value="">All Status</option>
+                <option value="true">Completed</option>
+                <option value="false">Not Completed</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Goals Grid -->
+        <div class="goals-grid" id="goalsGrid">
+          <!-- Goals will be loaded dynamically -->
+          <div class="loading-message">Loading goals...</div>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+          <div class="empty-icon">🎯</div>
+          <h3>No Goals Found</h3>
+          <p>Start creating goals for your employees</p>
+          <button class="btn-primary" id="addGoalFromEmpty">Add Your First Goal</button>
+        </div>
+      </div>
+    </main>
+
+    <!-- Add/Edit Goal Modal -->
+    <div class="modal" id="goalModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Add New Goal</h2>
+          <button class="modal-close" id="closeGoalModal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form id="goalForm">
+            <div class="form-group">
+              <label>Goal Title</label>
+              <input type="text" name="title" required>
+            </div>
+            <div class="form-group">
+              <label>Employee</label>
+              <select name="employee" required>
+                <option value="">Select Employee</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Period</label>
+              <select name="period" required>
+                <option value="">Select Period</option>
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+                <option value="yearly">Yearly</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Description</label>
+              <textarea name="description" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+              <label>Checklist Items</label>
+              <div id="goalChecklistContainer">
+                <div class="checklist-item">
+                  <input type="text" name="checklist[0]" placeholder="Enter checklist item">
+                  <button type="button" class="btn-remove-checklist" onclick="removeChecklistItem(this)">×</button>
+                </div>
+              </div>
+              <button type="button" class="btn-secondary" onclick="addChecklistItem()" style="margin-top: 10px;">Add Checklist Item</button>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn-secondary" id="cancelGoal">Cancel</button>
+              <button type="submit" class="btn-primary">Save Goal</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/i18n.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/admin-goals.js"></script>
+  </div>
+</body>
+</html>

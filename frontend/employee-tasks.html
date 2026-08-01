@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="title">Al Kayan Al Arabi - Employee Tasks Dashboard</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/employee-tasks.css">
+</head>
+<body>
+  <div class="dashboard">
+
+    <!-- Sidebar Backdrop -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="20" cy="20" r="19.5" stroke="#C9A84C" stroke-width="1.5" fill="none"/>
+            <text x="20" y="24" text-anchor="middle" font-size="12" fill="#C9A84C" font-family="serif">ك</text>
+          </svg>
+        </div>
+        <div class="logo-text"><span>Al Kayan</span> Al Arabi</div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-item" data-nav="dashboard">
+          <span class="nav-icon">📊</span>
+          <span data-i18n="dashboard">Dashboard</span>
+        </div>
+        <div class="nav-item" data-nav="programs">
+          <span class="nav-icon">📚</span>
+          <span data-i18n="programs">Programs</span>
+          <span class="badge">12</span>
+        </div>
+        <div class="nav-item" data-nav="customers">
+          <span class="nav-icon">👥</span>
+          <span data-i18n="customers">Customers</span>
+          <span class="badge">48</span>
+        </div>
+        <div class="nav-item active" data-nav="tasks">
+          <span class="nav-icon">✅</span>
+          <span data-i18n="tasks">Tasks</span>
+          <span class="badge">5</span>
+        </div>
+        <div class="nav-item" data-nav="reports">
+          <span class="nav-icon">📈</span>
+          <span data-i18n="reports">Reports</span>
+        </div>
+        <div class="nav-item" data-nav="users">
+          <span class="nav-icon">👤</span>
+          <span data-i18n="users">Users</span>
+        </div>
+        <div class="nav-item" data-nav="settings">
+          <span class="nav-icon">⚙️</span>
+          <span data-i18n="settings">Settings</span>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="avatar" id="userAvatar">E</div>
+          <div>
+            <div class="user-name" id="userName">Employe Name</div>
+            <div class="user-role" id="userRole">employee</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+      <!-- Header -->
+      <header class="dashboard-header">
+        <div class="header-left">
+          <button class="hamburger" id="hamburger" aria-label="Menu">☰</button>
+          <div>
+            <h1 data-i18n="tasksDashboard">Employee Tasks Dashboard</h1>
+            <p class="welcome-text">View your assigned tasks and track your progress</p>
+          </div>
+        </div>
+        <div class="header-right">
+          <button class="toggle-btn" id="langToggle2" type="button">
+            <span class="icon">🌐</span>
+            <span>English</span>
+          </button>
+          <button class="theme-toggle" id="themeToggle2" type="button">
+            <span class="icon">☀️</span>
+            <span>Light</span>
+          </button>
+          <button class="header-btn" id="logoutBtn" title="Logout">🚪</button>
+        </div>
+      </header>
+
+      <!-- Tasks Dashboard -->
+      <div class="employee-tasks-dashboard">
+        <!-- Today's Tasks -->
+        <div class="tasks-section">
+          <h2>Today's Tasks</h2>
+          <div class="tasks-grid" id="todayTasksGrid">
+            <!-- Today's tasks will be loaded dynamically -->
+            <div class="loading-message">Loading today's tasks...</div>
+          </div>
+        </div>
+
+        <!-- This Week's Tasks -->
+        <div class="tasks-section">
+          <h2>This Week's Tasks</h2>
+          <div class="tasks-grid" id="weekTasksGrid">
+            <!-- This week's tasks will be loaded dynamically -->
+            <div class="loading-message">Loading this week's tasks...</div>
+          </div>
+        </div>
+
+        <!-- Completed Tasks -->
+        <div class="tasks-section">
+          <h2>Completed Tasks</h2>
+          <div class="tasks-grid" id="completedTasksGrid">
+            <!-- Completed tasks will be loaded dynamically -->
+            <div class="loading-message">Loading completed tasks...</div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Task Details Modal -->
+    <div class="modal" id="taskDetailsModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Task Details</h2>
+          <button class="modal-close" id="closeTaskDetailsModal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div id="taskDetailsContent">
+            <!-- Task details will be loaded dynamically -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Proof Submission Modal -->
+    <div class="modal" id="proofModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Submit Proof of Completion</h2>
+          <button class="modal-close" id="closeProofModal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form id="proofForm">
+            <input type="hidden" id="proofTaskId">
+            <div class="form-group">
+              <label>Proof Type</label>
+              <select id="proofType" required>
+                <option value="">Select Proof Type</option>
+                <option value="text">Text Description</option>
+                <option value="image">Image/Screenshot</option>
+              </select>
+            </div>
+            <div class="form-group" id="textProofGroup" style="display: none;">
+              <label>Text Explanation</label>
+              <textarea id="textProof" rows="5" placeholder="Enter your proof explanation..."></textarea>
+            </div>
+            <div class="form-group" id="imageProofGroup" style="display: none;">
+              <label>Upload Image</label>
+              <input type="file" id="imageProof" accept="image/*">
+              <div class="image-preview" id="imagePreview"></div>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn-secondary" id="cancelProof">Cancel</button>
+              <button type="submit" class="btn-primary">Submit Proof</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/i18n.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/employee-tasks.js"></script>
+  </div>
+</body>
+</html>

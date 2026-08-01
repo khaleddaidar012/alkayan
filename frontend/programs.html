@@ -1,0 +1,757 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="title">Al Kayan Al Arabi - Programs</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌟</text></svg>">
+<link rel="stylesheet" href="css/style.css?v=5">
+<link rel="stylesheet" href="css/dashboard.css?v=5">
+<link rel="stylesheet" href="css/customers.css?v=5">
+<link rel="stylesheet" href="css/programs.css?v=5">
+</head>
+<body>
+  <div class="dashboard">
+
+    <!-- Sidebar Backdrop -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="20" cy="20" r="19.5" stroke="#C9A84C" stroke-width="1.5" fill="none"/>
+            <text x="20" y="24" text-anchor="middle" font-size="12" fill="#C9A84C" font-family="serif">ك</text>
+          </svg>
+        </div>
+        <div class="logo-text"><span>Al Kayan</span> Al Arabi</div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-item" data-nav="dashboard">
+          <span class="nav-icon">📊</span>
+          <span data-i18n="dashboard">Dashboard</span>
+        </div>
+        <div class="nav-item active" data-nav="programs">
+          <span class="nav-icon">📚</span>
+          <span data-i18n="programs">Programs</span>
+          <span class="badge">0</span>
+        </div>
+        <div class="nav-item" data-nav="customers">
+          <span class="nav-icon">👥</span>
+          <span data-i18n="customers">Customers</span>
+          <span class="badge">0</span>
+        </div>
+        <div class="nav-item" data-nav="tasks">
+          <span class="nav-icon">✅</span>
+          <span data-i18n="tasks">Tasks</span>
+          <span class="badge">0</span>
+        </div>
+        <div class="nav-item" data-nav="reports">
+          <span class="nav-icon">📈</span>
+          <span data-i18n="reports">Reports</span>
+        </div>
+        <div class="nav-item" data-nav="users">
+          <span class="nav-icon">👤</span>
+          <span data-i18n="users">Users</span>
+        </div>
+        <div class="nav-item" data-nav="settings">
+          <span class="nav-icon">⚙️</span>
+          <span data-i18n="settings">Settings</span>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="avatar" id="userAvatar">A</div>
+          <div>
+            <div class="user-name" id="userName">Admin</div>
+            <div class="user-role" id="userRole">admin</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+      <!-- Header -->
+      <header class="dashboard-header">
+        <div class="header-left">
+          <button class="hamburger" id="hamburger" aria-label="Menu">☰</button>
+          <div>
+            <h1 data-i18n="title">Programs</h1>
+          </div>
+        </div>
+        <div class="header-right">
+          <button class="toggle-btn" id="langToggle2" type="button">
+            <span class="icon">🌐</span>
+            <span>English</span>
+          </button>
+          <button class="theme-toggle" id="themeToggle2" type="button">
+            <span class="icon">☀️</span>
+            <span>Light</span>
+          </button>
+          <button class="header-btn" id="logoutBtn" title="Logout">🚪</button>
+        </div>
+      </header>
+
+      <!-- Toolbar -->
+      <div class="customers-toolbar">
+        <div class="customers-search">
+          <span class="customers-search-icon">🔍</span>
+          <input type="text" id="searchInput" data-i18n-placeholder="search" placeholder="Search programs...">
+        </div>
+        <button class="btn btn-primary" id="addProgramBtn">
+          <span>＋</span>
+          <span data-i18n="addProgram">Add Program</span>
+        </button>
+        <button class="btn btn-ghost" id="importProgramsBtn" style="margin-inline-start:8px">
+          <span>📥</span>
+          <span data-i18n="import">Import</span>
+        </button>
+        <button class="btn btn-ghost" id="exportProgramsBtn" style="margin-inline-start:4px">
+          <span>📤</span>
+          <span data-i18n="export">Export</span>
+        </button>
+      </div>
+
+      <!-- Stats -->
+      <div class="customers-stats" id="programsStats">
+        <div class="stat-card" data-stat="total">
+          <div class="stat-icon">📚</div>
+          <div class="stat-info">
+            <span class="stat-number" id="statTotal">0</span>
+            <span class="stat-label" data-i18n="totalPrograms">Total Programs</span>
+          </div>
+        </div>
+        <div class="stat-card" data-stat="active">
+          <div class="stat-icon stat-icon-green">✅</div>
+          <div class="stat-info">
+            <span class="stat-number" id="statActive">0</span>
+            <span class="stat-label" data-i18n="activePrograms">Active</span>
+          </div>
+        </div>
+        <div class="stat-card" data-stat="customers">
+          <div class="stat-icon stat-icon-gold">👥</div>
+          <div class="stat-info">
+            <span class="stat-number" id="statTotalCustomers">0</span>
+            <span class="stat-label" data-i18n="totalEnrollments">Total Enrollments</span>
+          </div>
+        </div>
+        <div class="stat-card" data-stat="campaigns">
+          <div class="stat-icon stat-icon-blue">📢</div>
+          <div class="stat-info">
+            <span class="stat-number" id="statActiveCampaigns">0</span>
+            <span class="stat-label" data-i18n="activeCampaigns">Active Campaigns</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="customers-filters" id="filtersBar">
+        <div class="filter-group">
+          <select id="filterStatus" data-i18n-placeholder="filterStatus">
+            <option value="" data-i18n="allStatuses">All Statuses</option>
+            <option value="active" data-i18n="active">Active</option>
+            <option value="completed" data-i18n="completed">Completed</option>
+            <option value="cancelled" data-i18n="cancelled">Cancelled</option>
+            <option value="draft" data-i18n="draft">Draft</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Card Grid -->
+      <div class="programs-grid" id="programsGrid">
+      </div>
+
+      <!-- Empty State -->
+      <div class="customers-empty" id="programsEmpty">
+        <div class="customers-empty-icon">📚</div>
+        <h3 data-i18n="noProgramsTitle">No programs available</h3>
+        <p data-i18n="noPrograms">Get started by creating your first program.</p>
+        <button class="btn btn-primary" id="emptyAddProgramBtn">
+          <span>＋</span>
+          <span data-i18n="addProgram">Create Program</span>
+        </button>
+      </div>
+
+      <!-- Error State -->
+      <div class="customers-error" id="programsError" style="display:none;">
+        <div class="customers-error-icon">⚠️</div>
+        <p data-i18n="loadError">Failed to load programs</p>
+        <button class="btn btn-primary" id="retryBtn">🔄 <span data-i18n="retry">Retry</span></button>
+      </div>
+
+      <!-- Program Details View (hidden by default) -->
+      <div class="program-details" id="programDetails" style="display:none;">
+        <button class="btn btn-ghost" id="backToListBtn">
+          <span>←</span>
+          <span data-i18n="back">Back</span>
+        </button>
+        <div id="detailsContent">
+        </div>
+      </div>
+
+      <!-- Campaign Details View (hidden by default) -->
+      <div class="program-details" id="campaignDetails" style="display:none;">
+        <button class="btn btn-ghost" id="backToProgramBtn">
+          <span>←</span>
+          <span data-i18n="back">Back</span>
+        </button>
+        <div id="campaignDetailsContent">
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Add Program Modal -->
+  <div class="modal-overlay" id="programModal">
+    <div class="modal-container modal-premium">
+      <div class="modal-premium-header">
+        <div class="modal-premium-header-left">
+          <div class="modal-premium-icon">📚</div>
+          <div>
+            <h2 id="modalTitle" data-i18n="addProgram">Add Program</h2>
+            <p class="modal-premium-subtitle" data-i18n="addProgramSubtitle">Enter program details</p>
+          </div>
+        </div>
+        <button class="modal-premium-close" id="modalClose">✕</button>
+      </div>
+      <form id="programForm" novalidate>
+        <div class="modal-premium-body">
+          <div class="modal-section">
+            <div class="modal-section-title">
+              <span class="modal-section-icon">📋</span>
+              <span data-i18n="programInfo">Program Info</span>
+            </div>
+            <div class="modal-two-col">
+              <div class="form-group-premium">
+                <label data-i18n="name">Name</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">📚</span>
+                  <input type="text" id="formName" required placeholder=" ">
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="price">Price</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">💰</span>
+                  <input type="number" id="formPrice" min="0" placeholder=" ">
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="duration">Duration</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">⏱️</span>
+                  <input type="text" id="formDuration" placeholder="e.g. 3 months">
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="instructor">Instructor</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">👨‍🏫</span>
+                  <input type="text" id="formInstructor" placeholder=" ">
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="startDate">Start Date</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">📅</span>
+                  <input type="date" id="formStartDate" required placeholder=" ">
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="endDate">End Date</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">📅</span>
+                  <input type="date" id="formEndDate" required placeholder=" ">
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="capacity">Capacity</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">👥</span>
+                  <input type="number" id="formCapacity" min="1" placeholder=" ">
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="status">Status</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">🏷️</span>
+                  <select id="formStatus">
+                    <option value="draft" data-i18n="draft">Draft</option>
+                    <option value="active" data-i18n="active">Active</option>
+                    <option value="completed" data-i18n="completed">Completed</option>
+                    <option value="cancelled" data-i18n="cancelled">Cancelled</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-section">
+            <div class="modal-section-title">
+              <span class="modal-section-icon">📝</span>
+              <span data-i18n="description">Description</span>
+            </div>
+            <div class="input-wrapper">
+              <span class="input-icon input-icon-textarea">📝</span>
+              <textarea id="formDescription" rows="4" placeholder=" "></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-premium-footer">
+          <button type="button" class="btn btn-ghost premium-cancel-btn" id="formCancel" data-i18n="cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary premium-save-btn" id="formSubmit" data-i18n="save">💾 Save Program</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Customer from Campaign Modal -->
+  <div class="modal-overlay" id="customerModal">
+    <div class="modal-container modal-premium">
+      <div class="modal-premium-header">
+        <div class="modal-premium-header-left">
+          <div class="modal-premium-icon">👤</div>
+          <div>
+            <h2 id="customerModalTitle" data-i18n="addCustomer">Add Customer</h2>
+            <p class="modal-premium-subtitle" data-i18n="addCustomerSubtitle">Enter customer information</p>
+          </div>
+        </div>
+        <button class="modal-premium-close" id="customerModalClose">✕</button>
+      </div>
+      <form id="customerForm" novalidate>
+        <div class="modal-premium-body">
+          <div class="modal-section">
+            <div class="modal-section-title">
+              <span class="modal-section-icon">📞</span>
+              <span data-i18n="contactSection">Contact Information</span>
+            </div>
+            <div class="modal-two-col">
+              <div class="form-group-premium">
+                <label data-i18n="name">Name</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">👤</span>
+                  <input type="text" id="custFormName" required placeholder=" ">
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="phone">Phone</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">📱</span>
+                  <input type="text" id="custFormPhone" required placeholder=" ">
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="whatsapp">WhatsApp</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">💬</span>
+                  <input type="text" id="custFormWhatsapp" placeholder=" ">
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="email">Email</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">✉️</span>
+                  <input type="email" id="custFormEmail" placeholder=" ">
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="address">Address</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">📍</span>
+                  <input type="text" id="custFormAddress" placeholder=" ">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-section">
+            <div class="modal-section-title">
+              <span class="modal-section-icon">📋</span>
+              <span data-i18n="registrationSection">Registration Details</span>
+            </div>
+            <div class="modal-two-col">
+              <div class="form-group-premium">
+                <label data-i18n="program">Program</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">📚</span>
+                  <input type="text" id="custFormProgram" readonly placeholder=" " style="opacity:0.7">
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="assignedEmployee">Assigned Employee</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">👨‍💼</span>
+                  <select id="custFormEmployee">
+                    <option value="" data-i18n="none">None</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="status">Status</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">🏷️</span>
+                  <select id="custFormStatus">
+                    <option value="potential" data-i18n="potential">Potential</option>
+                    <option value="subscribed" data-i18n="subscribed">Subscribed</option>
+                    <option value="thinking" data-i18n="thinking">Thinking</option>
+                    <option value="noResponse" data-i18n="noResponse">No Response</option>
+                    <option value="rejected" data-i18n="rejected">Rejected</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="registrationDate">Registration Date</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">📅</span>
+                  <input type="date" id="custFormDate">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-section">
+            <div class="modal-section-title">
+              <span class="modal-section-icon">📝</span>
+              <span data-i18n="notesSection">Notes</span>
+            </div>
+            <div class="input-wrapper">
+              <span class="input-icon input-icon-textarea">📝</span>
+              <textarea id="custFormNotes" rows="3" placeholder=" "></textarea>
+            </div>
+          </div>
+          <!-- Payment Section (shown when status = subscribed) -->
+          <div class="modal-section" id="custFormPaymentSection" style="display:none;">
+            <div class="modal-section-title">
+              <span class="modal-section-icon">💰</span>
+              <span data-i18n="payment">Payment</span>
+            </div>
+            <div class="modal-two-col">
+              <div class="form-group-premium" id="custFormProgramPriceWrap" style="grid-column:1/-1;display:none">
+                <label data-i18n="programPrice">Program Price</label>
+                <div id="custFormProgramPrice" class="program-campaign-price"></div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="amount">Payment Amount</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">💵</span>
+                  <input type="number" id="custFormPayAmount" min="0" step="1" placeholder=" ">
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="paymentMethod">Payment Method</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">💳</span>
+                  <select id="custFormPayMethod">
+                    <option value="cash" data-i18n="cash">Cash</option>
+                    <option value="instapay" data-i18n="instapay">InstaPay</option>
+                    <option value="bankTransfer" data-i18n="bankTransfer">Bank Transfer</option>
+                    <option value="vodafoneCash" data-i18n="vodafoneCash">Vodafone Cash</option>
+                    <option value="other" data-i18n="other">Other</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group-premium" style="grid-column:1/-1">
+                <label data-i18n="notes">Payment Notes</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">📝</span>
+                  <input type="text" id="custFormPayNotes" placeholder=" ">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-premium-footer">
+          <button type="button" class="btn btn-ghost premium-cancel-btn" id="customerFormCancel" data-i18n="cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary premium-save-btn" id="customerFormSubmit" data-i18n="save">💾 Save Customer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Campaign Modal -->
+  <div class="modal-overlay" id="campaignModal">
+    <div class="modal-container modal-premium">
+      <div class="modal-premium-header">
+        <div class="modal-premium-header-left">
+          <div class="modal-premium-icon">📢</div>
+          <div>
+            <h2 id="campaignModalTitle" data-i18n="addCampaign">Add Campaign</h2>
+            <p class="modal-premium-subtitle" data-i18n="addCampaignSubtitle">Enter campaign details</p>
+          </div>
+        </div>
+        <button class="modal-premium-close" id="campaignModalClose">✕</button>
+      </div>
+      <form id="campaignForm" novalidate>
+        <div class="modal-premium-body">
+          <div class="modal-section">
+            <div class="modal-section-title">
+              <span class="modal-section-icon">📋</span>
+              <span data-i18n="campaignInfo">Campaign Info</span>
+            </div>
+            <div class="modal-two-col">
+              <div class="form-group-premium">
+                <label data-i18n="campaignName">Campaign Name</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">📢</span>
+                  <input type="text" id="campFormName" required placeholder=" ">
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="program">Program</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">📚</span>
+                  <input type="text" id="campFormProgram" readonly placeholder=" " style="opacity:0.7">
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="startDate">Start Date</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">📅</span>
+                  <input type="date" id="campFormStartDate" required placeholder=" ">
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="endDate">End Date</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">📅</span>
+                  <input type="date" id="campFormEndDate" required placeholder=" ">
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="budget">Budget</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">💰</span>
+                  <input type="number" id="campFormBudget" min="0" placeholder=" ">
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="status">Status</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">🏷️</span>
+                  <select id="campFormStatus">
+                    <option value="active" data-i18n="active">Active</option>
+                    <option value="paused" data-i18n="paused">Paused</option>
+                    <option value="completed" data-i18n="completed">Completed</option>
+                    <option value="cancelled" data-i18n="cancelled">Cancelled</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-section">
+            <div class="modal-section-title">
+              <span class="modal-section-icon">📝</span>
+              <span data-i18n="description">Description</span>
+            </div>
+            <div class="input-wrapper">
+              <span class="input-icon input-icon-textarea">📝</span>
+              <textarea id="campFormDescription" rows="3" placeholder=" "></textarea>
+            </div>
+          </div>
+          <div class="modal-section">
+            <div class="modal-section-title">
+              <span class="modal-section-icon">👤</span>
+              <span data-i18n="assignedEmployees">Assigned Employees</span>
+            </div>
+            <div id="campFormEmployees" style="display:flex;flex-wrap:wrap;gap:8px">
+            </div>
+          </div>
+          <div class="modal-section">
+            <div class="modal-section-title">
+              <span class="modal-section-icon">📝</span>
+              <span data-i18n="notes">Notes</span>
+            </div>
+            <div class="input-wrapper">
+              <span class="input-icon input-icon-textarea">📝</span>
+              <textarea id="campFormNotes" rows="3" placeholder=" "></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-premium-footer">
+          <button type="button" class="btn btn-ghost premium-cancel-btn" id="campaignFormCancel" data-i18n="cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary premium-save-btn" id="campaignFormSubmit" data-i18n="save">💾 Save Campaign</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Payment Modal -->
+  <div class="modal-overlay" id="paymentModal">
+    <div class="modal-container modal-premium pay-modal">
+      <div class="modal-premium-header">
+        <div class="modal-premium-header-left">
+          <div class="modal-premium-icon pay-modal-icon">💳</div>
+          <div>
+            <h2 id="payModalTitle" data-i18n="addPayment">Add Payment</h2>
+            <p class="modal-premium-subtitle" data-i18n="addPaymentSubtitle">Record a payment for this client</p>
+          </div>
+        </div>
+        <button class="modal-premium-close" id="payModalClose">✕</button>
+      </div>
+      <form id="payForm" novalidate>
+        <div class="modal-premium-body pay-modal-body">
+          <div class="pay-customer-card" id="payCustomerCard">
+            <div class="pay-customer-avatar" id="payCustomerAvatar">?</div>
+            <div class="pay-customer-info">
+              <div class="pay-customer-name" id="payCustomerName">—</div>
+              <div class="pay-customer-meta" id="payCustomerMeta">—</div>
+            </div>
+            <span class="customer-status-badge potential" id="payCustomerStatus">⭐</span>
+          </div>
+
+          <div class="pay-remaining-banner">
+            <div class="pay-remaining-left">
+              <span class="pay-remaining-dot"></span>
+              <span class="pay-remaining-label" data-i18n="remainingAmount">Remaining Amount</span>
+            </div>
+            <div class="pay-remaining-right">
+              <strong id="payFormRemaining">0 EGP</strong>
+              <span class="pay-remaining-hint" id="payFormTotalHint">—</span>
+            </div>
+          </div>
+
+          <div class="pay-section">
+            <div class="pay-section-title"><span class="pay-section-icon">💵</span><span data-i18n="paymentDetails">Payment Details</span></div>
+            <div class="modal-two-col">
+              <div class="form-group-premium">
+                <label data-i18n="amount">Amount</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">💵</span>
+                  <input type="number" id="payFormAmount" class="details-input" min="0.01" required step="0.01" placeholder="0.00">
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="paymentMethod">Payment Method</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">💳</span>
+                  <select id="payFormMethod">
+                    <option value="cash" data-i18n="cash">Cash</option>
+                    <option value="instapay" data-i18n="instapay">InstaPay</option>
+                    <option value="bankTransfer" data-i18n="bankTransfer">Bank Transfer</option>
+                    <option value="vodafoneCash" data-i18n="vodafoneCash">Vodafone Cash</option>
+                    <option value="other" data-i18n="other">Other</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pay-section">
+            <div class="pay-section-title"><span class="pay-section-icon">🗓️</span><span data-i18n="dateAndReference">Date & Reference</span></div>
+            <div class="modal-two-col">
+              <div class="form-group-premium">
+                <label data-i18n="date">Date</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">📅</span>
+                  <input type="date" id="payFormDate">
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="referenceNumber">Reference Number</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">🔖</span>
+                  <input type="text" id="payFormReference" placeholder=" ">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pay-section">
+            <div class="pay-section-title"><span class="pay-section-icon">📝</span><span data-i18n="notes">Notes</span></div>
+            <div class="input-wrapper">
+              <span class="input-icon input-icon-textarea">📝</span>
+              <textarea id="payFormNotes" rows="2" placeholder=" "></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-premium-footer pay-modal-footer">
+          <button type="button" class="btn btn-ghost premium-cancel-btn" id="payFormCancel">✕ <span data-i18n="cancel">Cancel</span></button>
+          <button type="submit" class="premium-save-btn pay-save-btn" id="payFormSubmit"><span class="pay-save-icon">💳</span> <span data-i18n="addPayment">Add Payment</span></button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Confirm Modal -->
+  <div class="modal-overlay" id="deleteModal">
+    <div class="modal-container modal-sm">
+      <div class="modal-header">
+        <h2 data-i18n="deleteProgram">Delete Program</h2>
+        <button class="modal-close" id="deleteModalClose">✕</button>
+      </div>
+      <div class="modal-body">
+        <p data-i18n="confirmDelete">Are you sure you want to delete this program?</p>
+        <p class="delete-program-name" id="deleteProgramName"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" id="deleteCancel" data-i18n="cancel">Cancel</button>
+        <button type="button" class="btn btn-primary" id="deleteConfirm" style="background:var(--danger);box-shadow:none;" data-i18n="delete">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Export Dialog -->
+  <div class="modal-overlay" id="exportModal">
+    <div class="modal-container modal-premium" style="max-width:520px">
+      <div class="modal-premium-header">
+        <div class="modal-premium-header-left">
+          <div class="modal-premium-icon">📤</div>
+          <div>
+            <h2 data-i18n="exportPrograms">Export Programs</h2>
+            <p class="modal-premium-subtitle" data-i18n="exportSubtitle">Choose export format</p>
+          </div>
+        </div>
+        <button class="modal-premium-close" id="exportModalClose">✕</button>
+      </div>
+      <div class="modal-premium-body" style="padding:24px 28px">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+          <button class="export-format-btn" data-format="csv" id="exportCsvBtn" style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:24px 16px;background:var(--bg-secondary);border:2px solid var(--border-color);border-radius:14px;cursor:pointer;transition:all 0.25s ease;font-family:inherit;color:var(--text-primary)" onmouseover="this.style.borderColor='var(--success)';this.style.background='rgba(40,167,69,0.06)'" onmouseout="this.style.borderColor='var(--border-color)';this.style.background='var(--bg-secondary)'">
+            <span style="font-size:36px">📄</span>
+            <span style="font-size:14px;font-weight:600">CSV</span>
+            <span style="font-size:11px;color:var(--text-muted)">Comma Separated</span>
+          </button>
+          <button class="export-format-btn" data-format="excel" id="exportExcelBtn" style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:24px 16px;background:var(--bg-secondary);border:2px solid var(--border-color);border-radius:14px;cursor:pointer;transition:all 0.25s ease;font-family:inherit;color:var(--text-primary)" onmouseover="this.style.borderColor='var(--gold)';this.style.background='rgba(201,168,76,0.06)'" onmouseout="this.style.borderColor='var(--border-color)';this.style.background='var(--bg-secondary)'">
+            <span style="font-size:36px">📗</span>
+            <span style="font-size:14px;font-weight:600">Excel</span>
+            <span style="font-size:11px;color:var(--text-muted)">.xlsx</span>
+          </button>
+          <button class="export-format-btn" data-format="pdf" id="exportPdfBtn" style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:24px 16px;background:var(--bg-secondary);border:2px solid var(--border-color);border-radius:14px;cursor:pointer;transition:all 0.25s ease;font-family:inherit;color:var(--text-primary)" onmouseover="this.style.borderColor='var(--danger)';this.style.background='rgba(220,53,69,0.06)'" onmouseout="this.style.borderColor='var(--border-color)';this.style.background='var(--bg-secondary)'">
+            <span style="font-size:36px">📕</span>
+            <span style="font-size:14px;font-weight:600">PDF</span>
+            <span style="font-size:11px;color:var(--text-muted)">Document</span>
+          </button>
+        </div>
+      </div>
+      <div class="modal-premium-footer" style="justify-content:flex-end">
+        <button type="button" class="btn btn-ghost premium-cancel-btn" id="exportModalCancel" data-i18n="cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Coming Soon Dialog -->
+  <div class="modal-overlay" id="comingSoonModal">
+    <div class="modal-container modal-premium" style="max-width:440px;text-align:center">
+      <div class="modal-premium-header" style="justify-content:center;border:none;padding:32px 28px 0">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+          <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,rgba(201,168,76,0.15),rgba(201,168,76,0.05));display:flex;align-items:center;justify-content:center;font-size:32px">🚧</div>
+          <h2 style="font-size:20px;font-weight:700;color:var(--text-primary);margin:0" id="comingSoonTitle" data-i18n="comingSoonTitle">Coming Soon</h2>
+          <p style="font-size:14px;color:var(--text-muted);margin:0;line-height:1.5" id="comingSoonMessage" data-i18n="comingSoonMessage">This feature is under development and will be available soon.</p>
+        </div>
+      </div>
+      <div class="modal-premium-footer" style="justify-content:center;padding:24px 28px 32px;border:none">
+        <button type="button" class="btn btn-primary premium-save-btn" id="comingSoonClose" style="padding:10px 32px" data-i18n="ok">👍 OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast-container" id="toastContainer"></div>
+
+<script src="js/i18n.js?v=4"></script>
+<script src="js/theme.js?v=4"></script>
+<script src="js/programs.js?v=4"></script>
+</body>
+</html>
