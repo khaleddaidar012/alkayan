@@ -339,6 +339,20 @@ function updateCampaignCustomerCard(customer) {
   const count = document.getElementById('campaignCustomersCount');
   if (count) count.textContent = '(' + currentCampaignCustomers.length + ')';
 }
+function refreshCampaignPaymentStats() {
+  const grid = document.getElementById('campaignStatsGrid');
+  if (!grid) return;
+  const customers = currentCampaignCustomers || [];
+  const collected = customers.reduce((s, cx) => s + (cx.payment?.paidAmount || 0), 0);
+  const notPaid = customers.filter(cx => (cx.payment?.status || 'notPaid') === 'notPaid').length;
+  const cards = grid.children;
+  if (cards.length < 6) return;
+  const value = (el) => el ? el.querySelector('.campaign-stat-value') : null;
+  const c4 = value(cards[4]);
+  const c5 = value(cards[5]);
+  if (c4) { c4.textContent = formatCurrency(collected); cards[4].dataset.count = collected; }
+  if (c5) { c5.textContent = notPaid.toString(); cards[5].dataset.count = notPaid; }
+}
 function showCampaignDetails(campaignId, programId) {
   currentCampaignId = campaignId; currentProgramId = programId;
   document.getElementById('programDetails').style.display = 'none';
@@ -558,6 +572,7 @@ async function handlePaymentFormSubmit(e) {
       if (idx >= 0) currentCampaignCustomers[idx] = result.customer;
       else currentCampaignCustomers.unshift(result.customer);
       updateCampaignCustomerCard(result.customer);
+      refreshCampaignPaymentStats();
       showToast(t('paymentAdded') || 'Payment added successfully', 'success');
     }
   } catch (err) {

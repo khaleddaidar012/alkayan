@@ -1162,8 +1162,11 @@ async function handleAddPaymentSubmit(e) {
       const idx = allCustomers.findIndex(c => c._id === cid);
       if (idx !== -1) allCustomers[idx] = result.customer;
       renderStats();
-      applyFilters();
-      showCustomerDetails(cid);
+      if (currentView === 'details' && currentCustomerId === cid) {
+        populateDetails(result.customer);
+      } else {
+        applyFilters();
+      }
     }
   } catch (err) {
     showToast('Error: ' + err.message, 'error');
