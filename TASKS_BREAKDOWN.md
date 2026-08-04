@@ -14,17 +14,17 @@ Implement the full Tasks Management System described in `new_feature.md`: admins
 ## Tasks
 
 ### Task 1 - Feature documentation
-- **Status:** Pending
+- **Status:** Done
 - **Description:** Create `docs/tasks-feature.md` documenting the feature overview, API endpoints, and how to use it.
 - **Related files:** `docs/tasks-feature.md` (new)
 
 ### Task 2 - Verify existing Task backend
-- **Status:** Pending
+- **Status:** Done
 - **Description:** Verify `backend/models/Task.js`, `backend/controllers/taskController.js`, `backend/routes/tasks.js` and server wiring cover create/list/update/delete/status-update/proof requirements from new_feature.md. Fix gaps if any.
 - **Related files:** `backend/models/Task.js`, `backend/controllers/taskController.js`, `backend/routes/tasks.js`, `backend/server.js`
 
 ### Task 3 - Verify existing Goal backend
-- **Status:** Pending
+- **Status:** Done
 - **Description:** Verify `backend/models/Goal.js`, `backend/controllers/goalController.js`, `backend/routes/goals.js` and server wiring cover goal CRUD + progress tracking. Fix gaps if any.
 - **Related files:** `backend/models/Goal.js`, `backend/controllers/goalController.js`, `backend/routes/goals.js`, `backend/server.js`
 
@@ -71,4 +71,4 @@ Implement the full Tasks Management System described in `new_feature.md`: admins
 ---
 
 ## Progress Summary
-- Completed: 0 / 11
+- Completed: 3 / 11
