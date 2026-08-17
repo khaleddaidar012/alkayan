@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="pageTitle">Program Pricing by Country</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌟</text></svg>">
+  <link rel="stylesheet" href="css/style.css?v=5">
+  <link rel="stylesheet" href="css/dashboard.css?v=5">
+  <link rel="stylesheet" href="css/pricing.css?v=5">
+</head>
+<body>
+  <div class="dashboard">
+
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="20" cy="20" r="19.5" stroke="#C9A84C" stroke-width="1.5" fill="none"/>
+            <text x="20" y="24" text-anchor="middle" font-size="12" fill="#C9A84C" font-family="serif">ك</text>
+          </svg>
+        </div>
+        <div class="logo-text"><span>Al Kayan</span> Al Arabi</div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-item" data-nav="dashboard">
+          <span class="nav-icon">📊</span>
+          <span data-i18n="dashboard">Dashboard</span>
+        </div>
+        <div class="nav-item" data-nav="programs">
+          <span class="nav-icon">📚</span>
+          <span data-i18n="programs">Programs</span>
+        </div>
+        <div class="nav-item" data-nav="customers">
+          <span class="nav-icon">👥</span>
+          <span data-i18n="customers">Customers</span>
+        </div>
+        <div class="nav-item" data-nav="tasks">
+          <span class="nav-icon">✅</span>
+          <span data-i18n="tasks">Tasks</span>
+        </div>
+        <div class="nav-item" data-nav="reports">
+          <span class="nav-icon">📈</span>
+          <span data-i18n="reports">Reports</span>
+        </div>
+        <div class="nav-item" data-nav="users">
+          <span class="nav-icon">👤</span>
+          <span data-i18n="users">Users</span>
+        </div>
+        <div class="nav-item active" data-nav="pricing">
+          <span class="nav-icon">💰</span>
+          <span data-i18n="pricing">Pricing</span>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="avatar" id="userAvatar">A</div>
+          <div>
+            <div class="user-name" id="userName">Admin</div>
+            <div class="user-role" id="userRole">admin</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+
+      <header class="dashboard-header">
+        <div class="header-left">
+          <button class="hamburger" id="hamburger" aria-label="Menu">☰</button>
+          <div>
+            <h1 data-i18n="pageTitle">Program Pricing by Country</h1>
+          </div>
+        </div>
+        <div class="header-right">
+          <button class="toggle-btn" id="langToggle2" type="button">
+            <span class="icon">🌐</span>
+            <span>English</span>
+          </button>
+          <button class="theme-toggle" id="themeToggle2" type="button">
+            <span class="icon">☀️</span>
+            <span>Light</span>
+          </button>
+          <button class="header-btn" id="logoutBtn" title="Logout">🚪</button>
+        </div>
+      </header>
+
+      <div class="pricing-container">
+        <p class="pricing-subtitle" data-i18n="subtitle">Set the program price for each country. Customers from unlisted countries will get the USD fallback price.</p>
+
+        <div class="pricing-grid">
+
+          <section class="pricing-card pricing-form-card">
+            <h2 class="pricing-card-title" data-i18n="countryPrices">Country Prices</h2>
+
+            <div class="pricing-form">
+              <div class="form-group">
+                <label for="egypt_price" data-i18n="egyptPrice">Price in Egypt (EGP)</label>
+                <div class="pricing-input-wrap">
+                  <span class="pricing-input-flag">🇪🇬</span>
+                  <span class="pricing-input-currency">EGP</span>
+                  <input type="number" id="egypt_price" min="0" step="0.01" placeholder="0.00">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="saudi_arabia_price" data-i18n="saudi_arabiaPrice">Price in Saudi Arabia (SAR)</label>
+                <div class="pricing-input-wrap">
+                  <span class="pricing-input-flag">🇸🇦</span>
+                  <span class="pricing-input-currency">SAR</span>
+                  <input type="number" id="saudi_arabia_price" min="0" step="0.01" placeholder="0.00">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="oman_price" data-i18n="omanPrice">Price in Oman (OMR)</label>
+                <div class="pricing-input-wrap">
+                  <span class="pricing-input-flag">🇴🇲</span>
+                  <span class="pricing-input-currency">OMR</span>
+                  <input type="number" id="oman_price" min="0" step="0.01" placeholder="0.00">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="libya_price" data-i18n="libyaPrice">Price in Libya (LYD)</label>
+                <div class="pricing-input-wrap">
+                  <span class="pricing-input-flag">🇱🇾</span>
+                  <span class="pricing-input-currency">LYD</span>
+                  <input type="number" id="libya_price" min="0" step="0.01" placeholder="0.00">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="usd_fallback_price" data-i18n="usd_fallbackPrice">USD Fallback Price</label>
+                <div class="pricing-input-wrap">
+                  <span class="pricing-input-flag">🌍</span>
+                  <span class="pricing-input-currency">USD</span>
+                  <input type="number" id="usd_fallback_price" min="0" step="0.01" placeholder="0.00">
+                </div>
+              </div>
+
+              <div class="pricing-save-row">
+                <button class="btn btn-primary" id="savePricesBtn">
+                  <span data-i18n="save">Save Pricing</span>
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <section class="pricing-card pricing-summary-card">
+            <h2 class="pricing-card-title" data-i18n="preview">Preview</h2>
+            <p class="pricing-hint" data-i18n="previewHint">The price shown to a customer based on their country</p>
+
+            <div class="pricing-summary" id="pricingSummary">
+              <!-- Dynamic rows -->
+            </div>
+          </section>
+
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="js/i18n.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/pricing.js"></script>
+  <script src="js/pricing-settings.js"></script>
+</body>
+</html>

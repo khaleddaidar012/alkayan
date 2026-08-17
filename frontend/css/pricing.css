@@ -1,0 +1,129 @@
+/* Pricing Settings Page */
+.pricing-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.pricing-subtitle {
+  color: var(--text-muted);
+  margin-bottom: 24px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .pricing-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pricing-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 24px;
+}
+
+.pricing-card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.pricing-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+.pricing-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pricing-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 0 12px;
+}
+
+.pricing-input-wrap:focus-within {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.15);
+}
+
+.pricing-input-flag {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.pricing-input-currency {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--gold);
+  background: rgba(201, 168, 76, 0.12);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+.pricing-input-wrap input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 12px 0;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.pricing-save-row {
+  margin-top: 8px;
+}
+
+.pricing-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pricing-summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: var(--bg-hover);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
+.pricing-summary-country {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.pricing-summary-flag {
+  font-size: 16px;
+}
+
+.pricing-summary-price {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--gold);
+}

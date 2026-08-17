@@ -399,6 +399,37 @@
   direction: ltr;
 }
 
+.country-price-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(23,162,184,0.12);
+  color: var(--info);
+  white-space: nowrap;
+  direction: ltr;
+}
+
+.country-price-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.country-price {
+  font-weight: 700;
+  color: var(--gold);
+  direction: ltr;
+}
+
+.country-price-currency {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
 .country-detect-hint {
   margin-top: 6px;
   font-size: 11px;

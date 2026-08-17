@@ -46,6 +46,7 @@ app.use('/api/import', require('./routes/import'));
 app.use('/api/reports', require('./routes/reports'));
 app.use('/api/tasks', require('./routes/tasks'));
 app.use('/api/goals', require('./routes/goals'));
+app.use('/api/settings/prices', require('./routes/prices'));
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

@@ -49,6 +49,27 @@ function countryBadge(c, size) {
   return `<span class="customer-country-badge" title="${info.nameEn}">${label}</span>`;
 }
 
+function programPriceForCustomer(c) {
+  const country = c?.country || 'other';
+  return formatPriceForCountry(country, null, currentLang);
+}
+
+function countryPriceRow(c, opts) {
+  const country = c?.country || 'other';
+  const formatted = formatPriceForCountry(country, null, currentLang);
+  const flag = (COUNTRIES[country] || COUNTRIES.other).flag;
+  const currencyInfo = currencyInfoForCountry(country);
+  const size = opts?.size || 'sm';
+  return `
+    <div class="details-row">
+      <span class="details-label">💰 ${t('programPrice')}</span>
+      <span class="details-value country-price-value">
+        <span class="country-price">${flag} ${formatted}</span>
+        ${size === 'lg' ? `<span class="country-price-currency">${currencyInfo.nameEn}</span>` : ''}
+      </span>
+    </div>`;
+}
+
 function priceDisplay(label, value, opts) {
   const o = opts || {};
   return `<div class="price-display ${o.size === 'lg' ? 'price-display-lg' : ''} ${o.color ? 'price-display-' + o.color : ''}">
@@ -266,6 +287,10 @@ function renderCustomers(filteredCustomers) {
             <span>${program}</span>
           </div>
           <div class="customer-card-detail">
+            <span class="detail-icon">💰</span>
+            <span class="country-price-badge">${programPriceForCustomer(c)}</span>
+          </div>
+          <div class="customer-card-detail">
             <span class="detail-icon">👤</span>
             <span>${employeeName}</span>
           </div>
@@ -456,6 +481,7 @@ function populateDetails(customer) {
           </span>
         </span>
       </div>
+      ${countryPriceRow(customer)}
       <div class="details-row">
         <span class="details-label">${t('totalAmount')}</span>
         <span class="details-value">${priceDisplay('', pay.finalPrice, { size: 'lg', color: 'gold' })}</span>
@@ -1457,6 +1483,7 @@ function initCustomers() {
   });
 
   loadCustomers();
+  fetchPrices();
 }
 
 document.addEventListener('DOMContentLoaded', initCustomers);
