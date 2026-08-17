@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { normalizePhone, detectCountryFromPhone } = require('../utils/countryDetection');
 
 const paymentRecordSchema = new mongoose.Schema({
   amount: { type: Number, required: true, min: 0 },
@@ -27,12 +28,26 @@ const paymentSchema = new mongoose.Schema({
 }, { _id: false });
 
 const customerSchema = new mongoose.Schema({
-  name: { type: String, required: [true, 'Name is required'], trim: true },
+  name: { type: String, trim: true, default: '' },
+  name_ar: { type: String, trim: true, default: '', maxlength: 100 },
+  name_en: { type: String, trim: true, default: '', maxlength: 100 },
   phone: { type: String, required: [true, 'Phone number is required'], trim: true },
   whatsapp: { type: String, trim: true, default: '' },
+  whatsapp_number: { type: String, trim: true, default: '' },
+  country: {
+    type: String,
+    enum: ['egypt', 'saudi_arabia', 'oman', 'libya', 'other'],
+    default: 'other'
+  },
   email: { type: String, lowercase: true, trim: true, default: '' },
   address: { type: String, trim: true, default: '' },
   program: { type: String, trim: true, default: '' },
+  program_name: { type: String, trim: true, default: '' },
+  source: {
+    type: String,
+    enum: ['manual', 'whatsapp_webhook'],
+    default: 'manual'
+  },
   assignedEmployee: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   registrationDate: { type: Date, default: Date.now },
   campaign: { type: mongoose.Schema.Types.ObjectId, ref: 'Campaign', default: null },
@@ -40,6 +55,8 @@ const customerSchema = new mongoose.Schema({
   programRef: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', default: null },
   enrolledCourses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Course' }],
   status: { type: String, enum: ['subscribed', 'potential', 'thinking', 'noResponse', 'rejected'], default: 'potential' },
+  communication_count: { type: Number, default: 0, min: 0 },
+  last_communication_date: { type: Date, default: null },
   payment: {
     type: paymentSchema,
     default: () => ({
@@ -50,7 +67,33 @@ const customerSchema = new mongoose.Schema({
   },
   rejectionReason: { type: String, default: '' },
   rejectionCustomReason: { type: String, default: '' },
-  notes: { type: String, default: '' }
+  notes: { type: String, default: '' },
+  isDeleted: { type: Boolean, default: false },
+  deletedAt: { type: Date, default: null }
 }, { timestamps: true });
+
+customerSchema.index(
+  { whatsapp_number: 1 },
+  { unique: true, partialFilterExpression: { isDeleted: false, whatsapp_number: { $type: 'string' } } }
+);
+customerSchema.index({ phone: 1 });
+customerSchema.index({ country: 1 });
+customerSchema.index({ isDeleted: 1 });
+
+customerSchema.pre('save', function (next) {
+  const derivedNumber = this.whatsapp_number || this.whatsapp || this.phone || '';
+  if (!this.whatsapp_number) {
+    this.whatsapp_number = normalizePhone(derivedNumber);
+  } else {
+    this.whatsapp_number = normalizePhone(this.whatsapp_number);
+  }
+  if (!this.name) {
+    this.name = this.name_ar || this.name_en || this.whatsapp_number || 'Unnamed';
+  }
+  if (!this.country) {
+    this.country = detectCountryFromPhone(this.whatsapp_number || this.phone);
+  }
+  next();
+});
 
 module.exports = mongoose.model('Customer', customerSchema);

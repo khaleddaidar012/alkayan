@@ -194,6 +194,11 @@
             <option value="" data-i18n="allEmployees">All Employees</option>
           </select>
         </div>
+        <div class="filter-group">
+          <select id="filterCountry" data-i18n-placeholder="filterCountry">
+            <option value="" data-i18n="allCountries">All Countries</option>
+          </select>
+        </div>
       </div>
 
       <!-- Card Grid -->
@@ -254,7 +259,21 @@
                 <label data-i18n="name">الاسم</label>
                 <div class="input-wrapper">
                   <span class="input-icon">👤</span>
-                  <input type="text" id="formName" required placeholder=" ">
+                  <input type="text" id="formName" placeholder=" ">
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="nameAr">الاسم بالعربية</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">🌐</span>
+                  <input type="text" id="formNameAr" placeholder=" ">
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="nameEn">الاسم بالإنجليزية</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">🌍</span>
+                  <input type="text" id="formNameEn" placeholder=" ">
                 </div>
               </div>
               <div class="form-group-premium">
@@ -270,6 +289,21 @@
                   <span class="input-icon">💬</span>
                   <input type="text" id="formWhatsapp" placeholder=" ">
                 </div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="country">الدولة</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">🏳️</span>
+                  <select id="formCountry">
+                    <option value="" data-i18n="autoDetect">كشف تلقائي</option>
+                    <option value="egypt" data-i18n="egypt">مصر</option>
+                    <option value="saudi_arabia" data-i18n="saudi_arabia">السعودية</option>
+                    <option value="oman" data-i18n="oman">عُمان</option>
+                    <option value="libya" data-i18n="libya">ليبيا</option>
+                    <option value="other" data-i18n="other">أخرى</option>
+                  </select>
+                </div>
+                <div class="country-detect-hint" id="countryDetectHint" style="display:none"></div>
               </div>
               <div class="form-group-premium">
                 <label data-i18n="email">البريد الإلكتروني</label>
@@ -495,6 +529,7 @@
 
   <script src="js/i18n.js"></script>
   <script src="js/theme.js"></script>
-  <script src="js/customers.js?v=2"></script>
+  <script src="js/countryDetection.js"></script>
+  <script src="js/customers.js?v=3"></script>
 </body>
 </html>

@@ -33,6 +33,22 @@ function formatCurrency(v) {
   return n.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' EGP';
 }
 
+function customerDisplayName(c) {
+  if (!c) return '—';
+  return c.name_ar || c.name_en || c.name || '—';
+}
+
+function countryBadge(c, size) {
+  if (!c) return '';
+  const code = c.country || 'other';
+  const info = COUNTRIES[code] || COUNTRIES.other;
+  const name = countryDisplayName(code, currentLang);
+  const label = size === 'lg'
+    ? `${info.flag} ${name}`
+    : `${info.flag} ${currentLang === 'ar' ? info.nameAr : info.nameEn}`;
+  return `<span class="customer-country-badge" title="${info.nameEn}">${label}</span>`;
+}
+
 function priceDisplay(label, value, opts) {
   const o = opts || {};
   return `<div class="price-display ${o.size === 'lg' ? 'price-display-lg' : ''} ${o.color ? 'price-display-' + o.color : ''}">
@@ -178,11 +194,12 @@ function renderCustomers(filteredCustomers) {
   if (empty) empty.classList.remove('show');
 
   grid.innerHTML = customers.map(c => {
-    const initial = c.name.charAt(0).toUpperCase();
+    const displayName = customerDisplayName(c);
+    const initial = (displayName.charAt(0) || '?').toUpperCase();
     const statusClass = c.status || 'potential';
     const statusKey = statusClass;
-    const whatsapp = c.whatsapp || c.phone || '—';
-    const waPhone = c.whatsapp || c.phone || '';
+    const whatsapp = c.whatsapp || c.whatsapp_number || c.phone || '—';
+    const waPhone = c.whatsapp || c.whatsapp_number || c.phone || '';
     const program = c.program || '—';
     const employeeName = c.assignedEmployee?.name || '—';
     const pay = c.payment || {};
@@ -222,9 +239,12 @@ function renderCustomers(filteredCustomers) {
         </div>
         <div class="customer-card-top">
           <div class="customer-avatar">${initial}</div>
-          <span class="customer-status-badge ${statusClass}">${subIcon} ${t(statusKey)}</span>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+            <span class="customer-status-badge ${statusClass}">${subIcon} ${t(statusKey)}</span>
+            ${countryBadge(c)}
+          </div>
         </div>
-        <div class="customer-card-name">${c.name}</div>
+        <div class="customer-card-name">${displayName}</div>
         <div style="padding:0 16px 8px;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-muted)">
           <span>${subIcon} ${subLabel}</span>
           <span>·</span>
@@ -371,7 +391,19 @@ function populateDetails(customer) {
       </div>
       <div class="details-row">
         <span class="details-label">${t('name')}</span>
-        <span class="details-value">${customer.name}</span>
+        <span class="details-value">${customerDisplayName(customer)}</span>
+      </div>
+      <div class="details-row">
+        <span class="details-label">${t('country')}</span>
+        <span class="details-value">${countryBadge(customer, 'lg')}</span>
+      </div>
+      <div class="details-row">
+        <span class="details-label">${t('nameAr')}</span>
+        <span class="details-value" dir="rtl">${customer.name_ar || '—'}</span>
+      </div>
+      <div class="details-row">
+        <span class="details-label">${t('nameEn')}</span>
+        <span class="details-value" dir="ltr">${customer.name_en || '—'}</span>
       </div>
       <div class="details-row">
         <span class="details-label">${t('phone')}</span>
@@ -684,14 +716,18 @@ function applyFilters() {
   const statusFilter = document.getElementById('filterStatus')?.value || '';
   const programFilter = document.getElementById('filterProgram')?.value || '';
   const employeeFilter = document.getElementById('filterEmployee')?.value || '';
+  const countryFilter = document.getElementById('filterCountry')?.value || '';
 
   let filtered = allCustomers;
 
   if (query) {
     filtered = filtered.filter(c =>
-      c.name.toLowerCase().includes(query) ||
+      (c.name && c.name.toLowerCase().includes(query)) ||
+      (c.name_ar && c.name_ar.toLowerCase().includes(query)) ||
+      (c.name_en && c.name_en.toLowerCase().includes(query)) ||
       (c.phone && c.phone.toLowerCase().includes(query)) ||
       (c.whatsapp && c.whatsapp.toLowerCase().includes(query)) ||
+      (c.whatsapp_number && c.whatsapp_number.toLowerCase().includes(query)) ||
       (c.email && c.email.toLowerCase().includes(query))
     );
   }
@@ -708,12 +744,17 @@ function applyFilters() {
     filtered = filtered.filter(c => c.assignedEmployee?._id === employeeFilter);
   }
 
+  if (countryFilter) {
+    filtered = filtered.filter(c => c.country === countryFilter);
+  }
+
   renderCustomers(filtered);
 }
 
 function populateFilterDropdowns() {
   const employeeSelect = document.getElementById('filterEmployee');
   const programSelect = document.getElementById('filterProgram');
+  const countrySelect = document.getElementById('filterCountry');
   if (!employeeSelect || !programSelect) return;
 
   loadEmployees().then(employees => {
@@ -739,6 +780,18 @@ function populateFilterDropdowns() {
     programSelect.appendChild(opt);
   });
   programSelect.value = currentProgram;
+
+  if (countrySelect) {
+    const currentCountry = countrySelect.value;
+    countrySelect.innerHTML = `<option value="">${t('allCountries')}</option>`;
+    COUNTRY_KEYS.forEach(key => {
+      const opt = document.createElement('option');
+      opt.value = key;
+      opt.textContent = `${COUNTRIES[key].flag} ${countryDisplayName(key, currentLang)}`;
+      countrySelect.appendChild(opt);
+    });
+    countrySelect.value = currentCountry;
+  }
 }
 
 function hideCustomerDetails() {
@@ -859,6 +912,62 @@ function setupFormPaymentToggle() {
   });
 }
 
+// ---- Country auto-detection ----
+let countryDetectionListenerBound = false;
+
+function updateCountryDetectHint(country) {
+  const hint = document.getElementById('countryDetectHint');
+  if (!hint) return;
+  const info = COUNTRIES[country] || COUNTRIES.other;
+  hint.innerHTML = `${info.flag} ${t('countryAutoDetected')}: ${countryDisplayName(country, currentLang)}`;
+  hint.className = 'country-detect-hint detect-auto';
+  hint.style.display = '';
+}
+
+function setupCountryAutoDetect() {
+  const phoneEl = document.getElementById('formPhone');
+  const waEl = document.getElementById('formWhatsapp');
+  const countryEl = document.getElementById('formCountry');
+  if (!phoneEl || !waEl || !countryEl) return;
+
+  const apply = () => {
+    if (countryEl.value) {
+      const hint = document.getElementById('countryDetectHint');
+      if (hint) hint.style.display = 'none';
+      return;
+    }
+    const value = waEl.value || phoneEl.value;
+    if (!value) return;
+    const country = detectCountryFromPhone(value);
+    if (country !== 'other') {
+      countryEl.value = country;
+      updateCountryDetectHint(country);
+    } else {
+      const hint = document.getElementById('countryDetectHint');
+      if (hint) {
+        hint.innerHTML = `${COUNTRIES.other.flag} ${t('countryAutoDetected')}: ${countryDisplayName('other', currentLang)}`;
+        hint.className = 'country-detect-hint detect-auto';
+        hint.style.display = '';
+      }
+    }
+  };
+
+  phoneEl.removeEventListener('input', apply);
+  waEl.removeEventListener('input', apply);
+  phoneEl.addEventListener('input', apply);
+  waEl.addEventListener('input', apply);
+
+  if (!countryDetectionListenerBound) {
+    countryEl.addEventListener('change', function () {
+      const hint = document.getElementById('countryDetectHint');
+      if (this.value) {
+        if (hint) hint.style.display = 'none';
+      }
+    });
+    countryDetectionListenerBound = true;
+  }
+}
+
 // ---- Modal logic ----
 function openAddModal() {
   editingCustomerId = null;
@@ -873,6 +982,9 @@ function openAddModal() {
   document.getElementById('formPayInitial').value = '';
   document.getElementById('formPayPaid').value = '';
   document.getElementById('formPayRemaining').textContent = formatCurrency(0);
+  document.getElementById('formCountry').value = '';
+  const hint = document.getElementById('countryDetectHint');
+  if (hint) hint.style.display = 'none';
   const stEl = document.getElementById('formPayStatusDisplay');
   stEl.textContent = '—'; stEl.style.color = 'var(--text-muted)';
   document.getElementById('customerModal').classList.add('show');
@@ -882,6 +994,7 @@ function openAddModal() {
   setupFormPaymentToggle();
   populateProgramDatalist();
   setupProgramAutoFill();
+  setupCountryAutoDetect();
 }
 
 async function openEditModal(customerId) {
@@ -898,8 +1011,11 @@ async function openEditModal(customerId) {
   document.getElementById('modalTitle').textContent = t('editCustomer');
   document.getElementById('formSubmit').textContent = t('save');
   document.getElementById('formName').value = customer.name || '';
+  document.getElementById('formNameAr').value = customer.name_ar || '';
+  document.getElementById('formNameEn').value = customer.name_en || '';
   document.getElementById('formPhone').value = customer.phone || '';
   document.getElementById('formWhatsapp').value = customer.whatsapp || '';
+  document.getElementById('formCountry').value = customer.country || '';
   document.getElementById('formEmail').value = customer.email || '';
   document.getElementById('formAddress').value = customer.address || '';
   document.getElementById('formProgram').value = customer.program || '';
@@ -922,6 +1038,7 @@ async function openEditModal(customerId) {
   setupFormPaymentToggle();
   populateProgramDatalist();
   setupProgramAutoFill();
+  setupCountryAutoDetect();
 }
 
 function closeModal() {
@@ -971,8 +1088,11 @@ async function handleFormSubmit(e) {
     const status = document.getElementById('formStatus')?.value || 'potential';
     const body = {
       name: (document.getElementById('formName')?.value || '').trim(),
+      name_ar: (document.getElementById('formNameAr')?.value || '').trim(),
+      name_en: (document.getElementById('formNameEn')?.value || '').trim(),
       phone: (document.getElementById('formPhone')?.value || '').trim(),
       whatsapp: (document.getElementById('formWhatsapp')?.value || '').trim(),
+      country: document.getElementById('formCountry')?.value || '',
       email: (document.getElementById('formEmail')?.value || '').trim(),
       address: (document.getElementById('formAddress')?.value || '').trim(),
       program: (document.getElementById('formProgram')?.value || '').trim(),
@@ -1001,12 +1121,16 @@ async function handleFormSubmit(e) {
       };
     }
 
-    if (!body.name || !body.phone) {
-      if (!body.name) { const el = document.getElementById('formName'); if (el) el.style.borderColor = 'var(--danger)'; }
-      if (!body.phone) { const el = document.getElementById('formPhone'); if (el) el.style.borderColor = 'var(--danger)'; }
-      showToast('Name and phone are required', 'error');
+    if (!body.phone && !body.whatsapp) {
+      const el = document.getElementById('formPhone');
+      if (el) el.style.borderColor = 'var(--danger)';
+      showToast(t('whatsappRequired'), 'error');
       submitBtn.disabled = false; submitBtn.classList.remove('loading'); submitBtn.textContent = t('save');
       return;
+    }
+
+    if (!body.country) {
+      body.country = detectCountryFromPhone(body.whatsapp || body.phone || '');
     }
 
     const isEdit = !!editingCustomerId;
@@ -1271,6 +1395,8 @@ function initCustomers() {
   document.getElementById('filterStatus').addEventListener('change', applyFilters);
   document.getElementById('filterProgram').addEventListener('change', applyFilters);
   document.getElementById('filterEmployee').addEventListener('change', applyFilters);
+  const countryFilterEl = document.getElementById('filterCountry');
+  if (countryFilterEl) countryFilterEl.addEventListener('change', applyFilters);
 
   // Back to list
   document.getElementById('backToListBtn').addEventListener('click', hideCustomerDetails);

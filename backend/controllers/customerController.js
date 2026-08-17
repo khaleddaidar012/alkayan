@@ -2,15 +2,17 @@ const Customer = require('../models/Customer');
 const Campaign = require('../models/Campaign');
 const Course = require('../models/Course');
 const { validationResult } = require('express-validator');
+const { normalizePhone, detectCountryFromPhone, COUNTRY_KEYS } = require('../utils/countryDetection');
 
 exports.getCustomers = async (req, res) => {
   try {
-    const { status, program, employee, campaign, dateFrom, dateTo, search } = req.query;
-    const filter = {};
+    const { status, program, employee, campaign, dateFrom, dateTo, search, country, page, limit } = req.query;
+    const filter = { isDeleted: { $ne: true } };
     if (status) filter.status = status;
     if (program) filter.program = { $regex: program, $options: 'i' };
     if (employee) filter.assignedEmployee = employee;
     if (campaign) filter.campaign = campaign;
+    if (country) filter.country = country;
     if (dateFrom || dateTo) {
       filter.registrationDate = {};
       if (dateFrom) filter.registrationDate.$gte = new Date(dateFrom);
@@ -18,14 +20,42 @@ exports.getCustomers = async (req, res) => {
     }
     if (search) {
       const searchRegex = { $regex: search, $options: 'i' };
-      filter.$or = [{ name: searchRegex }, { phone: searchRegex }, { whatsapp: searchRegex }, { email: searchRegex }];
+      filter.$or = [
+        { name: searchRegex },
+        { name_ar: searchRegex },
+        { name_en: searchRegex },
+        { phone: searchRegex },
+        { whatsapp: searchRegex },
+        { whatsapp_number: searchRegex },
+        { email: searchRegex }
+      ];
     }
-    const customers = await Customer.find(filter)
+
+    const total = await Customer.countDocuments(filter);
+
+    let query = Customer.find(filter)
       .populate('assignedEmployee', 'name email role')
       .populate('campaign', 'name')
       .populate('programRef', 'name')
       .sort({ createdAt: -1 });
-    res.json({ customers, count: customers.length });
+
+    const hasPagination = page !== undefined || limit !== undefined;
+    let currentPage = 1;
+    let pageSize = null;
+    if (hasPagination) {
+      currentPage = Math.max(1, parseInt(page, 10) || 1);
+      pageSize = Math.max(1, Math.min(100, parseInt(limit, 10) || 50));
+      query = query.skip((currentPage - 1) * pageSize).limit(pageSize);
+    }
+
+    const customers = await query;
+    res.json({
+      customers,
+      count: customers.length,
+      total,
+      page: hasPagination ? currentPage : undefined,
+      pages: hasPagination ? Math.ceil(total / pageSize) : undefined
+    });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }
@@ -33,7 +63,7 @@ exports.getCustomers = async (req, res) => {
 
 exports.getCustomer = async (req, res) => {
   try {
-    const customer = await Customer.findById(req.params.id)
+    const customer = await Customer.findOne({ _id: req.params.id, isDeleted: { $ne: true } })
       .populate('assignedEmployee', 'name email role')
       .populate('campaign', 'name')
       .populate('programRef', 'name')
@@ -49,8 +79,31 @@ exports.createCustomer = async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ message: errors.array()[0].msg });
-    const { name, phone, whatsapp, email, address, program, programRef, campaign, assignedEmployee, registrationDate, status, notes, registrationSource, payment } = req.body;
-    const customerData = { name, phone, whatsapp, email, address, program, programRef, campaign, assignedEmployee, registrationDate, status, notes, registrationSource };
+    const { name, phone, whatsapp, whatsapp_number, country, name_ar, name_en, email, address, program, programRef, campaign, assignedEmployee, registrationDate, status, notes, registrationSource, payment } = req.body;
+
+    const normalizedNumber = normalizePhone(whatsapp_number || whatsapp || phone || '');
+    if (!normalizedNumber) {
+      return res.status(400).json({ message: 'WhatsApp number is required' });
+    }
+
+    const existing = await Customer.findOne({ whatsapp_number: normalizedNumber, isDeleted: { $ne: true } });
+    if (existing) {
+      return res.status(409).json({ message: 'A customer with this WhatsApp number already exists', customer: existing });
+    }
+
+    const detectedCountry = country && COUNTRY_KEYS.includes(country) ? country : detectCountryFromPhone(normalizedNumber);
+    const customerName = name || name_ar || name_en || normalizedNumber;
+
+    const customerData = {
+      name: customerName,
+      name_ar: name_ar || '',
+      name_en: name_en || '',
+      phone: phone || whatsapp || whatsapp_number || normalizedNumber,
+      whatsapp: whatsapp || phone || whatsapp_number || normalizedNumber,
+      whatsapp_number: normalizedNumber,
+      country: detectedCountry,
+      email, address, program, programRef, campaign, assignedEmployee, registrationDate, status, notes, registrationSource
+    };
     if (status === 'subscribed') {
       let total = payment?.totalAmount !== undefined && payment?.totalAmount !== null ? payment.totalAmount : undefined;
       let paid = payment?.paidAmount || 0;
@@ -102,13 +155,22 @@ exports.updateCustomer = async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ message: errors.array()[0].msg });
-    const allowedFields = ['name', 'phone', 'whatsapp', 'email', 'address', 'program', 'programRef', 'campaign', 'assignedEmployee', 'registrationDate', 'status', 'notes', 'registrationSource'];
+    const allowedFields = ['name', 'name_ar', 'name_en', 'phone', 'whatsapp', 'whatsapp_number', 'country', 'email', 'address', 'program', 'program_name', 'source', 'programRef', 'campaign', 'assignedEmployee', 'registrationDate', 'status', 'notes', 'registrationSource'];
     const updateData = {};
     for (const field of allowedFields) {
       if (req.body[field] !== undefined) updateData[field] = req.body[field];
     }
+    if (updateData.whatsapp_number !== undefined) {
+      updateData.whatsapp_number = normalizePhone(updateData.whatsapp_number);
+    }
+    if (updateData.country === undefined) {
+      const existing = await Customer.findOne({ _id: req.params.id, isDeleted: { $ne: true } }).select('country whatsapp_number whatsapp phone');
+      if (existing && !existing.country) {
+        updateData.country = detectCountryFromPhone(updateData.whatsapp_number || existing.whatsapp_number || existing.whatsapp || existing.phone);
+      }
+    }
     if (req.body.payment || req.body.programRef !== undefined) {
-      const existing = await Customer.findById(req.params.id).select('payment programRef');
+      const existing = await Customer.findOne({ _id: req.params.id, isDeleted: { $ne: true } }).select('payment programRef');
       const exPay = existing?.payment || {};
       const p = req.body.payment || {};
       const programChanged = req.body.programRef !== undefined;
@@ -152,7 +214,7 @@ exports.updateCustomer = async (req, res) => {
         history
       };
     }
-    const customer = await Customer.findByIdAndUpdate(req.params.id, { $set: updateData }, { new: true, runValidators: true })
+    const customer = await Customer.findOneAndUpdate({ _id: req.params.id, isDeleted: { $ne: true } }, { $set: updateData }, { new: true, runValidators: true })
       .populate('assignedEmployee', 'name email role').populate('campaign', 'name').populate('programRef', 'name');
     if (!customer) return res.status(404).json({ message: 'Customer not found' });
     res.json({ customer });
@@ -163,12 +225,16 @@ exports.updateCustomer = async (req, res) => {
 
 exports.deleteCustomer = async (req, res) => {
   try {
-    const customer = await Customer.findByIdAndDelete(req.params.id);
+    const customer = await Customer.findOneAndUpdate(
+      { _id: req.params.id, isDeleted: { $ne: true } },
+      { $set: { isDeleted: true, deletedAt: new Date() } },
+      { new: true }
+    );
     if (!customer) return res.status(404).json({ message: 'Customer not found' });
     if (customer.campaign) {
       await Campaign.findByIdAndUpdate(customer.campaign, { $pull: { customers: customer._id } });
     }
-    res.json({ message: 'Customer deleted successfully' });
+    res.json({ message: 'Customer deleted successfully', customer });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }
@@ -184,7 +250,7 @@ exports.updateCustomerStatus = async (req, res) => {
     if (status === 'subscribed') {
       const { payment } = req.body;
       if (payment) {
-        const existing = await Customer.findById(req.params.id).select('payment');
+        const existing = await Customer.findOne({ _id: req.params.id, isDeleted: { $ne: true } }).select('payment');
         const exPay = existing?.payment || {};
         const total = payment.totalAmount !== undefined && payment.totalAmount !== null
           ? payment.totalAmount
@@ -216,7 +282,7 @@ exports.updateCustomerStatus = async (req, res) => {
     if (['potential', 'thinking', 'noResponse'].includes(status)) {
       updateData.rejectionReason = ''; updateData.rejectionCustomReason = '';
     }
-    const customer = await Customer.findByIdAndUpdate(req.params.id, { $set: updateData }, { new: true, runValidators: true })
+    const customer = await Customer.findOneAndUpdate({ _id: req.params.id, isDeleted: { $ne: true } }, { $set: updateData }, { new: true, runValidators: true })
       .populate('assignedEmployee', 'name email role');
     if (!customer) return res.status(404).json({ message: 'Customer not found' });
     res.json({ customer });
@@ -229,7 +295,7 @@ exports.addPayment = async (req, res) => {
   try {
     const { amount, method, referenceNumber, notes, date } = req.body;
     if (!amount || amount <= 0) return res.status(400).json({ message: 'Valid amount is required' });
-    const customer = await Customer.findById(req.params.id);
+    const customer = await Customer.findOne({ _id: req.params.id, isDeleted: { $ne: true } });
     if (!customer) return res.status(404).json({ message: 'Customer not found' });
     const now = new Date();
     const record = { amount, date: date ? new Date(date) : now, time: now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }), method: method || 'cash', referenceNumber: referenceNumber || '', notes: notes || '' };
@@ -254,7 +320,7 @@ exports.addPayment = async (req, res) => {
 exports.updatePayment = async (req, res) => {
   try {
     const { amount, method, referenceNumber, notes, date } = req.body;
-    const customer = await Customer.findById(req.params.id);
+    const customer = await Customer.findOne({ _id: req.params.id, isDeleted: { $ne: true } });
     if (!customer) return res.status(404).json({ message: 'Customer not found' });
     const history = customer.payment.history || [];
     const record = history.id(req.params.paymentId);
@@ -283,7 +349,7 @@ exports.updatePayment = async (req, res) => {
 
 exports.deletePayment = async (req, res) => {
   try {
-    const customer = await Customer.findById(req.params.id);
+    const customer = await Customer.findOne({ _id: req.params.id, isDeleted: { $ne: true } });
     if (!customer) return res.status(404).json({ message: 'Customer not found' });
     const history = customer.payment.history || [];
     const record = history.id(req.params.paymentId);

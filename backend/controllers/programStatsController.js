@@ -15,11 +15,11 @@ exports.getProgramStats = async (req, res) => {
       campaignEmployeeAgg
     ] = await Promise.all([
       Customer.aggregate([
-        { $match: { program: program.name } },
+        { $match: { program: program.name, isDeleted: { $ne: true } } },
         { $group: { _id: '$status', count: { $sum: 1 } } }
       ]),
       Customer.aggregate([
-        { $match: { program: program.name, status: 'subscribed' } },
+        { $match: { program: program.name, status: 'subscribed', isDeleted: { $ne: true } } },
         { $group: {
             _id: null,
             expectedRevenue: { $sum: '$payment.totalPrice' },
@@ -56,7 +56,7 @@ exports.getProgramStats = async (req, res) => {
       const employees = await User.find({ _id: { $in: employeeIds } }).select('name email role');
 
       const empCustomerCounts = await Customer.aggregate([
-        { $match: { program: program.name, assignedEmployee: { $in: employeeIds } } },
+        { $match: { program: program.name, assignedEmployee: { $in: employeeIds }, isDeleted: { $ne: true } } },
         { $group: {
             _id: '$assignedEmployee',
             totalCustomers: { $sum: 1 },

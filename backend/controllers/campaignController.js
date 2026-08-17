@@ -1,6 +1,7 @@
 const Campaign = require('../models/Campaign');
 const Customer = require('../models/Customer');
 const { validationResult } = require('express-validator');
+const { normalizePhone, detectCountryFromPhone } = require('../utils/countryDetection');
 
 exports.getCampaigns = async (req, res) => {
   try {
@@ -142,8 +143,12 @@ exports.addCustomerToCampaign = async (req, res) => {
       return res.status(404).json({ message: 'Campaign not found' });
     }
 
+    const whatsappNumber = normalizePhone(whatsapp || phone);
     const customer = await Customer.create({
-      name, phone, whatsapp, email,
+      name, phone, whatsapp,
+      whatsapp_number: whatsappNumber,
+      country: detectCountryFromPhone(whatsappNumber),
+      email,
       program: campaign.program ? campaign.program.name : '',
       programRef: campaign.program ? campaign.program._id : null,
       campaign: campaignId,

@@ -7,21 +7,16 @@ const {
   updatePayment, deletePayment
 } = require('../controllers/customerController');
 const { protect, authorize } = require('../middleware/auth');
+const { createCustomerValidators, updateCustomerValidators } = require('../validators/customerValidator');
 
 router.use(protect);
 
 router.get('/', getCustomers);
 router.get('/:id', getCustomer);
 
-router.post('/', authorize('admin', 'manager', 'employee'), [
-  body('name').trim().notEmpty().withMessage('Customer name is required'),
-  body('phone').trim().notEmpty().withMessage('Phone number is required')
-], createCustomer);
+router.post('/', authorize('admin', 'manager', 'employee'), createCustomerValidators, createCustomer);
 
-router.put('/:id', authorize('admin', 'manager', 'employee'), [
-  body('name').optional().trim().notEmpty().withMessage('Customer name cannot be empty'),
-  body('phone').optional().trim().notEmpty().withMessage('Phone number cannot be empty')
-], updateCustomer);
+router.put('/:id', authorize('admin', 'manager', 'employee'), updateCustomerValidators, updateCustomer);
 
 router.delete('/:id', authorize('admin', 'manager'), deleteCustomer);
 

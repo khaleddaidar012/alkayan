@@ -226,7 +226,20 @@ const i18n = {
       deletePayment: 'حذف الدفعة',
       paymentUpdated: 'تم تحديث الدفعة بنجاح',
       paymentDeleted: 'تم حذف الدفعة بنجاح',
-      confirmDeletePayment: 'هل أنت متأكد من حذف هذه الدفعة؟'
+      confirmDeletePayment: 'هل أنت متأكد من حذف هذه الدفعة؟',
+      country: 'الدولة',
+      nameAr: 'الاسم بالعربية',
+      nameEn: 'الاسم بالإنجليزية',
+      allCountries: 'كل الدول',
+      filterCountry: 'تصفية بالدولة',
+      autoDetect: 'كشف تلقائي',
+      egypt: 'مصر',
+      saudi_arabia: 'السعودية',
+      oman: 'عُمان',
+      libya: 'ليبيا',
+      other: 'أخرى',
+      countryAutoDetected: 'تم الكشف تلقائياً',
+      whatsappRequired: 'رقم الهاتف / واتساب مطلوب'
     },
     programs: {
       title: 'البرامج',
@@ -712,7 +725,20 @@ const i18n = {
       deletePayment: 'Delete Payment',
       paymentUpdated: 'Payment updated successfully',
       paymentDeleted: 'Payment deleted successfully',
-      confirmDeletePayment: 'Are you sure you want to delete this payment?'
+      confirmDeletePayment: 'Are you sure you want to delete this payment?',
+      country: 'Country',
+      nameAr: 'Arabic Name',
+      nameEn: 'English Name',
+      allCountries: 'All Countries',
+      filterCountry: 'Filter by Country',
+      autoDetect: 'Auto Detect',
+      egypt: 'Egypt',
+      saudi_arabia: 'Saudi Arabia',
+      oman: 'Oman',
+      libya: 'Libya',
+      other: 'Other',
+      countryAutoDetected: 'Auto-detected',
+      whatsappRequired: 'Phone / WhatsApp number is required'
     },
     programs: {
       title: 'Programs',

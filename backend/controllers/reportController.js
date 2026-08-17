@@ -16,6 +16,7 @@ exports.getAggregatedReports = async (req, res) => {
     ] = await Promise.all([
       // 1. Most successful programs by enrollments & revenue
       Customer.aggregate([
+        { $match: { isDeleted: { $ne: true } } },
         { $group: {
             _id: '$program',
             totalEnrollments: { $sum: 1 },
@@ -46,7 +47,7 @@ exports.getAggregatedReports = async (req, res) => {
 
       // 3. Best employees by conversion rate
       Customer.aggregate([
-        { $match: { assignedEmployee: { $ne: null } } },
+        { $match: { assignedEmployee: { $ne: null }, isDeleted: { $ne: true } } },
         { $group: {
             _id: '$assignedEmployee',
             totalCustomers: { $sum: 1 },
@@ -68,7 +69,7 @@ exports.getAggregatedReports = async (req, res) => {
 
       // 4. Revenue by program
       Customer.aggregate([
-        { $match: { status: 'subscribed' } },
+        { $match: { status: 'subscribed', isDeleted: { $ne: true } } },
         { $group: {
             _id: '$program',
             expectedRevenue: { $sum: '$payment.finalPrice' },
@@ -81,6 +82,7 @@ exports.getAggregatedReports = async (req, res) => {
 
       // 5. Registrations over time (last 12 months)
       Customer.aggregate([
+        { $match: { isDeleted: { $ne: true } } },
         { $group: {
             _id: {
               year: { $year: '$registrationDate' },
@@ -145,7 +147,7 @@ exports.getAggregatedReports = async (req, res) => {
 
       // 7. Payment statistics
       Customer.aggregate([
-        { $match: { status: 'subscribed' } },
+        { $match: { status: 'subscribed', isDeleted: { $ne: true } } },
         { $group: {
             _id: null,
             totalExpected: { $sum: '$payment.finalPrice' },

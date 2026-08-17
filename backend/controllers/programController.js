@@ -19,11 +19,11 @@ exports.getPrograms = async (req, res) => {
     const programs = await Course.find(filter).sort({ createdAt: -1 });
 
     const enriched = await Promise.all(programs.map(async (p) => {
-      const activeCustomers = await Customer.countDocuments({ program: p.name, status: 'subscribed' });
-      const totalEnrollments = await Customer.countDocuments({ program: p.name });
+      const activeCustomers = await Customer.countDocuments({ program: p.name, status: 'subscribed', isDeleted: { $ne: true } });
+      const totalEnrollments = await Customer.countDocuments({ program: p.name, isDeleted: { $ne: true } });
       const activeCampaigns = await Campaign.countDocuments({ program: p._id, status: 'active' });
       const revenue = await Customer.aggregate([
-        { $match: { program: p.name, status: 'subscribed' } },
+        { $match: { program: p.name, status: 'subscribed', isDeleted: { $ne: true } } },
         { $group: { _id: null, expectedRevenue: { $sum: '$payment.totalPrice' }, collectedRevenue: { $sum: '$payment.paidAmount' } } }
       ]);
       return {
@@ -89,10 +89,10 @@ exports.getProgram = async (req, res) => {
     const program = await Course.findById(req.params.id);
     if (!program) return res.status(404).json({ message: 'Program not found' });
 
-    const activeCustomers = await Customer.countDocuments({ program: program.name, status: 'subscribed' });
+    const activeCustomers = await Customer.countDocuments({ program: program.name, status: 'subscribed', isDeleted: { $ne: true } });
     const totalCustomers = await Customer.countDocuments({ program: program.name });
-    const potentialCustomers = await Customer.countDocuments({ program: program.name, status: 'potential' });
-    const rejectedCustomers = await Customer.countDocuments({ program: program.name, status: 'rejected' });
+    const potentialCustomers = await Customer.countDocuments({ program: program.name, status: 'potential', isDeleted: { $ne: true } });
+    const rejectedCustomers = await Customer.countDocuments({ program: program.name, status: 'rejected', isDeleted: { $ne: true } });
 
     const totalCampaigns = await Campaign.countDocuments({ program: program._id });
     const activeCampaignCount = await Campaign.countDocuments({ program: program._id, status: 'active' });
@@ -105,7 +105,7 @@ exports.getProgram = async (req, res) => {
     const activeCampaigns = campaigns.filter(c => c.status === 'active' || c.status === 'scheduled');
     const completedCampaigns = campaigns.filter(c => c.status === 'completed' || c.status === 'cancelled');
 
-    const customers = await Customer.find({ program: program.name })
+    const customers = await Customer.find({ program: program.name, isDeleted: { $ne: true } })
       .populate('assignedEmployee', 'name email role')
       .populate('campaign', 'name')
       .sort({ createdAt: -1 });
@@ -187,13 +187,13 @@ exports.exportPrograms = async (req, res) => {
   try {
     const programs = await Course.find().sort({ createdAt: -1 });
     const data = await Promise.all(programs.map(async (p) => {
-      const totalCustomers = await Customer.countDocuments({ program: p.name });
-      const activeCustomers = await Customer.countDocuments({ program: p.name, status: 'subscribed' });
+      const totalCustomers = await Customer.countDocuments({ program: p.name, isDeleted: { $ne: true } });
+      const activeCustomers = await Customer.countDocuments({ program: p.name, status: 'subscribed', isDeleted: { $ne: true } });
       const campaigns = await Campaign.find({ program: p._id });
       const totalCampaigns = campaigns.length;
       const activeCampaigns = campaigns.filter(c => c.status === 'active').length;
       const totalRevenue = await Customer.aggregate([
-        { $match: { program: p.name, status: 'subscribed' } },
+        { $match: { program: p.name, status: 'subscribed', isDeleted: { $ne: true } } },
         { $group: { _id: null, total: { $sum: '$payment.totalPrice' } } }
       ]);
       return {
