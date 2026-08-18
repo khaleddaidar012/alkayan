@@ -12,7 +12,9 @@ dotenv.config();
 const app = express();
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({
+  verify: (req, res, buf) => { req.rawBody = buf.toString('utf8'); }
+}));
 
 // Force UTF-8 charset on all text responses to prevent mojibake
 app.use((req, res, next) => {
@@ -58,6 +60,7 @@ app.use('/api/payment-methods', require('./routes/paymentMethods'));
 app.use('/api/payments', require('./routes/payments'));
 app.use('/api/communication-types', require('./routes/communicationTypes'));
 app.use('/api/customer-statuses', require('./routes/customerStatuses'));
+app.use('/api/webhook', require('./routes/webhookRoutes'));
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

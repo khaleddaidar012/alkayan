@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title data-i18n="pageTitle">Payment Methods Management</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💳</text></svg>">
-  <link rel="stylesheet" href="css/style.css?v=6">
-  <link rel="stylesheet" href="css/dashboard.css?v=6">
-  <link rel="stylesheet" href="css/payment-methods.css?v=6">
+  <title data-i18n="pageTitle">Webhook Logs</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔗</text></svg>">
+  <link rel="stylesheet" href="css/style.css?v=7">
+  <link rel="stylesheet" href="css/dashboard.css?v=7">
+  <link rel="stylesheet" href="css/payment-methods.css?v=7">
 </head>
 <body>
   <div class="dashboard">
@@ -54,7 +54,7 @@
           <span class="nav-icon">💰</span>
           <span data-i18n="pricing">Pricing</span>
         </div>
-        <div class="nav-item active" data-nav="payment-methods">
+        <div class="nav-item" data-nav="payment-methods">
           <span class="nav-icon">💳</span>
           <span data-i18n="paymentMethods">Payment Methods</span>
         </div>
@@ -66,7 +66,7 @@
           <span class="nav-icon">🏷️</span>
           <span>Customer Statuses</span>
         </div>
-        <div class="nav-item" data-nav="webhook-logs" data-i18n="nav.webhookLogs">
+        <div class="nav-item active" data-nav="webhook-logs" data-i18n="nav.webhookLogs">
           <span class="nav-icon">🔗</span>
           <span>Webhook Logs</span>
         </div>
@@ -89,7 +89,7 @@
         <div class="header-left">
           <button class="hamburger" id="hamburger" aria-label="Menu">☰</button>
           <div>
-            <h1 data-i18n="pageTitle">Payment Methods Management</h1>
+            <h1 data-i18n="pageTitle">Webhook Logs</h1>
           </div>
         </div>
         <div class="header-right">
@@ -106,80 +106,78 @@
       </header>
 
       <div class="pm-container">
-        <p class="pm-subtitle" data-i18n="subtitle">Manage payment methods per country. Global methods are shown to all customers.</p>
+        <p class="pm-subtitle" data-i18n="subtitle">Log of all webhook calls from n8n with processing results.</p>
 
-        <div class="pm-toolbar">
-          <button class="btn btn-primary" id="addMethodBtn">➕ <span data-i18n="addMethod">Add Method</span></button>
+        <div class="pm-toolbar pm-filterbar">
+          <select id="filterStatus" class="pm-filter-select">
+            <option value="">All Status</option>
+            <option value="success">Success</option>
+            <option value="error">Error</option>
+          </select>
+          <select id="filterAction" class="pm-filter-select">
+            <option value="">All Actions</option>
+            <option value="created">Created</option>
+            <option value="updated">Updated</option>
+            <option value="no_change">No Change</option>
+            <option value="failed">Failed</option>
+          </select>
+          <input type="date" id="filterDateFrom" class="pm-filter-input">
+          <input type="date" id="filterDateTo" class="pm-filter-input">
+          <button class="btn btn-primary" id="applyFilterBtn">🔍 <span data-i18n="apply">Apply</span></button>
+          <button class="btn btn-ghost" id="clearFilterBtn">✖</button>
         </div>
 
         <div class="pm-card">
           <table class="pm-table">
             <thead>
               <tr>
-                <th data-i18n="name">Name</th>
-                <th data-i18n="country">Country</th>
-                <th data-i18n="sortOrder">Sort Order</th>
-                <th data-i18n="active">Active</th>
-                <th data-i18n="actions">Actions</th>
+                <th data-i18n="date">Date</th>
+                <th data-i18n="status">Status</th>
+                <th data-i18n="action">Action</th>
+                <th data-i18n="customer">Customer</th>
+                <th data-i18n="processingTime">Processing Time</th>
+                <th data-i18n="details">Details</th>
               </tr>
             </thead>
-            <tbody id="methodsTableBody">
-              <tr><td colspan="5" class="pm-empty" data-i18n="empty">No payment methods yet</td></tr>
+            <tbody id="logsTableBody">
+              <tr><td colspan="6" class="pm-empty" data-i18n="empty">No logs yet</td></tr>
             </tbody>
           </table>
+        </div>
+        <div class="pm-pagination">
+          <button class="btn btn-ghost" id="prevPageBtn">◀</button>
+          <span id="pageInfo">1</span>
+          <button class="btn btn-ghost" id="nextPageBtn">▶</button>
         </div>
       </div>
 
     </main>
   </div>
 
-  <div class="modal-overlay" id="methodModal">
+  <div class="modal-overlay" id="logModal">
     <div class="modal-box modal-premium pm-modal">
       <div class="modal-premium-header">
-        <h2 id="methodModalTitle" data-i18n="addMethod">Add Method</h2>
-        <button class="modal-close" id="methodModalClose">✕</button>
+        <h2 data-i18n="details">Details</h2>
+        <button class="modal-close" id="logModalClose">✕</button>
       </div>
-      <form id="methodForm" novalidate>
-        <div class="modal-premium-body">
-          <div class="form-group-premium">
-            <label for="methodName" data-i18n="methodName">Method Name</label>
-            <div class="input-wrapper">
-              <input type="text" id="methodName" placeholder=" " data-i18n-placeholder="methodNamePlaceholder" required maxlength="80">
-            </div>
-          </div>
-          <div class="form-group-premium">
-            <label for="methodCountry" data-i18n="countryLabel">Country</label>
-            <div class="input-wrapper">
-              <select id="methodCountry">
-                <option value="global" data-i18n="countryGlobal">Global (all countries)</option>
-                <option value="egypt" data-i18n="egypt">Egypt</option>
-                <option value="saudi_arabia" data-i18n="saudi_arabia">Saudi Arabia</option>
-                <option value="oman" data-i18n="oman">Oman</option>
-                <option value="libya" data-i18n="libya">Libya</option>
-                <option value="other" data-i18n="other">Other</option>
-              </select>
-            </div>
-          </div>
-          <div class="pm-form-row">
-            <div class="form-group-premium pm-sort-group">
-              <label for="methodSort" data-i18n="sortOrderLabel">Display Order</label>
-              <div class="input-wrapper">
-                <input type="number" id="methodSort" min="0" step="1" value="0">
-              </div>
-            </div>
-            <div class="form-group-premium pm-active-group">
-              <label class="pm-toggle-label">
-                <input type="checkbox" id="methodActive" checked>
-                <span data-i18n="activeToggle">Active</span>
-              </label>
-            </div>
-          </div>
+      <div class="modal-premium-body">
+        <div class="pm-detail-section">
+          <div class="pm-detail-label" data-i18n="payload">Payload</div>
+          <pre class="pm-json" id="logPayload">-</pre>
         </div>
-        <div class="pm-modal-footer">
-          <button type="button" class="btn btn-ghost premium-cancel-btn" id="methodFormCancel" data-i18n="cancel">Cancel</button>
-          <button type="submit" class="premium-save-btn" id="methodFormSubmit" data-i18n="save">Save</button>
+        <div class="pm-detail-section" id="logErrorSection">
+          <div class="pm-detail-label" data-i18n="errorMessage">Error Message</div>
+          <p class="pm-error-text" id="logError"></p>
         </div>
-      </form>
+        <div class="pm-detail-section" id="logCustomerSection">
+          <div class="pm-detail-label" data-i18n="customer">Customer</div>
+          <p id="logCustomer"></p>
+        </div>
+      </div>
+      <div class="pm-modal-footer">
+        <button class="btn btn-ghost premium-cancel-btn" id="logModalCloseBtn" data-i18n="close">Close</button>
+        <button class="premium-save-btn" id="reprocessBtn">🔄 <span data-i18n="reprocess">Reprocess</span></button>
+      </div>
     </div>
   </div>
 
@@ -187,6 +185,6 @@
 
   <script src="js/i18n.js"></script>
   <script src="js/theme.js"></script>
-  <script src="js/payment-methods-settings.js"></script>
+  <script src="js/webhook-logs.js"></script>
 </body>
 </html>
