@@ -82,7 +82,9 @@ function t(key) {
   const section = i18n[currentLang]?.customers || i18n[currentLang]?.nav || i18n[currentLang]?.dashboard || i18n[currentLang]?.login || i18n[currentLang];
   if (section && section[key]) return section[key];
   const paySection = i18n[currentLang]?.payments || {};
-  return paySection[key] || key;
+  if (paySection[key]) return paySection[key];
+  const commSection = i18n[currentLang]?.communications || {};
+  return commSection[key] || key;
 }
 
 function showToast(message, type) {
@@ -261,6 +263,7 @@ function renderCustomers(filteredCustomers) {
       </div>`;
 
     const waLink = waPhone ? `https://wa.me/${waPhone.replace(/[^0-9]/g, '')}` : '#';
+    const commCount = c.communication_count || 0;
 
     return `
       <div class="customer-card" data-id="${c._id}">
@@ -283,13 +286,22 @@ function renderCustomers(filteredCustomers) {
         </div>
         ${debtBadge}
         ${paySection}
+        <div class="comm-count-chip" data-comm="${c._id}" title="${t('communicationCount')}">
+          <span class="comm-count-icon">📞</span>
+          <span class="comm-count-num">${commCount}</span>
+        </div>
+        <div class="card-msg-slider" data-msg-cid="${c._id}">
+          <div class="msg-slider-inner">
+            <div class="msg-slider-empty">${t('noMessages')}</div>
+          </div>
+        </div>
         <div class="customer-card-details">
           <div class="customer-card-detail">
             <span class="detail-icon">💬</span>
             <span>${whatsapp}</span>
           </div>
           ${waPhone ? `<div class="customer-card-detail">
-            <a href="${waLink}" target="_blank" rel="noopener" class="wa-btn" title="${t('whatsapp')}" style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:12px;background:#25D366;color:#fff;font-size:11px;text-decoration:none">
+            <a href="${waLink}" target="_blank" rel="noopener" class="wa-btn" data-wa="${c._id}" title="${t('whatsapp')}" style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:12px;background:#25D366;color:#fff;font-size:11px;text-decoration:none">
               💬 ${t('whatsapp')}
             </a>
           </div>` : ''}
@@ -322,12 +334,18 @@ function renderCustomers(filteredCustomers) {
     const payBtn = e.target.closest('.card-pay-btn');
     const editBtn = e.target.closest('.card-edit-btn');
     const delBtn = e.target.closest('.card-delete-btn');
+    const waBtn = e.target.closest('[data-wa]');
+    const commChip = e.target.closest('[data-comm]');
+    if (waBtn) { e.stopPropagation(); e.preventDefault(); incrementCommunication(waBtn.dataset.wa); const href = waBtn.getAttribute('href'); if (href && href !== '#') window.open(href, '_blank', 'noopener'); return; }
+    if (commChip) { e.stopPropagation(); incrementCommunication(commChip.dataset.comm); return; }
     if (payBtn) { e.stopPropagation(); const c = allCustomers.find(x => x._id === payBtn.dataset.pay); if (c) openAddPaymentModal(c); return; }
     if (editBtn) { e.stopPropagation(); openEditModal(editBtn.dataset.edit); return; }
     if (delBtn) { e.stopPropagation(); openDeleteModal(delBtn.dataset.delete); return; }
     if (card) showCustomerDetails(card.dataset.id);
   };
   grid.addEventListener('click', grid.__customersClickHandler);
+
+  loadCardMessageSliders(customers);
 }
 
 function renderStats() {
@@ -445,7 +463,7 @@ function populateDetails(customer) {
       </div>
       <div class="details-row">
         <span class="details-label">${t('whatsapp')}</span>
-        <span class="details-value">${whatsapp} ${waPhone ? `<a href="https://wa.me/${waPhone.replace(/[^0-9]/g, '')}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:12px;background:#25D366;color:#fff;font-size:11px;text-decoration:none;margin-inline-start:8px">💬 ${t('whatsapp')}</a>` : ''}</span>
+        <span class="details-value">${whatsapp} ${waPhone ? `<a href="https://wa.me/${waPhone.replace(/[^0-9]/g, '')}" target="_blank" rel="noopener" data-wa="${customer._id}" style="display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:12px;background:#25D366;color:#fff;font-size:11px;text-decoration:none;margin-inline-start:8px">💬 ${t('whatsapp')}</a>` : ''}</span>
       </div>
       <div class="details-row">
         <span class="details-label">${t('email')}</span>
@@ -626,6 +644,37 @@ function populateDetails(customer) {
         <button class="btn btn-primary" id="saveStatusBtn">${t('save')}</button>
       </div>
     </div>
+
+    <!-- Communications (Task 4) -->
+    <div class="details-card">
+      <div class="details-card-header">
+        <h3>📞 ${t('communications')}</h3>
+        ${can('customers', 'edit') ? `<button class="btn btn-sm" id="addCommBtn" style="margin-inline-start:8px">➕ ${t('addCommunication')}</button>` : ''}
+      </div>
+      <div id="commStats" class="comm-stats-box"><p style="color:var(--text-muted);padding:8px 0">…</p></div>
+      <div class="comm-filter-row">
+        <select id="commTypeFilter" class="details-select" style="max-width:220px">
+          <option value="">${t('allTypes')}</option>
+        </select>
+      </div>
+      <div id="commLogBox" class="comm-log-box">
+        <p style="color:var(--text-muted);padding:8px 0">${t('noCommunications')}</p>
+      </div>
+    </div>
+
+    <!-- Messages (Task 4) -->
+    <div class="details-card">
+      <div class="details-card-header">
+        <h3>💬 ${t('messages')}</h3>
+        ${can('customers', 'edit') ? `<button class="btn btn-sm" id="addMsgBtn" style="margin-inline-start:8px">➕ ${t('addMessage')}</button>` : ''}
+      </div>
+      <div id="msgChatBox" class="msg-chat-box">
+        <p style="color:var(--text-muted);padding:12px 0;text-align:center">${t('noMessages')}</p>
+      </div>
+      <div style="text-align:center;margin-top:8px">
+        <button class="btn btn-ghost btn-sm" id="msgLoadMoreBtn" style="display:none">${t('loadMore')}</button>
+      </div>
+    </div>
   `;
 
   // Wire status change events
@@ -680,6 +729,37 @@ function populateDetails(customer) {
   if (ledgerAddBtn) {
     ledgerAddBtn.addEventListener('click', () => openAddPaymentModal(customer));
   }
+
+  const addCommBtn = document.getElementById('addCommBtn');
+  if (addCommBtn) addCommBtn.addEventListener('click', () => openAddCommunicationModal(customer._id));
+
+  const addMsgBtn = document.getElementById('addMsgBtn');
+  if (addMsgBtn) addMsgBtn.addEventListener('click', () => openAddMessageModal(customer._id));
+
+  const commTypeFilter = document.getElementById('commTypeFilter');
+  if (commTypeFilter) {
+    commTypeFilter.addEventListener('change', () => loadCommList(customer._id, document.getElementById('commLogBox'), commTypeFilter.value));
+  }
+
+  const msgLoadMoreBtn = document.getElementById('msgLoadMoreBtn');
+  if (msgLoadMoreBtn) {
+    msgLoadMoreBtn.addEventListener('click', () => {
+      msgPage += 1;
+      loadMessageList(customer._id, msgPage, false);
+    });
+  }
+
+  loadCommunicationSection(customer);
+  loadMessageSection(customer);
+
+  document.querySelectorAll('#detailsContent [data-wa]').forEach(a => {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      incrementCommunication(this.dataset.wa);
+      const href = this.getAttribute('href');
+      if (href && href !== '#') window.open(href, '_blank', 'noopener');
+    });
+  });
 
   // Delete payment record buttons (embedded history)
   document.querySelectorAll('[data-delpay]').forEach(btn => {
@@ -1439,6 +1519,274 @@ async function handleAddPaymentSubmit(e) {
   }
 }
 
+// ---- Communications & Messages (Task 4) ----
+let commTypesCache = null;
+
+function escapeHtml(str) {
+  return String(str ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function formatDateTime(d) {
+  if (!d) return '—';
+  const date = new Date(d);
+  return date.toLocaleString(currentLang === 'ar' ? 'ar-SA' : 'en-US', {
+    year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+  });
+}
+
+async function loadCommTypes() {
+  if (commTypesCache) return commTypesCache;
+  try {
+    const data = await apiFetch('/communication-types');
+    commTypesCache = (data && data.types) || [];
+  } catch { commTypesCache = []; }
+  return commTypesCache;
+}
+
+async function incrementCommunication(cid) {
+  try {
+    const data = await apiFetch(`/customers/${cid}/increment-communication`, { method: 'POST' });
+    const count = data && data.customer && data.customer.communication_count;
+    const chip = document.querySelector(`[data-comm="${cid}"] .comm-count-num`);
+    if (chip && count !== undefined) {
+      chip.textContent = count;
+      const chipWrap = chip.closest('.comm-count-chip');
+      if (chipWrap) {
+        chipWrap.classList.remove('bump');
+        void chipWrap.offsetWidth;
+        chipWrap.classList.add('bump');
+      }
+    }
+    if (count !== undefined && document.getElementById('commStats')) {
+      loadCommStats(cid);
+    }
+  } catch (e) {
+    showToast(t('failed'), 'error');
+  }
+}
+
+function loadCardMessageSliders(customers) {
+  const targets = [];
+  customers.forEach(c => {
+    const el = document.querySelector(`.card-msg-slider[data-msg-cid="${c._id}"]`);
+    if (el) targets.push({ id: c._id, el });
+  });
+  targets.forEach(item => {
+    apiFetch(`/customers/${item.id}/messages/latest`).then(data => {
+      if (!data) return;
+      const cMsg = data.customer;
+      const eMsg = data.employee;
+      if (!cMsg && !eMsg) return;
+      const inner = item.el.querySelector('.msg-slider-inner');
+      if (!inner) return;
+      let html = '';
+      if (cMsg) html += `<div class="msg-slider-item customer"><span class="msg-slider-label">${t('customerLast')}:</span> <span class="msg-slider-text">${escapeHtml(truncateMsg(cMsg.content, 50))}</span></div>`;
+      if (eMsg) html += `<div class="msg-slider-item employee"><span class="msg-slider-label">${t('employeeLast')}:</span> <span class="msg-slider-text">${escapeHtml(truncateMsg(eMsg.content, 50))}</span></div>`;
+      inner.innerHTML = html;
+    }).catch(() => {});
+  });
+}
+
+function truncateMsg(text, max) {
+  const s = String(text || '');
+  if (s.length <= max) return s;
+  return s.slice(0, max) + '...';
+}
+
+function loadCommunicationSection(customer) {
+  const box = document.getElementById('commLogBox');
+  if (!box) return;
+  loadCommTypes().then(types => {
+    const select = document.getElementById('commTypeFilter');
+    if (select && types.length) {
+      select.innerHTML = `<option value="">${t('allTypes')}</option>` + types.map(ty => `<option value="${ty._id}">${escapeHtml(ty.icon)} ${escapeHtml(ty.name)}</option>`).join('');
+    }
+  });
+  loadCommStats(customer._id);
+  loadCommList(customer._id, box, '');
+}
+
+async function loadCommStats(cid) {
+  try {
+    const data = await apiFetch(`/customers/${cid}/communications/stats`);
+    if (!data) return;
+    const el = document.getElementById('commStats');
+    if (!el) return;
+    let breakdown = '';
+    if (data.breakdown && data.breakdown.length) {
+      breakdown = data.breakdown.map(b => `<span class="comm-stat-type">${escapeHtml(b.icon) || '💬'} ${escapeHtml(b.name)}: ${b.count}</span>`).join('');
+    } else {
+      breakdown = '<span style="color:var(--text-muted)">—</span>';
+    }
+    el.innerHTML = `
+      <div class="comm-stat-row"><span>${t('totalCommunications')}:</span><strong>${data.total || 0}</strong></div>
+      <div class="comm-stat-row"><span>${t('lastCommunication')}:</span><strong>${formatDateTime(data.last_date)}</strong></div>
+      <div class="comm-stat-breakdown">${breakdown}</div>
+    `;
+  } catch {}
+}
+
+async function loadCommList(cid, box, typeFilter) {
+  try {
+    const qs = typeFilter ? `?type=${typeFilter}` : '';
+    const data = await apiFetch(`/customers/${cid}/communications${qs}`);
+    const list = (data && data.communications) || [];
+    if (!list.length) {
+      box.innerHTML = `<p style="color:var(--text-muted);padding:8px 0">${t('noCommunications')}</p>`;
+      return;
+    }
+    box.innerHTML = list.map(com => `
+      <div class="comm-log-row">
+        <span class="comm-log-icon">${escapeHtml(com.typeIcon) || '💬'}</span>
+        <span class="comm-log-type">${escapeHtml(com.typeName) || '—'}</span>
+        <span class="comm-log-date">${formatDateTime(com.communication_date)}</span>
+        <span class="comm-log-notes">${escapeHtml(com.notes) || '—'}</span>
+        <span class="comm-log-by">${com.created_by ? escapeHtml(com.created_by.name || com.created_by.email || '') : '—'}</span>
+      </div>
+    `).join('');
+  } catch (e) {
+    box.innerHTML = `<p style="color:var(--text-muted);padding:8px 0">${t('noCommunications')}</p>`;
+  }
+}
+
+let commCustomerId = null;
+let msgCustomerId = null;
+let msgPage = 1;
+let msgTotalPages = 1;
+
+function openAddCommunicationModal(customerId) {
+  commCustomerId = customerId;
+  document.getElementById('commModalTitle').textContent = t('addCommunication');
+  document.getElementById('commFormType').innerHTML = '<option value="">—</option>';
+  document.getElementById('commFormDate').value = new Date().toISOString().split('T')[0];
+  document.getElementById('commFormNotes').value = '';
+  loadCommTypes().then(types => {
+    const select = document.getElementById('commFormType');
+    select.innerHTML = '<option value="">—</option>' + types.map(ty => `<option value="${ty._id}">${escapeHtml(ty.icon)} ${escapeHtml(ty.name)}</option>`).join('');
+  });
+  document.getElementById('commModal').classList.add('show');
+  document.body.classList.add('modal-open');
+}
+
+function closeCommModal() {
+  document.getElementById('commModal').classList.remove('show');
+  document.body.classList.remove('modal-open');
+  commCustomerId = null;
+}
+
+async function handleAddCommunicationSubmit(e) {
+  e.preventDefault();
+  if (!commCustomerId) return;
+  const type_id = document.getElementById('commFormType')?.value || '';
+  const communication_date = document.getElementById('commFormDate')?.value || new Date().toISOString().split('T')[0];
+  const notes = (document.getElementById('commFormNotes')?.value || '').trim();
+  const btn = document.getElementById('commFormSubmit');
+  const original = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = '...';
+  try {
+    const data = await apiFetch(`/customers/${commCustomerId}/communications`, {
+      method: 'POST',
+      body: JSON.stringify({ type_id: type_id || undefined, communication_date, notes })
+    });
+    if (!data) throw new Error();
+    showToast(t('saved'), 'success');
+    const cid = commCustomerId;
+    closeCommModal();
+    loadCommStats(cid);
+    loadCommList(cid, document.getElementById('commLogBox'), document.getElementById('commTypeFilter')?.value || '');
+    const chip = document.querySelector(`[data-comm="${cid}"] .comm-count-num`);
+    if (chip) chip.textContent = Number(chip.textContent || 0) + 1;
+  } catch (err) {
+    showToast(t('failed'), 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = original;
+  }
+}
+
+function loadMessageSection(customer) {
+  msgCustomerId = customer._id;
+  msgPage = 1;
+  msgTotalPages = 1;
+  loadMessageList(customer._id, 1, true);
+}
+
+async function loadMessageList(cid, page, replace) {
+  const chat = document.getElementById('msgChatBox');
+  if (!chat) return;
+  try {
+    const data = await apiFetch(`/customers/${cid}/messages?page=${page}`);
+    const list = (data && data.messages) || [];
+    msgTotalPages = (data && data.pages) || 1;
+    const html = list.map(m => {
+      const isCustomer = m.sender_type === 'customer';
+      return `<div class="msg-bubble ${isCustomer ? 'customer' : 'employee'}">
+        <div class="msg-bubble-text">${escapeHtml(m.content)}</div>
+        <div class="msg-bubble-meta">${isCustomer ? t('senderCustomer') : t('senderEmployee')} · ${formatDateTime(m.created_at)}</div>
+      </div>`;
+    }).join('');
+    if (replace) {
+      chat.innerHTML = html || `<p style="color:var(--text-muted);padding:12px 0;text-align:center">${t('noMessages')}</p>`;
+    } else {
+      chat.innerHTML += html;
+    }
+    chat.scrollTop = chat.scrollHeight;
+    const loadMore = document.getElementById('msgLoadMoreBtn');
+    if (loadMore) loadMore.style.display = (msgPage < msgTotalPages) ? '' : 'none';
+  } catch (e) {
+    chat.innerHTML = `<p style="color:var(--text-muted);padding:12px 0;text-align:center">${t('noMessages')}</p>`;
+  }
+}
+
+function openAddMessageModal(customerId) {
+  msgCustomerId = customerId;
+  document.getElementById('msgModalTitle').textContent = t('addMessage');
+  document.getElementById('msgFormContent').value = '';
+  document.querySelector('input[name="msg-sender"]:checked')?.removeAttribute('checked');
+  const customerRadio = document.getElementById('msgSenderCustomer');
+  if (customerRadio) customerRadio.checked = true;
+  document.getElementById('msgModal').classList.add('show');
+  document.body.classList.add('modal-open');
+  setTimeout(() => document.getElementById('msgFormContent').focus(), 100);
+}
+
+function closeMsgModal() {
+  document.getElementById('msgModal').classList.remove('show');
+  document.body.classList.remove('modal-open');
+  msgCustomerId = null;
+}
+
+async function handleAddMessageSubmit(e) {
+  e.preventDefault();
+  if (!msgCustomerId) return;
+  const content = (document.getElementById('msgFormContent')?.value || '').trim();
+  if (!content) return;
+  const sender_type = document.querySelector('input[name="msg-sender"]:checked')?.value || 'employee';
+  const btn = document.getElementById('msgFormSubmit');
+  const original = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = '...';
+  try {
+    const data = await apiFetch(`/customers/${msgCustomerId}/messages`, {
+      method: 'POST',
+      body: JSON.stringify({ sender_type, content })
+    });
+    if (!data || !data.message) throw new Error();
+    showToast(t('messageAdded'), 'success');
+    const cid = msgCustomerId;
+    closeMsgModal();
+    loadMessageList(cid, 1, true);
+    const slider = document.querySelector(`.card-msg-slider[data-msg-cid="${cid}"]`);
+    if (slider) loadCardMessageSliders([{ _id: cid }]);
+  } catch (err) {
+    showToast(t('messageFailed'), 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = original;
+  }
+}
+
 // ---- Init ----
 function initCustomers() {
   const token = getToken();
@@ -1581,11 +1929,33 @@ function initCustomers() {
     if (e.target === this) closePayModal();
   });
 
+  // Communication + message modal events (Task 4)
+  const commModal = document.getElementById('commModal');
+  if (commModal) {
+    document.getElementById('commForm').addEventListener('submit', handleAddCommunicationSubmit);
+    document.getElementById('commModalClose').addEventListener('click', closeCommModal);
+    document.getElementById('commFormCancel').addEventListener('click', closeCommModal);
+    commModal.addEventListener('click', function (e) { if (e.target === this) closeCommModal(); });
+  }
+  const msgModal = document.getElementById('msgModal');
+  if (msgModal) {
+    document.getElementById('msgForm').addEventListener('submit', handleAddMessageSubmit);
+    document.getElementById('msgModalClose').addEventListener('click', closeMsgModal);
+    document.getElementById('msgFormCancel').addEventListener('click', closeMsgModal);
+    msgModal.addEventListener('click', function (e) { if (e.target === this) closeMsgModal(); });
+  }
+
   // ESC key to close modals
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
       if (document.getElementById('paymentModal').classList.contains('show')) {
         closePayModal(); return;
+      }
+      if (document.getElementById('commModal').classList.contains('show')) {
+        closeCommModal(); return;
+      }
+      if (document.getElementById('msgModal').classList.contains('show')) {
+        closeMsgModal(); return;
       }
       if (document.getElementById('customerModal').classList.contains('show')) {
         closeModal(); return;

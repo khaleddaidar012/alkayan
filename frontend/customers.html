@@ -63,6 +63,10 @@
           <span class="nav-icon">💳</span>
           <span data-i18n="paymentMethods">Payment Methods</span>
         </div>
+        <div class="nav-item" data-nav="communication-types">
+          <span class="nav-icon">📞</span>
+          <span data-i18n="communicationTypes">Communication Types</span>
+        </div>
 </nav>
 
       <div class="sidebar-footer">
@@ -541,6 +545,71 @@
     </div>
   </div>
 
+  <!-- Add Communication Modal (Task 4) -->
+  <div class="modal-overlay" id="commModal">
+    <div class="modal-container modal-sm">
+      <div class="modal-header">
+        <h2 id="commModalTitle" data-i18n="addCommunication">Add Communication</h2>
+        <button class="modal-close" id="commModalClose">&#10005;</button>
+      </div>
+      <form id="commForm" novalidate>
+        <div class="modal-body pm-compact-body">
+          <div class="details-row">
+            <span class="details-label" data-i18n="communicationType">Communication Type</span>
+            <select id="commFormType" class="details-select"><option value="">—</option></select>
+          </div>
+          <div class="details-row">
+            <span class="details-label" data-i18n="communicationDate">Date</span>
+            <input type="date" id="commFormDate" class="details-input">
+          </div>
+          <div class="details-row">
+            <span class="details-label" data-i18n="notes">Notes</span>
+            <textarea id="commFormNotes" class="details-input" rows="3" placeholder=" "></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" id="commFormCancel" data-i18n="cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="commFormSubmit"><span data-i18n="save">Save</span></button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Message Modal (Task 4) -->
+  <div class="modal-overlay" id="msgModal">
+    <div class="modal-container modal-sm">
+      <div class="modal-header">
+        <h2 id="msgModalTitle" data-i18n="addMessage">Add Message</h2>
+        <button class="modal-close" id="msgModalClose">&#10005;</button>
+      </div>
+      <form id="msgForm" novalidate>
+        <div class="modal-body pm-compact-body">
+          <div class="details-row">
+            <span class="details-label" data-i18n="sender">Sender</span>
+            <div class="pm-direction-group" id="msgSenderGroup">
+              <label class="pm-direction-opt">
+                <input type="radio" name="msg-sender" value="customer" id="msgSenderCustomer" checked>
+                <span>👤 <span data-i18n="senderCustomer">Customer</span></span>
+              </label>
+              <label class="pm-direction-opt">
+                <input type="radio" name="msg-sender" value="employee">
+                <span>🧑‍💼 <span data-i18n="senderEmployee">Employee</span></span>
+              </label>
+            </div>
+          </div>
+          <div class="details-row">
+            <span class="details-label" data-i18n="messageContent">Message</span>
+            <textarea id="msgFormContent" class="details-input" rows="4" placeholder=" " data-i18n-placeholder="contentPlaceholder"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" id="msgFormCancel" data-i18n="cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="msgFormSubmit"><span data-i18n="save">Save</span></button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Toast -->
   <div class="toast-container" id="toastContainer"></div>
 
@@ -548,6 +617,6 @@
   <script src="js/theme.js"></script>
   <script src="js/countryDetection.js"></script>
   <script src="js/pricing.js"></script>
-  <script src="js/customers.js?v=3"></script>
+  <script src="js/customers.js?v=4"></script>
 </body>
 </html>

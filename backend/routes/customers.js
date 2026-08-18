@@ -7,6 +7,8 @@ const {
   updatePayment, deletePayment
 } = require('../controllers/customerController');
 const { createPayment, getPayments, getPaymentSummary, getCustomerDebt } = require('../controllers/paymentController');
+const { logCommunication, getCommunications, getCommunicationStats, incrementCounter } = require('../controllers/communicationController');
+const { addMessage, getMessages, getLatestMessages } = require('../controllers/messageController');
 const { protect, authorize } = require('../middleware/auth');
 const { upload } = require('../services/fileUpload');
 const { createCustomerValidators, updateCustomerValidators } = require('../validators/customerValidator');
@@ -37,5 +39,24 @@ router.get('/:customerId/debt', getCustomerDebt);
 router.put('/:customerId/payments/:paymentId', authorize('admin', 'manager'), updatePayment);
 
 router.delete('/:customerId/payments/:paymentId', authorize('admin', 'manager'), deletePayment);
+
+router.post('/:customerId/communications', authorize('admin', 'manager', 'employee'), [
+  body('type_id').optional().isMongoId().withMessage('Invalid communication type'),
+  body('communication_date').optional().isISO8601().withMessage('Invalid communication date'),
+  body('notes').optional().isLength({ max: 1000 }).withMessage('Notes must be under 1000 characters')
+], logCommunication);
+
+router.get('/:customerId/communications', getCommunications);
+router.get('/:customerId/communications/stats', getCommunicationStats);
+
+router.post('/:customerId/increment-communication', authorize('admin', 'manager', 'employee'), incrementCounter);
+
+router.post('/:customerId/messages', authorize('admin', 'manager', 'employee'), [
+  body('sender_type').isIn(['customer', 'employee']).withMessage('Sender type must be customer or employee'),
+  body('content').trim().isLength({ min: 1, max: 2000 }).withMessage('Message must be 1-2000 characters')
+], addMessage);
+
+router.get('/:customerId/messages', getMessages);
+router.get('/:customerId/messages/latest', getLatestMessages);
 
 module.exports = router;

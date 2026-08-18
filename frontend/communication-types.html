@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title data-i18n="pageTitle">Payment Methods Management</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💳</text></svg>">
+  <title data-i18n="pageTitle">Communication Types Management</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📞</text></svg>">
   <link rel="stylesheet" href="css/style.css?v=6">
   <link rel="stylesheet" href="css/dashboard.css?v=6">
   <link rel="stylesheet" href="css/payment-methods.css?v=6">
@@ -54,11 +54,11 @@
           <span class="nav-icon">💰</span>
           <span data-i18n="pricing">Pricing</span>
         </div>
-        <div class="nav-item active" data-nav="payment-methods">
+        <div class="nav-item" data-nav="payment-methods">
           <span class="nav-icon">💳</span>
           <span data-i18n="paymentMethods">Payment Methods</span>
         </div>
-        <div class="nav-item" data-nav="communication-types">
+        <div class="nav-item active" data-nav="communication-types">
           <span class="nav-icon">📞</span>
           <span data-i18n="communicationTypes">Communication Types</span>
         </div>
@@ -81,7 +81,7 @@
         <div class="header-left">
           <button class="hamburger" id="hamburger" aria-label="Menu">☰</button>
           <div>
-            <h1 data-i18n="pageTitle">Payment Methods Management</h1>
+            <h1 data-i18n="pageTitle">Communication Types Management</h1>
           </div>
         </div>
         <div class="header-right">
@@ -98,10 +98,10 @@
       </header>
 
       <div class="pm-container">
-        <p class="pm-subtitle" data-i18n="subtitle">Manage payment methods per country. Global methods are shown to all customers.</p>
+        <p class="pm-subtitle" data-i18n="subtitle">Manage communication types. System types cannot be edited or deleted.</p>
 
         <div class="pm-toolbar">
-          <button class="btn btn-primary" id="addMethodBtn">➕ <span data-i18n="addMethod">Add Method</span></button>
+          <button class="btn btn-primary" id="addTypeBtn">➕ <span data-i18n="addType">Add Type</span></button>
         </div>
 
         <div class="pm-card">
@@ -109,14 +109,14 @@
             <thead>
               <tr>
                 <th data-i18n="name">Name</th>
-                <th data-i18n="country">Country</th>
+                <th data-i18n="icon">Icon</th>
+                <th data-i18n="typeSystem">System</th>
                 <th data-i18n="sortOrder">Sort Order</th>
-                <th data-i18n="active">Active</th>
                 <th data-i18n="actions">Actions</th>
               </tr>
             </thead>
-            <tbody id="methodsTableBody">
-              <tr><td colspan="5" class="pm-empty" data-i18n="empty">No payment methods yet</td></tr>
+            <tbody id="typesTableBody">
+              <tr><td colspan="5" class="pm-empty" data-i18n="empty">No communication types yet</td></tr>
             </tbody>
           </table>
         </div>
@@ -125,51 +125,38 @@
     </main>
   </div>
 
-  <div class="modal-overlay" id="methodModal">
+  <div class="modal-overlay" id="typeModal">
     <div class="modal-box modal-premium pm-modal">
       <div class="modal-premium-header">
-        <h2 id="methodModalTitle" data-i18n="addMethod">Add Method</h2>
-        <button class="modal-close" id="methodModalClose">✕</button>
+        <h2 id="typeModalTitle" data-i18n="addType">Add Type</h2>
+        <button class="modal-close" id="typeModalClose">✕</button>
       </div>
-      <form id="methodForm" novalidate>
+      <form id="typeForm" novalidate>
         <div class="modal-premium-body">
           <div class="form-group-premium">
-            <label for="methodName" data-i18n="methodName">Method Name</label>
+            <label for="typeName" data-i18n="typeNameLabel">Type Name</label>
             <div class="input-wrapper">
-              <input type="text" id="methodName" placeholder=" " data-i18n-placeholder="methodNamePlaceholder" required maxlength="80">
-            </div>
-          </div>
-          <div class="form-group-premium">
-            <label for="methodCountry" data-i18n="countryLabel">Country</label>
-            <div class="input-wrapper">
-              <select id="methodCountry">
-                <option value="global" data-i18n="countryGlobal">Global (all countries)</option>
-                <option value="egypt" data-i18n="egypt">Egypt</option>
-                <option value="saudi_arabia" data-i18n="saudi_arabia">Saudi Arabia</option>
-                <option value="oman" data-i18n="oman">Oman</option>
-                <option value="libya" data-i18n="libya">Libya</option>
-                <option value="other" data-i18n="other">Other</option>
-              </select>
+              <input type="text" id="typeName" placeholder=" " data-i18n-placeholder="typeNamePlaceholder" required maxlength="80">
             </div>
           </div>
           <div class="pm-form-row">
             <div class="form-group-premium pm-sort-group">
-              <label for="methodSort" data-i18n="sortOrderLabel">Display Order</label>
+              <label for="typeIcon" data-i18n="icon">Icon</label>
               <div class="input-wrapper">
-                <input type="number" id="methodSort" min="0" step="1" value="0">
+                <input type="text" id="typeIcon" maxlength="10" value="💬">
               </div>
             </div>
-            <div class="form-group-premium pm-active-group">
-              <label class="pm-toggle-label">
-                <input type="checkbox" id="methodActive" checked>
-                <span data-i18n="activeToggle">Active</span>
-              </label>
+            <div class="form-group-premium pm-sort-group">
+              <label for="typeSort" data-i18n="sortOrderLabel">Display Order</label>
+              <div class="input-wrapper">
+                <input type="number" id="typeSort" min="0" step="1" value="0">
+              </div>
             </div>
           </div>
         </div>
         <div class="pm-modal-footer">
-          <button type="button" class="btn btn-ghost premium-cancel-btn" id="methodFormCancel" data-i18n="cancel">Cancel</button>
-          <button type="submit" class="premium-save-btn" id="methodFormSubmit" data-i18n="save">Save</button>
+          <button type="button" class="btn btn-ghost premium-cancel-btn" id="typeFormCancel" data-i18n="cancel">Cancel</button>
+          <button type="submit" class="premium-save-btn" id="typeFormSubmit" data-i18n="save">Save</button>
         </div>
       </form>
     </div>
@@ -179,6 +166,6 @@
 
   <script src="js/i18n.js"></script>
   <script src="js/theme.js"></script>
-  <script src="js/payment-methods-settings.js"></script>
+  <script src="js/communication-types-settings.js"></script>
 </body>
 </html>

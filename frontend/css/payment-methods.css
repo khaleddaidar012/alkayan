@@ -134,6 +134,46 @@
   max-width: 460px;
 }
 
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal-overlay.show {
+  display: flex;
+}
+
+.modal-overlay.show .modal-premium,
+.modal-overlay.show .modal-container {
+  animation: modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.modal-overlay:not(.show) .modal-premium,
+.modal-overlay:not(.show) .modal-container {
+  animation: modalOut 0.2s ease forwards;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.92) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes modalOut {
+  from { opacity: 1; transform: scale(1) translateY(0); }
+  to { opacity: 0; transform: scale(0.95) translateY(6px); }
+}
+
+body.modal-open {
+  overflow: hidden;
+}
+
 .pm-form-row {
   display: flex;
   gap: 16px;
