@@ -80,7 +80,9 @@ function priceDisplay(label, value, opts) {
 
 function t(key) {
   const section = i18n[currentLang]?.customers || i18n[currentLang]?.nav || i18n[currentLang]?.dashboard || i18n[currentLang]?.login || i18n[currentLang];
-  return section[key] || key;
+  if (section && section[key]) return section[key];
+  const paySection = i18n[currentLang]?.payments || {};
+  return paySection[key] || key;
 }
 
 function showToast(message, type) {
@@ -101,6 +103,10 @@ function formatDate(dateStr) {
   const d = new Date(dateStr);
   const options = { year: 'numeric', month: 'short', day: 'numeric' };
   return d.toLocaleDateString(currentLang === 'ar' ? 'ar-SA' : 'en-US', options);
+}
+
+function formatPayDate(d) {
+  return d ? new Date(d).toLocaleDateString('en-EG', { year: 'numeric', month: 'short', day: 'numeric' }) : '—';
 }
 
 // ---- API Calls ----
@@ -228,6 +234,10 @@ function renderCustomers(filteredCustomers) {
     const total = pay.finalPrice || 0;
     const paid = pay.paidAmount || 0;
     const remaining = pay.remainingAmount || 0;
+    const debtBalance = c.debt_balance || 0;
+    const debtBadge = debtBalance > 0
+      ? `<span class="card-debt-badge">⚠️ ${t('outstanding')}: ${formatCurrency(debtBalance)}</span>`
+      : '';
 
     let subIcon = '';
     let subLabel = '';
@@ -271,6 +281,7 @@ function renderCustomers(filteredCustomers) {
           <span>·</span>
           <span>${t('totalAmount')}: ${formatCurrency(total)}</span>
         </div>
+        ${debtBadge}
         ${paySection}
         <div class="customer-card-details">
           <div class="customer-card-detail">
@@ -399,8 +410,6 @@ function populateDetails(customer) {
   const pay = customer.payment || {};
   const payStatusKey = pay.status || 'notPaid';
   const history = pay.history || [];
-
-  const formatPayDate = (d) => d ? new Date(d).toLocaleDateString('en-EG', { year: 'numeric', month: 'short', day: 'numeric' }) : '—';
 
   const methodLabels = { cash: 'Cash', instapay: 'InstaPay', bankTransfer: 'Bank Transfer', vodafoneCash: 'Vodafone Cash', other: 'Other' };
 
@@ -573,7 +582,6 @@ function populateDetails(customer) {
                 <td>${r.referenceNumber || '—'}</td>
                 <td>${r.notes || '—'}</td>
                 ${can('customers', 'edit') ? `<td>
-                  <button class="pay-row-btn" data-editpay="${r._id}" title="${t('editPayment')}">✏️</button>
                   <button class="pay-row-btn pay-row-btn-del" data-delpay="${r._id}" title="${t('deletePayment')}">🗑️</button>
                 </td>` : ''}
               </tr>
@@ -585,6 +593,17 @@ function populateDetails(customer) {
           <span>${t('remainingAmount')}: <strong>${formatCurrency(pay.remainingAmount)}</strong></span>
         </div>
       </div>` : ''}
+
+      <!-- Financial Ledger (Task 3) -->
+      <div class="payment-history-section ledger-section">
+        <div class="payment-history-header">
+          <h4>📒 ${t('paymentHistory')}</h4>
+          ${can('customers', 'edit') ? `<button class="btn btn-sm" id="ledgerAddBtn" style="margin-inline-start:8px">➕ ${t('recordPayment')}</button>` : ''}
+        </div>
+        <div id="paymentLedger">
+          <p style="color:var(--text-muted);padding:8px 0">${t('noPayments')}</p>
+        </div>
+      </div>
 
       <!-- Rejection fields (shown when rejected) -->
       <div id="statusRejectionFields" style="${isRejected ? '' : 'display:none'}">
@@ -657,10 +676,12 @@ function populateDetails(customer) {
     addPayBtn.addEventListener('click', () => openAddPaymentModal(customer));
   }
 
-  // Edit / Delete payment record buttons
-  document.querySelectorAll('[data-editpay]').forEach(btn => {
-    btn.addEventListener('click', () => openEditPaymentModal(customer, btn.dataset.editpay));
-  });
+  const ledgerAddBtn = document.getElementById('ledgerAddBtn');
+  if (ledgerAddBtn) {
+    ledgerAddBtn.addEventListener('click', () => openAddPaymentModal(customer));
+  }
+
+  // Delete payment record buttons (embedded history)
   document.querySelectorAll('[data-delpay]').forEach(btn => {
     btn.addEventListener('click', async () => {
       if (!confirm(t('confirmDeletePayment'))) return;
@@ -726,6 +747,67 @@ function populateDetails(customer) {
       }
     });
   }
+
+  renderPaymentLedger(customer._id);
+}
+
+// ---- Payment Ledger (Task 3) ----
+async function renderPaymentLedger(customerId) {
+  const container = document.getElementById('paymentLedger');
+  if (!container) return;
+  container.innerHTML = `<p style="color:var(--text-muted);padding:12px 0">${t('noPayments')}</p>`;
+  try {
+    const [listData, sumData] = await Promise.all([
+      apiFetch(`/customers/${customerId}/payments?limit=100`),
+      apiFetch(`/customers/${customerId}/payments/summary`)
+    ]);
+    const payments = listData?.payments || [];
+    const summary = sumData?.summary || { total_in: 0, total_out: 0, balance: 0 };
+
+    const rows = payments.length ? payments.map(p => `
+      <tr>
+        <td>${formatPayDate(p.created_at)}</td>
+        <td><span class="pm-direction-badge ${p.direction}">${p.direction === 'in' ? '⬅' : '➡'} ${t(p.direction)}</span></td>
+        <td><strong>${formatCurrency(p.amount)}</strong> <span class="pm-currency">${p.currency}</span></td>
+        <td>${p.method?.name || p.methodName || '—'}</td>
+        <td>${p.receipt_url ? `<a class="pm-receipt-link" href="${p.receipt_url}" target="_blank" rel="noopener" title="${t('viewReceipt')}">📎 ${t('viewReceipt')}</a>` : `<span style="color:var(--text-muted)">${t('noReceipt')}</span>`}</td>
+        <td style="font-size:12px">${p.notes || '—'}</td>
+        ${can('customers', 'edit') ? `<td><button class="pay-row-btn pay-row-btn-del" data-del-ledger="${p._id}" title="${t('deletePayment')}">🗑️</button></td>` : ''}
+      </tr>
+    `).join('') : '';
+
+    const summaryRow = `
+      <div class="payment-summary">
+        <span>${t('totalIn')}: <strong style="color:#2ecc71">${formatCurrency(summary.total_in)}</strong></span>
+        <span>${t('totalOut')}: <strong style="color:#e74c3c">${formatCurrency(summary.total_out)}</strong></span>
+        <span>${t('balance')}: <strong style="color:${summary.balance > 0 ? 'var(--gold)' : '#2ecc71'}">${formatCurrency(summary.balance)}</strong></span>
+      </div>`;
+
+    container.innerHTML = `
+      ${summaryRow}
+      ${payments.length ? `
+      <table class="payment-history-table">
+        <thead><tr>
+          <th>${t('date')}</th><th>${t('directionBadge')}</th><th>${t('amount')}</th>
+          <th>${t('methodLabel')}</th><th>${t('receiptLabel')}</th><th>${t('notes')}</th>
+          ${can('customers', 'edit') ? `<th>${t('actions') || 'Actions'}</th>` : ''}
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>` : `<p style="color:var(--text-muted);padding:8px 0">${t('noPayments')}</p>`}`;
+
+    container.querySelectorAll('[data-del-ledger]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!confirm(t('confirmDeletePayment'))) return;
+        const result = await apiFetch(`/payments/${btn.dataset.delLedger}`, { method: 'DELETE' });
+        if (result) {
+          showToast(t('paymentDeleted'), 'success');
+          renderPaymentLedger(customerId);
+        }
+      });
+    });
+  } catch (error) {
+    container.innerHTML = `<p style="color:var(--text-muted);padding:12px 0">${t('noPayments')}</p>`;
+  }
 }
 
 let searchTimeout = null;
@@ -743,6 +825,7 @@ function applyFilters() {
   const programFilter = document.getElementById('filterProgram')?.value || '';
   const employeeFilter = document.getElementById('filterEmployee')?.value || '';
   const countryFilter = document.getElementById('filterCountry')?.value || '';
+  const debtFilter = document.getElementById('filterDebt')?.value || '';
 
   let filtered = allCustomers;
 
@@ -772,6 +855,14 @@ function applyFilters() {
 
   if (countryFilter) {
     filtered = filtered.filter(c => c.country === countryFilter);
+  }
+
+  if (debtFilter === 'hasDebt') {
+    filtered = filtered.filter(c => (c.debt_balance || 0) > 0);
+  } else if (debtFilter === 'noDebt') {
+    filtered = filtered.filter(c => (c.debt_balance || 0) <= 0);
+  } else if (debtFilter === 'paidInFull') {
+    filtered = filtered.filter(c => (c.payment?.status === 'fullyPaid' || ((c.debt_balance || 0) === 0 && c.payment?.paidAmount > 0)));
   }
 
   renderCustomers(filtered);
@@ -1221,59 +1312,53 @@ async function confirmDelete() {
   }
 }
 
-// ---- Payment Modal ----
+// ---- Payment Modal (compact ledger) ----
 let paymentCustomerId = null;
-let editingPaymentId = null;
+let paymentMethodsCache = null;
 
-function openAddPaymentModal(customer) {
-  editingPaymentId = null;
-  paymentCustomerId = customer._id;
-  document.getElementById('payModalTitle').textContent = t('addPayment') + ' - ' + customer.name;
-  document.getElementById('payFormSubmit').textContent = t('addPayment');
-  document.getElementById('payFormAmount').value = '';
-  document.getElementById('payFormMethod').value = 'cash';
-  document.getElementById('payFormReference').value = '';
-  document.getElementById('payFormNotes').value = '';
-  const dateInput = document.getElementById('payFormDate');
-  if (dateInput) { dateInput.value = ''; dateInput.style.display = 'none'; }
-  const now = new Date();
-  document.getElementById('payFormDateDisplay').textContent = now.toLocaleString(currentLang === 'ar' ? 'ar-EG' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-  document.getElementById('payFormRemaining').textContent = formatCurrency(customer.payment?.remainingAmount || 0);
-  document.getElementById('paymentModal').classList.add('show');
-  document.body.classList.add('modal-open');
+async function loadPaymentMethods(country) {
+  if (!paymentMethodsCache) {
+    const data = await apiFetch(`/payment-methods`);
+    paymentMethodsCache = data?.methods || [];
+  }
+  const code = country || 'other';
+  return paymentMethodsCache.filter(m =>
+    (m.country === code || m.country === 'global') && m.is_active !== false
+  );
 }
 
-function openEditPaymentModal(customer, recordId) {
-  const record = (customer.payment?.history || []).find(r => r._id === recordId);
-  if (!record) return;
-  editingPaymentId = recordId;
+function openAddPaymentModal(customer) {
   paymentCustomerId = customer._id;
-  document.getElementById('payModalTitle').textContent = t('editPayment') + ' - ' + customer.name;
+  document.getElementById('payModalTitle').textContent = t('recordPayment') + ' - ' + customer.name;
   document.getElementById('payFormSubmit').textContent = t('save');
-  document.getElementById('payFormAmount').value = record.amount || '';
-  document.getElementById('payFormMethod').value = record.method || 'cash';
-  document.getElementById('payFormReference').value = record.referenceNumber || '';
-  document.getElementById('payFormNotes').value = record.notes || '';
-  const dateInput = document.getElementById('payFormDate');
-  if (dateInput) {
-    if (record.date) {
-      dateInput.value = new Date(record.date).toISOString().split('T')[0];
-    } else {
-      dateInput.value = '';
-    }
-    dateInput.style.display = '';
-  }
-  document.getElementById('payFormDateDisplay').textContent = record.date ? new Date(record.date).toLocaleDateString('en-EG', { year: 'numeric', month: 'short', day: 'numeric' }) : '—';
-  document.getElementById('payFormRemaining').textContent = formatCurrency(customer.payment?.remainingAmount || 0);
+  document.getElementById('payFormAmount').value = '';
+  document.getElementById('payFormNotes').value = '';
+  document.getElementById('payFormReceipt').value = '';
+  document.getElementById('payFormCurrency').value = currencyForCountry(customer.country || 'other');
+
+  const dirEls = document.querySelectorAll('input[name="pm-direction"]');
+  dirEls.forEach(el => { el.checked = el.value === 'in'; });
+
+  const methodSel = document.getElementById('payFormMethod');
+  methodSel.innerHTML = '<option value="">--</option>';
+  loadPaymentMethods(customer.country || 'other').then(methods => {
+    methods.forEach(m => {
+      const opt = document.createElement('option');
+      opt.value = m._id;
+      opt.textContent = m.name;
+      methodSel.appendChild(opt);
+    });
+  });
+
   document.getElementById('paymentModal').classList.add('show');
   document.body.classList.add('modal-open');
+  setTimeout(() => document.getElementById('payFormAmount').focus(), 120);
 }
 
 function closePayModal() {
   document.getElementById('paymentModal').classList.remove('show');
   document.body.classList.remove('modal-open');
   paymentCustomerId = null;
-  editingPaymentId = null;
 }
 
 async function handleAddPaymentSubmit(e) {
@@ -1285,45 +1370,72 @@ async function handleAddPaymentSubmit(e) {
   btn.innerHTML = '<span class="spinner"></span>';
 
   try {
-    const body = {
-      amount: parseFloat(document.getElementById('payFormAmount')?.value) || 0,
-      method: document.getElementById('payFormMethod')?.value || 'cash',
-      referenceNumber: (document.getElementById('payFormReference')?.value || '').trim(),
-      notes: (document.getElementById('payFormNotes')?.value || '').trim()
-    };
-    const dateInput = document.getElementById('payFormDate');
-    if (dateInput && dateInput.value) body.date = dateInput.value;
-    if (body.amount <= 0) {
-      showToast(t('enterValidAmount'), 'error');
+    const amount = parseFloat(document.getElementById('payFormAmount')?.value) || 0;
+    if (amount <= 0) {
+      showToast(t('invalidAmount'), 'error');
       btn.disabled = false; btn.classList.remove('loading');
-      btn.textContent = editingPaymentId ? t('save') : t('addPayment');
+      btn.textContent = t('save');
       return;
     }
-    const isEdit = !!editingPaymentId;
-    const url = isEdit ? `/customers/${paymentCustomerId}/payments/${editingPaymentId}` : `/customers/${paymentCustomerId}/payments`;
-    const result = await apiFetch(url, {
-      method: isEdit ? 'PUT' : 'POST',
-      body: JSON.stringify(body)
+
+    const direction = document.querySelector('input[name="pm-direction"]:checked')?.value || 'in';
+    const fileInput = document.getElementById('payFormReceipt');
+    if (fileInput && fileInput.files && fileInput.files[0]) {
+      const f = fileInput.files[0];
+      if (!['image/jpeg', 'image/png', 'application/pdf'].includes(f.type)) {
+        showToast(t('invalidReceipt'), 'error');
+        btn.disabled = false; btn.classList.remove('loading');
+        btn.textContent = t('save');
+        return;
+      }
+      if (f.size > 10 * 1024 * 1024) {
+        showToast(t('invalidReceipt'), 'error');
+        btn.disabled = false; btn.classList.remove('loading');
+        btn.textContent = t('save');
+        return;
+      }
+    }
+
+    const fd = new FormData();
+    fd.append('amount', amount);
+    fd.append('direction', direction);
+    const methodId = document.getElementById('payFormMethod')?.value;
+    if (methodId) fd.append('method_id', methodId);
+    fd.append('notes', (document.getElementById('payFormNotes')?.value || '').trim());
+    if (fileInput && fileInput.files && fileInput.files[0]) fd.append('receipt', fileInput.files[0]);
+
+    const token = getToken();
+    const res = await fetch(`${API_URL}/customers/${paymentCustomerId}/payments`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` },
+      body: fd
     });
-    if (result && result.customer) {
-      const cid = result.customer._id;
-      closePayModal();
-      showToast(isEdit ? t('paymentUpdated') : t('paymentAdded'), 'success');
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.message || 'save failed');
+
+    const cid = paymentCustomerId;
+    closePayModal();
+    showToast(t('paymentAdded'), 'success');
+    const refreshed = await apiFetch(`/customers/${cid}`);
+    if (refreshed && refreshed.customer) {
       const idx = allCustomers.findIndex(c => c._id === cid);
-      if (idx !== -1) allCustomers[idx] = result.customer;
+      if (idx !== -1) allCustomers[idx] = refreshed.customer;
       renderStats();
       if (currentView === 'details' && currentCustomerId === cid) {
-        populateDetails(result.customer);
+        populateDetails(refreshed.customer);
+        renderPaymentLedger(cid);
       } else {
         applyFilters();
       }
+    } else {
+      applyFilters();
     }
   } catch (err) {
     showToast('Error: ' + err.message, 'error');
   } finally {
     btn.disabled = false;
     btn.classList.remove('loading');
-    btn.textContent = editingPaymentId ? t('save') : t('addPayment');
+    btn.textContent = t('save');
   }
 }
 
@@ -1423,6 +1535,8 @@ function initCustomers() {
   document.getElementById('filterEmployee').addEventListener('change', applyFilters);
   const countryFilterEl = document.getElementById('filterCountry');
   if (countryFilterEl) countryFilterEl.addEventListener('change', applyFilters);
+  const debtFilterEl = document.getElementById('filterDebt');
+  if (debtFilterEl) debtFilterEl.addEventListener('change', applyFilters);
 
   // Back to list
   document.getElementById('backToListBtn').addEventListener('click', hideCustomerDetails);

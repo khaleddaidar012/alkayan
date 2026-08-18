@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="pageTitle">Payment Methods Management</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💳</text></svg>">
+  <link rel="stylesheet" href="css/style.css?v=6">
+  <link rel="stylesheet" href="css/dashboard.css?v=6">
+  <link rel="stylesheet" href="css/payment-methods.css?v=6">
+</head>
+<body>
+  <div class="dashboard">
+
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="20" cy="20" r="19.5" stroke="#C9A84C" stroke-width="1.5" fill="none"/>
+            <text x="20" y="24" text-anchor="middle" font-size="12" fill="#C9A84C" font-family="serif">ك</text>
+          </svg>
+        </div>
+        <div class="logo-text"><span>Al Kayan</span> Al Arabi</div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-item" data-nav="dashboard">
+          <span class="nav-icon">📊</span>
+          <span data-i18n="dashboard">Dashboard</span>
+        </div>
+        <div class="nav-item" data-nav="programs">
+          <span class="nav-icon">📚</span>
+          <span data-i18n="programs">Programs</span>
+        </div>
+        <div class="nav-item" data-nav="customers">
+          <span class="nav-icon">👥</span>
+          <span data-i18n="customers">Customers</span>
+        </div>
+        <div class="nav-item" data-nav="tasks">
+          <span class="nav-icon">✅</span>
+          <span data-i18n="tasks">Tasks</span>
+        </div>
+        <div class="nav-item" data-nav="reports">
+          <span class="nav-icon">📈</span>
+          <span data-i18n="reports">Reports</span>
+        </div>
+        <div class="nav-item" data-nav="users">
+          <span class="nav-icon">👤</span>
+          <span data-i18n="users">Users</span>
+        </div>
+        <div class="nav-item" data-nav="pricing">
+          <span class="nav-icon">💰</span>
+          <span data-i18n="pricing">Pricing</span>
+        </div>
+        <div class="nav-item active" data-nav="payment-methods">
+          <span class="nav-icon">💳</span>
+          <span data-i18n="paymentMethods">Payment Methods</span>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="avatar" id="userAvatar">A</div>
+          <div>
+            <div class="user-name" id="userName">Admin</div>
+            <div class="user-role" id="userRole">admin</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+
+      <header class="dashboard-header">
+        <div class="header-left">
+          <button class="hamburger" id="hamburger" aria-label="Menu">☰</button>
+          <div>
+            <h1 data-i18n="pageTitle">Payment Methods Management</h1>
+          </div>
+        </div>
+        <div class="header-right">
+          <button class="toggle-btn" id="langToggle2" type="button">
+            <span class="icon">🌐</span>
+            <span>English</span>
+          </button>
+          <button class="theme-toggle" id="themeToggle2" type="button">
+            <span class="icon">☀️</span>
+            <span>Light</span>
+          </button>
+          <button class="header-btn" id="logoutBtn" title="Logout">🚪</button>
+        </div>
+      </header>
+
+      <div class="pm-container">
+        <p class="pm-subtitle" data-i18n="subtitle">Manage payment methods per country. Global methods are shown to all customers.</p>
+
+        <div class="pm-toolbar">
+          <button class="btn btn-primary" id="addMethodBtn">➕ <span data-i18n="addMethod">Add Method</span></button>
+        </div>
+
+        <div class="pm-card">
+          <table class="pm-table">
+            <thead>
+              <tr>
+                <th data-i18n="name">Name</th>
+                <th data-i18n="country">Country</th>
+                <th data-i18n="sortOrder">Sort Order</th>
+                <th data-i18n="active">Active</th>
+                <th data-i18n="actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="methodsTableBody">
+              <tr><td colspan="5" class="pm-empty" data-i18n="empty">No payment methods yet</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <div class="modal-overlay" id="methodModal">
+    <div class="modal-box modal-premium pm-modal">
+      <div class="modal-premium-header">
+        <h2 id="methodModalTitle" data-i18n="addMethod">Add Method</h2>
+        <button class="modal-close" id="methodModalClose">✕</button>
+      </div>
+      <form id="methodForm" novalidate>
+        <div class="modal-premium-body">
+          <div class="form-group-premium">
+            <label for="methodName" data-i18n="methodName">Method Name</label>
+            <div class="input-wrapper">
+              <input type="text" id="methodName" placeholder=" " data-i18n-placeholder="methodNamePlaceholder" required maxlength="80">
+            </div>
+          </div>
+          <div class="form-group-premium">
+            <label for="methodCountry" data-i18n="countryLabel">Country</label>
+            <div class="input-wrapper">
+              <select id="methodCountry">
+                <option value="global" data-i18n="countryGlobal">Global (all countries)</option>
+                <option value="egypt" data-i18n="egypt">Egypt</option>
+                <option value="saudi_arabia" data-i18n="saudi_arabia">Saudi Arabia</option>
+                <option value="oman" data-i18n="oman">Oman</option>
+                <option value="libya" data-i18n="libya">Libya</option>
+                <option value="other" data-i18n="other">Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="pm-form-row">
+            <div class="form-group-premium pm-sort-group">
+              <label for="methodSort" data-i18n="sortOrderLabel">Display Order</label>
+              <div class="input-wrapper">
+                <input type="number" id="methodSort" min="0" step="1" value="0">
+              </div>
+            </div>
+            <div class="form-group-premium pm-active-group">
+              <label class="pm-toggle-label">
+                <input type="checkbox" id="methodActive" checked>
+                <span data-i18n="activeToggle">Active</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="pm-modal-footer">
+          <button type="button" class="btn btn-ghost premium-cancel-btn" id="methodFormCancel" data-i18n="cancel">Cancel</button>
+          <button type="submit" class="premium-save-btn" id="methodFormSubmit" data-i18n="save">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="js/i18n.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/payment-methods-settings.js"></script>
+</body>
+</html>

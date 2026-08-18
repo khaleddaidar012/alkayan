@@ -59,7 +59,11 @@
           <span class="nav-icon">⚙️</span>
           <span data-i18n="pricing">Pricing</span>
         </div>
-      </nav>
+              <div class="nav-item" data-nav="payment-methods">
+          <span class="nav-icon">💳</span>
+          <span data-i18n="paymentMethods">Payment Methods</span>
+        </div>
+</nav>
 
       <div class="sidebar-footer">
         <div class="user-info">
@@ -197,6 +201,14 @@
         <div class="filter-group">
           <select id="filterCountry" data-i18n-placeholder="filterCountry">
             <option value="" data-i18n="allCountries">All Countries</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <select id="filterDebt" data-i18n-placeholder="debtFilter">
+            <option value="" data-i18n="filterAll">All</option>
+            <option value="hasDebt" data-i18n="hasDebt">Has Debt</option>
+            <option value="noDebt" data-i18n="noDebt">No Debt</option>
+            <option value="paidInFull" data-i18n="paidInFull">Paid in Full</option>
           </select>
         </div>
       </div>
@@ -475,41 +487,46 @@
     </div>
   </div>
 
-  <!-- Payment Modal -->
+  <!-- Payment Modal (compact, no-scroll) -->
   <div class="modal-overlay" id="paymentModal">
     <div class="modal-container modal-sm">
       <div class="modal-header">
-        <h2 id="payModalTitle" data-i18n="addPayment">Add Payment</h2>
+        <h2 id="payModalTitle" data-i18n="recordPayment">Record Payment</h2>
         <button class="modal-close" id="payModalClose">&#10005;</button>
       </div>
       <form id="payForm" novalidate>
-        <div class="modal-body">
+        <div class="modal-body pm-compact-body">
           <div class="details-row">
-            <span class="details-label" data-i18n="remainingAmount">Remaining Amount</span>
-            <span class="details-value" id="payFormRemaining">0 EGP</span>
+            <span class="details-label" data-i18n="direction">Direction</span>
+            <div class="pm-direction-group" id="payFormDirection">
+              <label class="pm-direction-opt">
+                <input type="radio" name="pm-direction" value="in" checked>
+                <span>⬅ <span data-i18n="in">Customer to Program</span></span>
+              </label>
+              <label class="pm-direction-opt">
+                <input type="radio" name="pm-direction" value="out">
+                <span>➡ <span data-i18n="out">Program to Customer</span></span>
+              </label>
+            </div>
+          </div>
+          <div class="pm-compact-grid">
+            <div class="details-row">
+              <span class="details-label" data-i18n="amount">Amount</span>
+              <input type="number" id="payFormAmount" class="details-input" min="0.01" required step="0.01" placeholder="0.00">
+            </div>
+            <div class="details-row">
+              <span class="details-label" data-i18n="currency">Currency</span>
+              <input type="text" id="payFormCurrency" class="details-input" maxlength="3" readonly>
+            </div>
           </div>
           <div class="details-row">
-            <span class="details-label" data-i18n="amount">Amount</span>
-            <input type="number" id="payFormAmount" class="details-input" min="1" required step="1">
+            <span class="details-label" data-i18n="method">Payment Method</span>
+            <select id="payFormMethod" class="details-select"></select>
           </div>
           <div class="details-row">
-            <span class="details-label" data-i18n="paymentMethod">Payment Method</span>
-            <select id="payFormMethod" class="details-select">
-              <option value="cash" data-i18n="cash">Cash</option>
-              <option value="instapay" data-i18n="instapay">InstaPay</option>
-              <option value="bankTransfer" data-i18n="bankTransfer">Bank Transfer</option>
-              <option value="vodafoneCash" data-i18n="vodafoneCash">Vodafone Cash</option>
-              <option value="other" data-i18n="other">Other</option>
-            </select>
-          </div>
-          <div class="details-row">
-            <span class="details-label" data-i18n="date">Date</span>
-            <span class="details-value" id="payFormDateDisplay" style="font-size:13px;color:var(--text-muted)"></span>
-            <input type="date" id="payFormDate" class="details-input" style="margin-top:6px;display:none">
-          </div>
-          <div class="details-row">
-            <span class="details-label" data-i18n="referenceNumber">Reference Number</span>
-            <input type="text" id="payFormReference" class="details-input" placeholder="">
+            <span class="details-label" data-i18n="receipt">Receipt</span>
+            <input type="file" id="payFormReceipt" class="details-input pm-file-input" accept=".jpg,.jpeg,.png,.pdf">
+            <span class="pm-file-hint" data-i18n="receiptHint">Image or PDF (up to 10MB)</span>
           </div>
           <div class="details-row">
             <span class="details-label" data-i18n="notes">Notes</span>
@@ -518,7 +535,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-ghost" id="payFormCancel" data-i18n="cancel">Cancel</button>
-          <button type="submit" class="btn btn-primary" id="payFormSubmit" data-i18n="addPayment">Add Payment</button>
+          <button type="submit" class="btn btn-primary" id="payFormSubmit"><span data-i18n="save">Save</span></button>
         </div>
       </form>
     </div>

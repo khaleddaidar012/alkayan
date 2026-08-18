@@ -1,8 +1,10 @@
 const Customer = require('../models/Customer');
 const Campaign = require('../models/Campaign');
 const Course = require('../models/Course');
+const Payment = require('../models/Payment');
 const { validationResult } = require('express-validator');
 const { normalizePhone, detectCountryFromPhone, COUNTRY_KEYS } = require('../utils/countryDetection');
+const { calculateDebt } = require('../utils/debt');
 
 exports.getCustomers = async (req, res) => {
   try {
@@ -49,9 +51,30 @@ exports.getCustomers = async (req, res) => {
     }
 
     const customers = await query;
+
+    const ids = customers.map(c => c._id);
+    const ledger = await Payment.aggregate([
+      { $match: { customer: { $in: ids } } },
+      { $group: {
+        _id: '$customer',
+        total_in: { $sum: { $cond: [{ $eq: ['$direction', 'in'] }, '$amount', 0] } },
+        total_out: { $sum: { $cond: [{ $eq: ['$direction', 'out'] }, '$amount', 0] } }
+      } }
+    ]);
+    const balanceMap = {};
+    for (const row of ledger) {
+      balanceMap[String(row._id)] = calculateDebt([{ amount: row.total_in, direction: 'in' }, { amount: row.total_out, direction: 'out' }]).balance;
+    }
+    const serialized = customers.map(c => {
+      const obj = c.toObject();
+      const bal = balanceMap[String(c._id)];
+      obj.debt_balance = bal === undefined ? 0 : Math.round(bal * 100) / 100;
+      return obj;
+    });
+
     res.json({
-      customers,
-      count: customers.length,
+      customers: serialized,
+      count: serialized.length,
       total,
       page: hasPagination ? currentPage : undefined,
       pages: hasPagination ? Math.ceil(total / pageSize) : undefined
@@ -69,7 +92,20 @@ exports.getCustomer = async (req, res) => {
       .populate('programRef', 'name')
       .populate('enrolledCourses', 'title');
     if (!customer) return res.status(404).json({ message: 'Customer not found' });
-    res.json({ customer });
+    const ledger = await Payment.aggregate([
+      { $match: { customer: customer._id } },
+      { $group: {
+        _id: '$customer',
+        total_in: { $sum: { $cond: [{ $eq: ['$direction', 'in'] }, '$amount', 0] } },
+        total_out: { $sum: { $cond: [{ $eq: ['$direction', 'out'] }, '$amount', 0] } }
+      } }
+    ]);
+    const obj = customer.toObject();
+    const bal = ledger.length
+      ? calculateDebt([{ amount: ledger[0].total_in, direction: 'in' }, { amount: ledger[0].total_out, direction: 'out' }]).balance
+      : 0;
+    obj.debt_balance = Math.round(bal * 100) / 100;
+    res.json({ customer: obj });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }

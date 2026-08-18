@@ -1512,3 +1512,132 @@ body.modal-open {
 .price-display-block .price-value {
   margin-inline-start: auto;
 }
+
+/* ── Task 3: Compact Payment Modal ── */
+.pay-modal-compact {
+  max-height: 92vh;
+  overflow: hidden;
+}
+.pay-modal-compact .modal-body {
+  max-height: calc(100vh - 220px);
+  overflow-y: auto;
+}
+.pm-compact-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.pm-compact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+@media (max-width: 480px) {
+  .pm-compact-grid { grid-template-columns: 1fr; }
+}
+.pm-direction-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.pm-direction-opt {
+  flex: 1;
+  min-width: 120px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  background: var(--bg-hover);
+  transition: all 0.2s;
+}
+.pm-direction-opt:has(input:checked) {
+  border-color: var(--gold);
+  background: rgba(201,168,76,0.1);
+  color: var(--gold);
+  font-weight: 600;
+}
+.pm-direction-opt input {
+  accent-color: var(--gold);
+}
+.pm-file-input {
+  padding: 8px;
+  font-size: 12px;
+}
+.pm-file-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  display: block;
+}
+.pay-file-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  display: block;
+}
+.pay-customer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 6px;
+  margin-bottom: 6px;
+  border-bottom: 1px dashed var(--border-color);
+}
+
+/* ── Task 3: Debt badge on cards ── */
+.card-debt-badge {
+  display: block;
+  margin: 0 16px 8px;
+  padding: 6px 10px;
+  background: rgba(231, 76, 60, 0.12);
+  border: 1px solid rgba(231, 76, 60, 0.3);
+  color: var(--danger);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* ── Task 3: Ledger in details ── */
+.ledger-section {
+  margin-top: 20px;
+  padding-top: 20px;
+}
+.pm-direction-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+}
+.pm-direction-badge.in {
+  background: rgba(46, 204, 113, 0.12);
+  color: var(--success);
+}
+.pm-direction-badge.out {
+  background: rgba(231, 76, 60, 0.12);
+  color: var(--danger);
+}
+.pm-currency {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+.pm-receipt-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--gold);
+  font-size: 12px;
+  text-decoration: none;
+  font-weight: 600;
+}
+.pm-receipt-link:hover {
+  text-decoration: underline;
+}
