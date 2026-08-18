@@ -210,3 +210,33 @@ body.modal-open {
   gap: 12px;
   padding: 16px 26px 24px;
 }
+
+/* Customer statuses */
+.cs-swatch {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.cs-color-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cs-color-wrap input[type="color"] {
+  width: 44px;
+  height: 38px;
+  padding: 2px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-card);
+  cursor: pointer;
+}
+
+.cs-color-hex {
+  flex: 1;
+}

@@ -39,6 +39,7 @@ exports.getCustomers = async (req, res) => {
       .populate('assignedEmployee', 'name email role')
       .populate('campaign', 'name')
       .populate('programRef', 'name')
+      .populate('status_id', 'name color description is_system')
       .sort({ createdAt: -1 });
 
     const hasPagination = page !== undefined || limit !== undefined;
@@ -90,7 +91,8 @@ exports.getCustomer = async (req, res) => {
       .populate('assignedEmployee', 'name email role')
       .populate('campaign', 'name')
       .populate('programRef', 'name')
-      .populate('enrolledCourses', 'title');
+      .populate('enrolledCourses', 'title')
+      .populate('status_id', 'name color description is_system');
     if (!customer) return res.status(404).json({ message: 'Customer not found' });
     const ledger = await Payment.aggregate([
       { $match: { customer: customer._id } },
@@ -179,7 +181,7 @@ exports.createCustomer = async (req, res) => {
     if (campaign) {
       await Campaign.findByIdAndUpdate(campaign, { $push: { customers: customer._id } });
     }
-    const populated = await Customer.findById(customer._id).populate('assignedEmployee', 'name email role').populate('campaign', 'name').populate('programRef', 'name');
+    const populated = await Customer.findById(customer._id).populate('assignedEmployee', 'name email role').populate('campaign', 'name').populate('programRef', 'name').populate('status_id', 'name color description is_system');
     res.status(201).json({ customer: populated });
   } catch (error) {
     console.error('Create customer error:', error);
@@ -251,7 +253,7 @@ exports.updateCustomer = async (req, res) => {
       };
     }
     const customer = await Customer.findOneAndUpdate({ _id: req.params.id, isDeleted: { $ne: true } }, { $set: updateData }, { new: true, runValidators: true })
-      .populate('assignedEmployee', 'name email role').populate('campaign', 'name').populate('programRef', 'name');
+      .populate('assignedEmployee', 'name email role').populate('campaign', 'name').populate('programRef', 'name').populate('status_id', 'name color description is_system');
     if (!customer) return res.status(404).json({ message: 'Customer not found' });
     res.json({ customer });
   } catch (error) {
@@ -345,7 +347,7 @@ exports.addPayment = async (req, res) => {
       customer.status = 'subscribed';
     }
     await customer.save();
-    const populated = await Customer.findById(customer._id).populate('assignedEmployee', 'name email role').populate('campaign', 'name').populate('programRef', 'name');
+    const populated = await Customer.findById(customer._id).populate('assignedEmployee', 'name email role').populate('campaign', 'name').populate('programRef', 'name').populate('status_id', 'name color description is_system');
     const added = customer.payment.history[customer.payment.history.length - 1];
     res.json({ customer: populated, payment: added });
   } catch (error) {
@@ -376,7 +378,7 @@ exports.updatePayment = async (req, res) => {
     customer.payment.remainingAmount = Math.max(0, fp - paid);
     customer.payment.status = fp > 0 && paid >= fp ? 'fullyPaid' : paid > 0 ? 'partiallyPaid' : 'notPaid';
     await customer.save();
-    const populated = await Customer.findById(customer._id).populate('assignedEmployee', 'name email role').populate('campaign', 'name').populate('programRef', 'name');
+    const populated = await Customer.findById(customer._id).populate('assignedEmployee', 'name email role').populate('campaign', 'name').populate('programRef', 'name').populate('status_id', 'name color description is_system');
     res.json({ customer: populated, payment: record });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
@@ -397,7 +399,7 @@ exports.deletePayment = async (req, res) => {
     customer.payment.remainingAmount = Math.max(0, fp - paid);
     customer.payment.status = fp > 0 && paid >= fp ? 'fullyPaid' : paid > 0 ? 'partiallyPaid' : 'notPaid';
     await customer.save();
-    const populated = await Customer.findById(customer._id).populate('assignedEmployee', 'name email role').populate('campaign', 'name').populate('programRef', 'name');
+    const populated = await Customer.findById(customer._id).populate('assignedEmployee', 'name email role').populate('campaign', 'name').populate('programRef', 'name').populate('status_id', 'name color description is_system');
     res.json({ customer: populated });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });

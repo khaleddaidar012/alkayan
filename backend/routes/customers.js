@@ -9,6 +9,7 @@ const {
 const { createPayment, getPayments, getPaymentSummary, getCustomerDebt } = require('../controllers/paymentController');
 const { logCommunication, getCommunications, getCommunicationStats, incrementCounter } = require('../controllers/communicationController');
 const { addMessage, getMessages, getLatestMessages } = require('../controllers/messageController');
+const { updateCustomerStatus: updateStatusByStatusId, getStatusHistory } = require('../controllers/customerStatusController');
 const { protect, authorize } = require('../middleware/auth');
 const { upload } = require('../services/fileUpload');
 const { createCustomerValidators, updateCustomerValidators } = require('../validators/customerValidator');
@@ -25,8 +26,14 @@ router.put('/:id', authorize('admin', 'manager', 'employee'), updateCustomerVali
 router.delete('/:id', authorize('admin', 'manager'), deleteCustomer);
 
 router.put('/:id/status', authorize('admin', 'manager', 'employee'), [
-  body('status').notEmpty().withMessage('Status is required')
-], updateCustomerStatus);
+  body('status').optional().notEmpty().withMessage('Status is required'),
+  body('status_id').optional().isMongoId().withMessage('Invalid status id')
+], (req, res, next) => {
+  if (req.body.status_id) return updateStatusByStatusId(req, res, next);
+  return updateCustomerStatus(req, res, next);
+});
+
+router.get('/:id/status-history', getStatusHistory);
 
 router.post('/:customerId/payments', authorize('admin', 'manager'), upload.single('receipt'), [
   body('amount').isFloat({ min: 0.01 }).withMessage('Valid amount is required')

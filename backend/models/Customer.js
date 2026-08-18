@@ -57,6 +57,7 @@ const customerSchema = new mongoose.Schema({
   status: { type: String, enum: ['subscribed', 'potential', 'thinking', 'noResponse', 'rejected'], default: 'potential' },
   communication_count: { type: Number, default: 0, min: 0 },
   last_communication_date: { type: Date, default: null },
+  status_id: { type: mongoose.Schema.Types.ObjectId, ref: 'CustomerStatus', default: null },
   payment: {
     type: paymentSchema,
     default: () => ({

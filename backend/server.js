@@ -57,6 +57,7 @@ app.use('/api/settings/prices', require('./routes/prices'));
 app.use('/api/payment-methods', require('./routes/paymentMethods'));
 app.use('/api/payments', require('./routes/payments'));
 app.use('/api/communication-types', require('./routes/communicationTypes'));
+app.use('/api/customer-statuses', require('./routes/customerStatuses'));
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

@@ -84,7 +84,9 @@ function t(key) {
   const paySection = i18n[currentLang]?.payments || {};
   if (paySection[key]) return paySection[key];
   const commSection = i18n[currentLang]?.communications || {};
-  return commSection[key] || key;
+  if (commSection[key]) return commSection[key];
+  const statusSection = i18n[currentLang]?.status || {};
+  return statusSection[key] || key;
 }
 
 function showToast(message, type) {
@@ -280,7 +282,7 @@ function renderCustomers(filteredCustomers) {
         </div>
         <div class="customer-card-name">${displayName}</div>
         <div style="padding:0 16px 8px;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-muted)">
-          <span>${subIcon} ${subLabel}</span>
+          ${statusBadgeHtml(c, { size: 'sm' })}
           <span>·</span>
           <span>${t('totalAmount')}: ${formatCurrency(total)}</span>
         </div>
@@ -336,6 +338,8 @@ function renderCustomers(filteredCustomers) {
     const delBtn = e.target.closest('.card-delete-btn');
     const waBtn = e.target.closest('[data-wa]');
     const commChip = e.target.closest('[data-comm]');
+    const csBadge = e.target.closest('[data-cs-badge]');
+    if (csBadge) { e.stopPropagation(); if (can('customers', 'edit')) openStatusDropdown(csBadge.dataset.csBadge, csBadge); return; }
     if (waBtn) { e.stopPropagation(); e.preventDefault(); incrementCommunication(waBtn.dataset.wa); const href = waBtn.getAttribute('href'); if (href && href !== '#') window.open(href, '_blank', 'noopener'); return; }
     if (commChip) { e.stopPropagation(); incrementCommunication(commChip.dataset.comm); return; }
     if (payBtn) { e.stopPropagation(); const c = allCustomers.find(x => x._id === payBtn.dataset.pay); if (c) openAddPaymentModal(c); return; }
@@ -645,6 +649,35 @@ function populateDetails(customer) {
       </div>
     </div>
 
+    <!-- Customer Status (Task 5) -->
+    <div class="details-card">
+      <div class="details-card-header">
+        <h3>🏷️ ${t('status')}</h3>
+      </div>
+      <div class="details-row">
+        <span class="details-label">${t('changeStatus')}</span>
+        <span class="details-value">
+          <span id="csDetailBadgeWrap">${statusBadgeHtml(customer, { size: 'lg' })}</span>
+          <select id="csStatusSelect" class="details-select" style="margin-inline-start:8px;min-width:170px">
+            <option value="">${t('changeStatus')}...</option>
+          </select>
+          <input type="text" id="csStatusNotes" class="details-input" placeholder="${t('addNote')}" style="margin-inline-start:8px;min-width:140px" maxlength="500">
+          ${can('customers', 'edit') ? `<button class="btn btn-sm" id="csApplyBtn" style="margin-inline-start:8px">${t('save')}</button>` : ''}
+        </span>
+      </div>
+      <div class="cs-history-section">
+        <div class="payment-history-header">
+          <h4>📜 ${t('statusHistory')}</h4>
+        </div>
+        <div id="csHistoryBox" class="cs-history-box">
+          <p style="color:var(--text-muted);padding:8px 0">…</p>
+        </div>
+        <div style="text-align:center;margin-top:8px">
+          <button class="btn btn-ghost btn-sm" id="csHistoryMoreBtn" style="display:none">${t('loadMore')}</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Communications (Task 4) -->
     <div class="details-card">
       <div class="details-card-header">
@@ -751,6 +784,57 @@ function populateDetails(customer) {
 
   loadCommunicationSection(customer);
   loadMessageSection(customer);
+
+  // Customer Status (Task 5) wiring
+  const csStatusSelect = document.getElementById('csStatusSelect');
+  if (csStatusSelect) {
+    loadStatusOptions().then(statuses => {
+      csStatusSelect.innerHTML = `<option value="">${t('changeStatus')}...</option>` + statuses.map(s => {
+        const currentId = customer.status_id ? customer.status_id._id : '';
+        const mappedKey = s.name.toLowerCase().replace(/\s+/g, '');
+        const display = ({ new: t('new'), contacted: t('contacted'), transferredtophone: t('transferredToPhone'), interested: t('interested'), notinterested: t('notInterested'), subscribed: t('subscribed'), cancelled: t('cancelled') })[mappedKey] || s.name;
+        return `<option value="${s._id}" ${String(s._id) === String(currentId) ? 'selected' : ''}>${escapeHtml(display)}</option>`;
+      });
+    });
+    csStatusSelect.addEventListener('change', function () {
+      if (this.value) {
+        const st = statusCache.find(s => String(s._id) === String(this.value));
+        if (st) {
+          const wrap = document.getElementById('csDetailBadgeWrap');
+          if (wrap) wrap.innerHTML = statusBadgeHtml({ _id: customer._id, status_id: st }, { size: 'lg' });
+        }
+      } else {
+        const wrap = document.getElementById('csDetailBadgeWrap');
+        if (wrap) wrap.innerHTML = statusBadgeHtml(customer, { size: 'lg' });
+      }
+    });
+  }
+  const csApplyBtn = document.getElementById('csApplyBtn');
+  if (csApplyBtn) {
+    csApplyBtn.addEventListener('click', async () => {
+      const sid = csStatusSelect.value;
+      if (!sid) return;
+      const notes = document.getElementById('csStatusNotes')?.value || '';
+      const ok = await updateCustomerStatus(customer._id, sid, notes);
+      if (ok && csStatusSelect) {
+        const mapped = statusCache.find(s => String(s._id) === String(sid));
+        if (mapped) {
+          const wrap = document.getElementById('csDetailBadgeWrap');
+          if (wrap) wrap.innerHTML = statusBadgeHtml({ _id: customer._id, status_id: mapped }, { size: 'lg' });
+        }
+        document.getElementById('csStatusNotes').value = '';
+      }
+    });
+  }
+  statusHistoryPage = 1;
+  loadStatusHistory(customer._id, 1, false);
+  const csMoreBtn = document.getElementById('csHistoryMoreBtn');
+  if (csMoreBtn) {
+    csMoreBtn.addEventListener('click', () => {
+      statusHistoryPage += 1;
+      loadStatusHistory(customer._id, statusHistoryPage, true);
+    });
+  }
 
   document.querySelectorAll('#detailsContent [data-wa]').forEach(a => {
     a.addEventListener('click', function (e) {
@@ -1785,6 +1869,155 @@ async function handleAddMessageSubmit(e) {
     btn.disabled = false;
     btn.textContent = original;
   }
+}
+
+// ---- Customer Status (Task 5) ----
+let statusCache = null;
+let statusHistoryPage = 1;
+let statusHistoryPages = 0;
+
+function statusColorFor(c) {
+  return (c.status_id && c.status_id.color) || '#6B7280';
+}
+
+function statusNameFor(c) {
+  const name = (c.status_id && c.status_id.name) || '';
+  const key = name.toLowerCase().replace(/\s+/g, '');
+  const mapped = { new: 'new', contacted: 'contacted', transferredtophone: 'transferredToPhone', interested: 'interested', notinterested: 'notInterested', subscribed: 'subscribed', cancelled: 'cancelled' };
+  if (mapped[key]) return t(mapped[key]);
+  return name || t('new');
+}
+
+function statusTextColor(hex) {
+  const m = /^#([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})$/.exec(hex || '');
+  if (!m) return '#fff';
+  const r = parseInt(m[1], 16), g = parseInt(m[2], 16), b = parseInt(m[3], 16);
+  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+  return brightness > 150 ? '#111827' : '#fff';
+}
+
+function statusBadgeHtml(c, opts) {
+  const size = opts && opts.size ? opts.size : 'sm';
+  const color = statusColorFor(c);
+  const txt = statusTextColor(color);
+  const name = statusNameFor(c);
+  const desc = (c.status_id && c.status_id.description) || '';
+  const statusId = c.status_id ? c.status_id._id : '';
+  const cid = c._id;
+  return `<span class="cs-badge cs-badge-${size}" data-cs-badge="${cid}" data-cs-status="${statusId}" style="background:${color};color:${txt}" title="${escapeHtml(desc)}"><span class="cs-badge-dot"></span>${escapeHtml(name)} ${can('customers', 'edit') ? '▾' : ''}</span>`;
+}
+
+async function loadStatusOptions() {
+  if (statusCache) return statusCache;
+  const data = await apiFetch('/customer-statuses');
+  statusCache = (data && data.statuses) || [];
+  return statusCache;
+}
+
+async function loadStatusHistory(customerId, page, append) {
+  const box = document.getElementById('csHistoryBox');
+  if (!box) return;
+  try {
+    const data = await apiFetch(`/customers/${customerId}/status-history?page=${page}&limit=10`);
+    if (!data) return;
+    statusHistoryPages = Math.ceil((data.total || 0) / 10);
+    const rows = (data.history || []).map(h => {
+      const toColor = (h.to_status && h.to_status.color) || '#6B7280';
+      const toName = (h.to_status && h.to_status.name) || t('new');
+      const fromName = h.from_status ? h.from_status.name : t('new');
+      const fromColor = h.from_status ? h.from_status.color : '#6B7280';
+      const by = h.changed_by_name || t('unknown');
+      const when = formatDateTime(h.changed_at);
+      const notes = h.notes ? `<div class="cs-history-note">📝 ${escapeHtml(h.notes)}</div>` : '';
+      return `
+        <div class="cs-history-item">
+          <span class="cs-history-dot" style="background:${toColor}"></span>
+          <div class="cs-history-body">
+            <div class="cs-history-text">
+              <span class="cs-mini-badge" style="background:${fromColor};color:${statusTextColor(fromColor)}">${escapeHtml(fromName)}</span>
+              → 
+              <span class="cs-mini-badge" style="background:${toColor};color:${statusTextColor(toColor)}">${escapeHtml(toName)}</span>
+              <span class="cs-history-by">${t('by')} ${escapeHtml(by)}</span>
+            </div>
+            <div class="cs-history-date">${when}</div>
+            ${notes}
+          </div>
+        </div>`;
+    }).join('');
+    if (append && box.dataset.mode === 'loaded') {
+      box.insertAdjacentHTML('beforeend', rows);
+    } else {
+      box.innerHTML = rows || `<p style="color:var(--text-muted);padding:8px 0">${t('statusHistoryEmpty')}</p>`;
+      box.dataset.mode = 'loaded';
+    }
+    const moreBtn = document.getElementById('csHistoryMoreBtn');
+    if (moreBtn) moreBtn.style.display = (statusHistoryPage < statusHistoryPages) ? '' : 'none';
+  } catch (e) {
+    box.innerHTML = `<p style="color:var(--text-muted);padding:8px 0">${t('statusHistoryEmpty')}</p>`;
+  }
+}
+
+async function openStatusDropdown(customerId, anchor) {
+  const existing = document.querySelector('.cs-dropdown');
+  if (existing) existing.remove();
+  const statuses = await loadStatusOptions();
+  const customer = allCustomers.find(c => c._id === customerId) || {};
+  const currentId = (customer.status_id && customer.status_id._id) || '';
+  const dd = document.createElement('div');
+  dd.className = 'cs-dropdown';
+  dd.innerHTML = statuses.map(s => `
+    <div class="cs-dropdown-option ${String(s._id) === String(currentId) ? 'active' : ''}" data-cs-option="${s._id}">
+      <span class="cs-badge-dot" style="background:${s.color}"></span>
+      <span>${escapeHtml(s.name)}</span>
+    </div>`).join('');
+  document.body.appendChild(dd);
+  const r = anchor.getBoundingClientRect();
+  dd.style.top = `${r.bottom + window.scrollY + 4}px`;
+  dd.style.left = `${r.left + window.scrollX}px`;
+  dd.querySelectorAll('[data-cs-option]').forEach(opt => {
+    opt.addEventListener('click', () => {
+      const statusId = opt.dataset.csOption;
+      dd.remove();
+      updateCustomerStatus(customerId, statusId, '');
+    });
+  });
+  const closeHandler = (e) => {
+    if (!e.target.closest('.cs-dropdown') && !e.target.closest('[data-cs-badge]')) {
+      dd.remove();
+      document.removeEventListener('click', closeHandler);
+    }
+  };
+  setTimeout(() => document.addEventListener('click', closeHandler), 0);
+}
+
+async function updateCustomerStatus(customerId, statusId, notes) {
+  const data = await apiFetch(`/customers/${customerId}/status`, {
+    method: 'PUT',
+    body: JSON.stringify({ status_id: statusId, notes: notes || '' })
+  });
+  if (!data) { showToast(t('statusUpdateFailed'), 'error'); return false; }
+  showToast(t('statusUpdated'), 'success');
+  const idx = allCustomers.findIndex(c => c._id === customerId);
+  if (idx !== -1) {
+    const statuses = await loadStatusOptions();
+    const st = statuses.find(s => String(s._id) === String(statusId));
+    if (st) allCustomers[idx].status_id = st;
+  }
+  const badge = document.querySelector(`[data-cs-badge="${customerId}"]`);
+  if (badge) {
+    const updated = allCustomers[idx];
+    if (updated) badge.outerHTML = statusBadgeHtml(updated);
+  }
+  const detailSel = document.getElementById('csStatusSelect');
+  if (detailSel) {
+    const selected = allCustomers[idx];
+    detailSel.value = String(selected && selected.status_id ? selected.status_id._id : statusId);
+  }
+  if (document.getElementById('csHistoryBox')) {
+    statusHistoryPage = 1;
+    loadStatusHistory(customerId, 1, false);
+  }
+  return true;
 }
 
 // ---- Init ----
