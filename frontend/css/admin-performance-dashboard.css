@@ -229,6 +229,33 @@
   overflow-y: auto;
 }
 
+.table-row {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  padding: 12px 0;
+  transition: background 0.2s;
+}
+
+.table-row:hover {
+  background: var(--hover-bg);
+}
+
+.table-cell {
+  flex: 1;
+  min-width: 0;
+  padding: 0 8px;
+  font-size: 14px;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.table-row .table-cell:first-child {
+  font-weight: 600;
+}
+
 .loading-row {
   padding: 40px;
   text-align: center;

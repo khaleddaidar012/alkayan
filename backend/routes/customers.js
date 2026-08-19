@@ -11,10 +11,14 @@ const { logCommunication, getCommunications, getCommunicationStats, incrementCou
 const { addMessage, getMessages, getLatestMessages } = require('../controllers/messageController');
 const { updateCustomerStatus: updateStatusByStatusId, getStatusHistory } = require('../controllers/customerStatusController');
 const { protect, authorize } = require('../middleware/auth');
+const { objectIdParam } = require('../middleware/validateObjectId');
 const { upload } = require('../services/fileUpload');
 const { createCustomerValidators, updateCustomerValidators } = require('../validators/customerValidator');
 
 router.use(protect);
+router.param('id', objectIdParam('id'));
+router.param('customerId', objectIdParam('customerId'));
+router.param('paymentId', objectIdParam('paymentId'));
 
 router.get('/', getCustomers);
 router.get('/:id', getCustomer);

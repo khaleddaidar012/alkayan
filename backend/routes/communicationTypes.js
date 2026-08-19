@@ -5,6 +5,9 @@ const {
   getTypes, getType, createType, updateType, deleteType
 } = require('../controllers/communicationTypeController');
 const { protect, authorize } = require('../middleware/auth');
+const { objectIdParam } = require('../middleware/validateObjectId');
+
+router.param('id', objectIdParam('id'));
 
 router.get('/', getTypes);
 router.get('/:id', protect, getType);

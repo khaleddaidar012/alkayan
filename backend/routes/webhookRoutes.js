@@ -3,6 +3,9 @@ const router = express.Router();
 const webhookController = require('../controllers/webhookController');
 const { verifyWebhookAuth } = require('../utils/webhookAuth');
 const { protect, authorize } = require('../middleware/auth');
+const { objectIdParam } = require('../middleware/validateObjectId');
+
+router.param('id', objectIdParam('id'));
 
 const rateLimit = (() => {
   const buckets = new Map();

@@ -6,6 +6,10 @@ const {
   updateCustomerStatus, getStatusHistory
 } = require('../controllers/customerStatusController');
 const { protect, authorize } = require('../middleware/auth');
+const { objectIdParam } = require('../middleware/validateObjectId');
+
+router.param('id', objectIdParam('id'));
+router.param('customerId', objectIdParam('customerId'));
 
 router.get('/', getStatuses);
 router.get('/:customerId/status-history', protect, getStatusHistory);

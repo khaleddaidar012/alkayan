@@ -7,8 +7,10 @@ const {
 } = require('../controllers/programController');
 const { getProgramStats } = require('../controllers/programStatsController');
 const { protect, authorize, checkPermission } = require('../middleware/auth');
+const { objectIdParam } = require('../middleware/validateObjectId');
 
 router.use(protect);
+router.param('id', objectIdParam('id'));
 
 router.get('/export', checkPermission('programs', 'view'), exportPrograms);
 router.get('/stats', checkPermission('programs', 'view'), getProgramsOverview);

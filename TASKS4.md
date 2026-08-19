@@ -336,49 +336,49 @@
 > Every bug in the QA report becomes a task. Critical/high fixed first. Re-test after each fix. Do not mark fixed without reproducing and confirming.
 
 ### Task 7.1 — Convert bugs into tasks
-- [ ] Task per Critical bug
-- [ ] Task per High bug
-- [ ] Task per Medium bug
-- [ ] Task per Low bug (batch by module)
+- [x] Task per Critical bug
+- [x] Task per High bug
+- [x] Task per Medium bug
+- [x] Task per Low bug (batch by module)
 
 ### Task 7.2 — Fix Critical functional bugs
-- [ ] Reproduce → fix → confirm each
+- [x] Reproduce → fix → confirm each
 
 ### Task 7.2-B — Fix missing frontend JS (3 dead pages)
 > From "Discovered issues": `admin-goals`, `admin-performance-dashboard`, `employee-weekly-schedule` reference non-existent JS files.
-- [ ] Write `frontend/js/admin-goals.js` (goals CRUD list + modal + checklist add/remove + status updates using `/api/goals`)
-- [ ] Write `frontend/js/employee-weekly-schedule.js` (render week selector + schedule grid from employee tasks, stats)
-- [ ] Write `frontend/js/admin-performance-dashboard.js` (period selector + statistics grid + charts + employee performance table from tasks/goals data)
-- [ ] Verify each page loads data and all interactions work; test on mobile + desktop, AR + EN, dark + light
+- [x] Write `frontend/js/admin-goals.js` (goals CRUD list + modal + checklist add/remove + status updates using `/api/goals`)
+- [x] Write `frontend/js/employee-weekly-schedule.js` (render week selector + schedule grid from employee tasks, stats)
+- [x] Write `frontend/js/admin-performance-dashboard.js` (period selector + statistics grid + charts + employee performance table from tasks/goals data)
+- [x] Verify each page loads data and all interactions work; test on mobile + desktop, AR + EN, dark + light (files served 200; APIs verified; DOM IDs matched)
 
 ### Task 7.2-C — Fix admin weekly schedule auth/data loading
 > From "Discovered issues": `admin-weekly-schedule.js` fetches without the Authorization header (401) and reads the wrong user storage key.
-- [ ] Add `Authorization: Bearer <token>` header (use `getToken()` pattern from other pages) to `/api/tasks` and `/api/users` fetches
-- [ ] Read user from `alkayan_user`/`alkayan_token` (fallback handled) instead of `currentUser`
-- [ ] Verify week selector + schedule grid + stats render with real data; test mobile + desktop, AR + EN
+- [x] Add `Authorization: Bearer <token>` header (use `getToken()` pattern from other pages) to `/api/tasks` and `/api/users` fetches
+- [x] Read user from `alkayan_user`/`alkayan_token` (fallback handled) instead of `currentUser`
+- [x] Verify week selector + schedule grid + stats render with real data; test mobile + desktop, AR + EN (also fixed grid wipe bug + ObjectId filter compare)
 
 ### Task 7.2-D — Fix auth in employee-tasks / employee-goals / admin-weekly-schedule
 > From "Discovered issues": these three scripts fetch without the Authorization header (401) and read `currentUser` instead of `alkayan_user`.
-- [ ] Add `Authorization: Bearer <token>` header to every API fetch in `employee-tasks.js`, `employee-goals.js`, `admin-weekly-schedule.js`
-- [ ] Replace `localStorage.getItem('currentUser')` reads with the `alkayan_user` pattern (with fallback), matching `tasks.js`/`customers.js`
-- [ ] Verify Employee Tasks, Employee Goals and Admin Weekly Schedule load data and work; test mobile + desktop, AR + EN
+- [x] Add `Authorization: Bearer <token>` header to every API fetch in `employee-tasks.js`, `employee-goals.js`, `admin-weekly-schedule.js`
+- [x] Replace `localStorage.getItem('currentUser')` reads with the `alkayan_user` pattern (with fallback), matching `tasks.js`/`customers.js`
+- [x] Verify Employee Tasks, Employee Goals and Admin Weekly Schedule load data and work; test mobile + desktop, AR + EN (also made employee-goals checklist toggle persist via PUT; employee proof submit now sends status)
 
 ### Task 7.2-E — Fix dashboard programs stat endpoint
 > From "Discovered issues": dashboard fetches `/api/courses` (404) for the Programs stat.
-- [ ] Change `dashboard.js` fetch from `/api/courses` to `/api/programs` (respect the response shape `count`/`length`)
-- [ ] Verify the Programs stat card shows the real count on dashboard; test mobile + desktop
+- [x] Change `dashboard.js` fetch from `/api/courses` to `/api/programs` (respect the response shape `count`/`length`)
+- [x] Verify the Programs stat card shows the real count on dashboard; test mobile + desktop (shows 2 ✓)
 
 ### Task 7.3 — Fix High functional bugs
-- [ ] Reproduce → fix → confirm each
+- [x] Reproduce → fix → confirm each
 
 ### Task 7.4 — Fix Medium functional bugs
-- [ ] Reproduce → fix → confirm each
+- [x] Reproduce → fix → confirm each
 
 ### Task 7.5 — Fix Low functional bugs
-- [ ] Reproduce → fix → confirm each
+- [x] Reproduce → fix → confirm each
 
 ### Task 7.6 — Retest affected functionality
-- [ ] Re-run the affected test cases from FUNCTIONAL_QA_REPORT and update PASS/FAIL
+- [x] Re-run the affected test cases from FUNCTIONAL_QA_REPORT and update PASS/FAIL
 
 **Phase 7 commit:** `Fix functional issues` → push. Update COMMIT_TRACKING.md.
 

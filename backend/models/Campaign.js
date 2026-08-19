@@ -13,7 +13,7 @@ const campaignSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['draft', 'active', 'completed', 'scheduled', 'cancelled'],
+    enum: ['draft', 'active', 'paused', 'completed', 'scheduled', 'cancelled'],
     default: 'active'
   },
   startDate: {

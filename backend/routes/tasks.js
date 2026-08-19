@@ -6,8 +6,10 @@ const {
   getTasks, getTask, createTask, updateTask, deleteTask, updateTaskStatus
 } = require('../controllers/taskController');
 const { protect, authorize } = require('../middleware/auth');
+const { objectIdParam } = require('../middleware/validateObjectId');
 
 router.use(protect);
+router.param('id', objectIdParam('id'));
 
 // Public routes with view permissions
 router.get('/', getTasks);

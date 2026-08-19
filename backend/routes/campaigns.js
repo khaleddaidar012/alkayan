@@ -7,8 +7,12 @@ const {
   addCustomerToCampaign, removeCustomerFromCampaign
 } = require('../controllers/campaignController');
 const { protect, authorize, checkPermission } = require('../middleware/auth');
+const { objectIdParam } = require('../middleware/validateObjectId');
 
 router.use(protect);
+router.param('id', objectIdParam('id'));
+router.param('campaignId', objectIdParam('campaignId'));
+router.param('customerId', objectIdParam('customerId'));
 
 router.get('/', checkPermission('campaigns', 'view'), getCampaigns);
 router.get('/:id', checkPermission('campaigns', 'view'), getCampaign);

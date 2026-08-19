@@ -5,6 +5,9 @@ const {
   getMethods, getMethod, createMethod, updateMethod, deactivateMethod
 } = require('../controllers/paymentMethodController');
 const { protect, authorize } = require('../middleware/auth');
+const { objectIdParam } = require('../middleware/validateObjectId');
+
+router.param('id', objectIdParam('id'));
 
 router.get('/', getMethods);
 router.get('/:id', protect, getMethod);

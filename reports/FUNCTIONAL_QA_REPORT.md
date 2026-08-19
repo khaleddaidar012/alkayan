@@ -124,3 +124,23 @@ All tests performed through the actual UI (click-by-click) with API verification
 | Backend test suite | 65/65 PASS |
 
 **All 10 new+pre-existing bugs are tracked in `TASKS4.md` (Discovered issues) for Phase 7 (Task 7.2-B..J). No code changes were made during Phase 6 — testing only.**
+
+---
+
+# Phase 7 — Fix Verification (2026-08-19)
+
+All fixes implemented and verified against a fresh server running the patched backend (65/65 tests green). QA test data created during verification was cleaned up (baseline restored: 28 customers, 2 programs, 5 campaigns, 0 goals, 4 users).
+
+| Bug | Severity | Fix | Verification |
+|---|---|---|---|
+| 7.2-B missing JS ×3 | HIGH | Wrote `admin-goals.js`, `employee-weekly-schedule.js`, `admin-performance-dashboard.js` (auth headers, i18n/theme wiring, DOM-ID matched) | Pages + JS served 200; API flows (goals create/toggle/list/delete, tasks/users/goals shapes) verified via API; syntax-checked |
+| 7.2-C admin-weekly-schedule 401 + wrong storage key | HIGH | Added `Authorization: Bearer` header via `getToken()`; read user from `alkayan_user`; also fixed grid wipe bug (`innerHTML=''` before re-querying day cells) and ObjectId-vs-string filter compare | `GET /api/tasks?search=` + `/api/users` with auth return data; script syntax OK |
+| 7.2-D employee pages 401 + wrong storage key | HIGH | Added auth headers to every fetch in `employee-tasks.js`, `employee-goals.js`, `admin-weekly-schedule.js`; replaced `currentUser` storage key; employee-goals checklist toggle now persists via PUT `completed`; employee proof submit now sends required `status` | `GET /api/tasks?assignedTo=` and `GET /api/goals?employee=` return data with auth; syntax OK |
+| 7.2-E dashboard Programs stat | HIGH | `dashboard.js` fetch `/api/courses` → `/api/programs` | Stat card now shows real count **2** (was 0) |
+| 7.2-F payment delete stale totals | HIGH | `paymentController.deletePayment` now rebuilds the customer's embedded `payment.history` from remaining `in` payments and recomputes `paidAmount`/`remainingAmount`/`status` | Add 100 → paid 450; delete → paid 0, history 0, status `notPaid` ✓ |
+| 7.2-G theme not persisting | MED | `dashboard.js` theme apply guarded with `!localStorage.getItem('alkayan_theme')` | Toggle to light → reload → stays light ✓ |
+| 7.2-H program empty dates → 500 | MED | `Course` model `startDate`/`endDate` now optional (`default: null`); frontend `formatDate` already handles null | Create program with null dates → **201** ✓ |
+| 7.2-I campaign "Paused" → 500 | HIGH | Added `paused` to `Campaign.status` enum | Create campaign with `paused` → **201**, delete ✓ |
+| 7.2-J malformed ObjectId → 500 | LOW | New `validateObjectId` middleware used via `router.param()` on all param routes (customers, programs, tasks, goals, users, campaigns, payments, payment-methods, communication-types, customer-statuses, webhook logs) | `GET /api/customers|programs|tasks|goals|users|campaigns/not-a-valid-id` all → **400** ✓ |
+
+**Functional Score: 98/100** (all 10 tracked bugs fixed; remaining cosmetic notes: sidebar badges hardcoded, stats stale until reload after delete).

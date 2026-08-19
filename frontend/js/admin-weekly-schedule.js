@@ -1,7 +1,18 @@
 // Admin Weekly Schedule Controller
+const API_URL = 'http://localhost:5000/api';
+
+function getCurrentUser() {
+  try { return JSON.parse(localStorage.getItem('alkayan_user')); }
+  catch { return null; }
+}
+
+function getToken() {
+  return localStorage.getItem('alkayan_token') || sessionStorage.getItem('alkayan_token');
+}
+
 class AdminWeeklySchedule {
   constructor() {
-    this.currentUser = JSON.parse(localStorage.getItem('currentUser')) || {
+    this.currentUser = getCurrentUser() || {
       name: 'Admin Name',
       role: 'admin'
     };
@@ -12,6 +23,8 @@ class AdminWeeklySchedule {
   }
 
   init() {
+    if (typeof initI18n === 'function') initI18n('admin-weekly-schedule', 'admin-weekly-schedule');
+    if (typeof initTheme === 'function') initTheme();
     this.updateUserInfo();
     this.fetchTasksAndEmployees();
     this.setupEventListeners();
@@ -27,9 +40,12 @@ class AdminWeeklySchedule {
 
   async fetchTasksAndEmployees() {
     try {
+      const token = getToken();
+      if (!token) { window.location.href = 'login.html'; return; }
+      const headers = { 'Authorization': `Bearer ${token}` };
       const [tasksResponse, usersResponse] = await Promise.all([
-        fetch(`${this.apiBaseUrl}?search=`),
-        fetch('/api/users')
+        fetch(`${API_URL}/tasks?search=`, { headers }),
+        fetch(`${API_URL}/users`, { headers })
       ]);
 
       if (!tasksResponse.ok || !usersResponse.ok) {
@@ -118,8 +134,8 @@ class AdminWeeklySchedule {
     });
     
     if (employeeId) {
-      filteredTasks = filteredTasks.filter(task => 
-        task.assignedTo?._id === employeeId
+      filteredTasks = filteredTasks.filter(task =>
+        String(task.assignedTo?._id || '') === String(employeeId)
       );
     }
     
@@ -129,36 +145,44 @@ class AdminWeeklySchedule {
   renderScheduleGrid(tasks, week) {
     const scheduleGrid = document.getElementById('weeklyScheduleGrid');
     if (!scheduleGrid) return;
-    
-    scheduleGrid.innerHTML = '';
-    
+
     const dayHeaders = document.querySelectorAll('.day-header');
+    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     dayHeaders.forEach((header, index) => {
-      const dayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][index];
-      header.textContent = dayName;
+      header.textContent = dayNames[index];
     });
-    
-    const dayTasksContainers = document.querySelectorAll('.day-tasks');
-    dayTasksContainers.forEach((container, dayIndex) => {
+
+    const weekStart = week.start;
+    const weekEnd = week.end;
+
+    for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
+      const container = document.getElementById(`day-${dayIndex}-tasks`);
+      if (!container) continue;
+      const dayDate = new Date(weekStart);
+      dayDate.setDate(weekStart.getDate() + dayIndex);
+
       const dayTasks = tasks.filter(task => {
         const taskDeadline = new Date(task.deadline);
-        return taskDeadline.getDay() === dayIndex;
+        const sameDay = taskDeadline.getFullYear() === dayDate.getFullYear() &&
+          taskDeadline.getMonth() === dayDate.getMonth() &&
+          taskDeadline.getDate() === dayDate.getDate();
+        return sameDay;
       });
-      
+
       if (dayTasks.length === 0) {
         container.innerHTML = '<div class="empty-day">No tasks</div>';
-        return;
+        continue;
       }
-      
+
       container.innerHTML = dayTasks.map(task => this.getTaskCardHTML(task)).join('');
-      
+
       container.querySelectorAll('.task-card-schedule').forEach(card => {
         card.addEventListener('click', () => {
           const taskId = card.dataset.taskId;
           this.openTaskDetails(taskId);
         });
       });
-    });
+    }
   }
 
   getTaskCardHTML(task) {
@@ -289,22 +313,40 @@ class AdminWeeklySchedule {
     const sidebar = document.getElementById('sidebar');
     const sidebarBackdrop = document.getElementById('sidebarBackdrop');
 
-    hamburger.addEventListener('click', () => {
-      sidebar.classList.toggle('active');
-      sidebarBackdrop.classList.toggle('active');
-    });
+    if (hamburger && sidebar && sidebarBackdrop) {
+      hamburger.addEventListener('click', () => {
+        sidebar.classList.toggle('active');
+        sidebarBackdrop.classList.toggle('active');
+      });
 
-    sidebarBackdrop.addEventListener('click', () => {
-      sidebar.classList.remove('active');
-      sidebarBackdrop.classList.remove('active');
-    });
-
-    window.addEventListener('resize', () => {
-      if (window.innerWidth > 768) {
+      sidebarBackdrop.addEventListener('click', () => {
         sidebar.classList.remove('active');
         sidebarBackdrop.classList.remove('active');
-      }
-    });
+      });
+
+      window.addEventListener('resize', () => {
+        if (window.innerWidth > 768) {
+          sidebar.classList.remove('active');
+          sidebarBackdrop.classList.remove('active');
+        }
+      });
+    }
+
+    const langBtn = document.getElementById('langToggle2');
+    if (langBtn) langBtn.addEventListener('click', switchLang);
+
+    const themeBtn = document.getElementById('themeToggle2');
+    if (themeBtn) themeBtn.addEventListener('click', toggleTheme);
+
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', () => {
+        localStorage.removeItem('alkayan_token');
+        sessionStorage.removeItem('alkayan_token');
+        localStorage.removeItem('alkayan_user');
+        window.location.href = 'login.html';
+      });
+    }
   }
 
   initSidebar() {

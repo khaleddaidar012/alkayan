@@ -111,8 +111,36 @@ exports.deletePayment = async (req, res) => {
   try {
     const payment = await Payment.findById(req.params.id);
     if (!payment) return res.status(404).json({ message: 'Payment not found' });
+    const customerId = payment.customer;
     if (payment.receipt_url) deleteFile(payment.receipt_url);
     await payment.deleteOne();
+
+    if (String(payment.direction) === 'in') {
+      const customer = await Customer.findOne({ _id: customerId, isDeleted: { $ne: true } });
+      if (customer) {
+        const remaining = await Payment.find({ customer: customerId, direction: 'in' }).sort({ created_at: 1 });
+        customer.payment = customer.payment || {};
+        customer.payment.history = remaining.map((p) => {
+          const rawMethod = String(p.methodName || 'cash').toLowerCase().replace(/[\s_]/g, '');
+          const validMethods = ['cash', 'instapay', 'banktransfer', 'vodafonecash', 'other'];
+          const embeddedMethod = validMethods.includes(rawMethod) ? (rawMethod === 'banktransfer' ? 'bankTransfer' : rawMethod === 'vodafonecash' ? 'vodafoneCash' : rawMethod) : 'other';
+          return {
+            amount: p.amount,
+            method: embeddedMethod,
+            referenceNumber: p.notes || '',
+            notes: p.notes || '',
+            date: p.created_at
+          };
+        });
+        const paid = customer.payment.history.reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
+        const fp = customer.payment.finalPrice || 0;
+        customer.payment.paidAmount = paid;
+        customer.payment.remainingAmount = Math.max(0, fp - paid);
+        customer.payment.status = fp > 0 && paid >= fp ? 'fullyPaid' : paid > 0 ? 'partiallyPaid' : 'notPaid';
+        await customer.save();
+      }
+    }
+
     res.json({ message: 'Payment deleted', payment });
   } catch (error) {
     console.error('Delete payment error:', error);

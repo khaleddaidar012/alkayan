@@ -53,7 +53,7 @@ function initDashboard() {
     updateLangToggle();
     applyTranslation('dashboard', 'dashboard');
   }
-  if (user.theme) {
+  if (user.theme && !localStorage.getItem('alkayan_theme')) {
     setTheme(user.theme);
   }
 
@@ -142,7 +142,7 @@ async function fetchStats() {
     const headers = { 'Authorization': `Bearer ${token}` };
 
     const [coursesRes, customersRes, usersRes, tasksRes] = await Promise.all([
-      fetch(`${API_URL}/courses`, { headers }).catch(() => null),
+      fetch(`${API_URL}/programs`, { headers }).catch(() => null),
       fetch(`${API_URL}/customers`, { headers }).catch(() => null),
       fetch(`${API_URL}/users`, { headers }).catch(() => null),
       fetch(`${API_URL}/tasks`, { headers }).catch(() => null)

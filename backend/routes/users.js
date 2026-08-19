@@ -6,8 +6,10 @@ const {
   deleteUser, updatePermissions, toggleStatus
 } = require('../controllers/userController');
 const { protect, authorize } = require('../middleware/auth');
+const { objectIdParam } = require('../middleware/validateObjectId');
 
 router.use(protect, authorize('admin'));
+router.param('id', objectIdParam('id'));
 
 router.get('/', getUsers);
 

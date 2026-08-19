@@ -6,8 +6,10 @@ const {
   getGoals, getGoal, createGoal, updateGoal, deleteGoal
 } = require('../controllers/goalController');
 const { protect, authorize } = require('../middleware/auth');
+const { objectIdParam } = require('../middleware/validateObjectId');
 
 router.use(protect);
+router.param('id', objectIdParam('id'));
 
 // Public routes with view permissions
 router.get('/', getGoals);

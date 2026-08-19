@@ -1,7 +1,18 @@
 // Employee Tasks Dashboard JavaScript - Phase 4.1
+const API_URL = 'http://localhost:5000/api';
+
+function getCurrentUser() {
+  try { return JSON.parse(localStorage.getItem('alkayan_user')); }
+  catch { return null; }
+}
+
+function getToken() {
+  return localStorage.getItem('alkayan_token') || sessionStorage.getItem('alkayan_token');
+}
+
 class EmployeeTasksDashboard {
   constructor() {
-    this.currentUser = JSON.parse(localStorage.getItem('currentUser')) || {
+    this.currentUser = getCurrentUser() || {
       name: 'Employee Name',
       role: 'employee'
     };
@@ -25,7 +36,11 @@ class EmployeeTasksDashboard {
 
   async fetchTasks() {
     try {
-      const response = await fetch(`${this.apiBaseUrl}?assignedTo=${this.currentUser._id || 1}`);
+      const token = getToken();
+      if (!token) { window.location.href = 'login.html'; return; }
+      const response = await fetch(`${this.apiBaseUrl}?assignedTo=${this.currentUser._id || 1}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch tasks');
       }
@@ -236,6 +251,7 @@ class EmployeeTasksDashboard {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${getToken()}`,
         },
         body: JSON.stringify({ status: newStatus })
       });
@@ -261,7 +277,7 @@ class EmployeeTasksDashboard {
 
   async submitProof(task) {
     const proofData = {
-      taskId: task._id,
+      status: 'completed',
       proofType: 'text',
       proofContent: 'Task completed successfully.'
     };
@@ -271,6 +287,7 @@ class EmployeeTasksDashboard {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${getToken()}`,
         },
         body: JSON.stringify(proofData)
       });

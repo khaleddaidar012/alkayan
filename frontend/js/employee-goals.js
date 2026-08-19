@@ -1,7 +1,18 @@
 // Employee Goals Dashboard Controller
+const API_URL = 'http://localhost:5000/api';
+
+function getCurrentUser() {
+  try { return JSON.parse(localStorage.getItem('alkayan_user')); }
+  catch { return null; }
+}
+
+function getToken() {
+  return localStorage.getItem('alkayan_token') || sessionStorage.getItem('alkayan_token');
+}
+
 class EmployeeGoalsDashboard {
   constructor() {
-    this.currentUser = JSON.parse(localStorage.getItem('currentUser')) || {
+    this.currentUser = getCurrentUser() || {
       name: 'Employee Name',
       role: 'employee'
     };
@@ -25,7 +36,11 @@ class EmployeeGoalsDashboard {
 
   async fetchGoals() {
     try {
-      const response = await fetch(`${this.apiBaseUrl}?employee=${this.currentUser._id || 1}`);
+      const token = getToken();
+      if (!token) { window.location.href = 'login.html'; return; }
+      const response = await fetch(`${this.apiBaseUrl}?employee=${this.currentUser._id || 1}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch goals');
       }
@@ -81,36 +96,54 @@ class EmployeeGoalsDashboard {
     });
   }
 
-  toggleChecklistItem(goalId, checklistIndex) {
+  async toggleChecklistItem(goalId, checklistIndex) {
     const goal = this.goals.find(g => g._id === goalId);
     if (!goal || !goal.checklist || !goal.checklist[checklistIndex]) return;
 
-    goal.checklist[checklistIndex].completed = !goal.checklist[checklistIndex].completed;
+    const wasCompleted = goal.completed;
+    const newCompleted = !wasCompleted;
 
-    this.goals = this.goals.map(g => g._id === goalId ? goal : g);
+    try {
+      const token = getToken();
+      if (!token) { window.location.href = 'login.html'; return; }
+      const response = await fetch(`${this.apiBaseUrl}/${goalId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ completed: newCompleted })
+      });
+      if (!response.ok) throw new Error('Failed to update goal');
 
-    this.displayGoals();
-    this.showNotification('Checklist item updated!', 'success');
+      const data = await response.json();
+      this.goals = this.goals.map(g => g._id === goalId ? data.goal : g);
+      this.displayGoals();
+      this.showNotification('Goal status updated!', 'success');
+    } catch (error) {
+      console.error('Error updating goal:', error);
+      this.showNotification('Failed to update goal. Please try again.', 'error');
+    }
   }
 
   getGoalCardHTML(goal) {
     const periodClass = `period-${goal.period}-employee`;
     const periodText = goal.period.charAt(0).toUpperCase() + goal.period.slice(1);
-    const completedCount = this.getCompletedChecklistCount(goal.checklist);
+    const completedCount = this.getCompletedChecklistCount(goal);
     const totalCount = goal.checklist ? goal.checklist.length : 0;
     const progress = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
     const checklistItems = goal.checklist && goal.checklist.length > 0
       ? goal.checklist.map((item, index) => `
-        <div class="checklist-item-employee ${item.completed ? 'completed' : ''}" data-checklist-index="${index}">
-          <span class="checklist-icon-employee">${item.completed ? '✅' : '☐'}</span>
-          <span class="checklist-text-employee ${item.completed ? 'completed' : ''}">${item}</span>
+        <div class="checklist-item-employee ${goal.completed ? 'completed' : ''}" data-checklist-index="${index}">
+          <span class="checklist-icon-employee">${goal.completed ? '✅' : '☐'}</span>
+          <span class="checklist-text-employee ${goal.completed ? 'completed' : ''}">${item}</span>
         </div>
       `).join('')
       : '<p class="empty-checklist">No checklist items</p>';
 
     return `
-      <div class="goal-card-employee" data-goal-id="${goal._id}">
+      <div class="goal-card-employee ${goal.completed ? 'completed' : ''}" data-goal-id="${goal._id}">
         <div class="goal-card-header-employee">
           <h3 class="goal-title-employee">${goal.title}</h3>
           <span class="goal-period-badge-employee ${periodClass}">${periodText}</span>
@@ -131,9 +164,10 @@ class EmployeeGoalsDashboard {
     `;
   }
 
-  getCompletedChecklistCount(checklist) {
-    if (!checklist) return 0;
-    return checklist.filter(item => item.completed).length;
+  getCompletedChecklistCount(goal) {
+    if (!goal) return 0;
+    const total = goal.checklist ? goal.checklist.length : 0;
+    return goal.completed ? total : 0;
   }
 
   getEmptyGoalsHTML(period) {
@@ -153,20 +187,9 @@ class EmployeeGoalsDashboard {
   }
 
   updateGoalsCount(dailyGoals, weeklyGoals, monthlyGoals) {
-    const dailyCount = dailyGoals.reduce((total, goal) => {
-      const completed = this.getCompletedChecklistCount(goal.checklist);
-      return total + completed;
-    }, 0);
-
-    const weeklyCount = weeklyGoals.reduce((total, goal) => {
-      const completed = this.getCompletedChecklistCount(goal.checklist);
-      return total + completed;
-    }, 0);
-
-    const monthlyCount = monthlyGoals.reduce((total, goal) => {
-      const completed = this.getCompletedChecklistCount(goal.checklist);
-      return total + completed;
-    }, 0);
+    const dailyCount = dailyGoals.reduce((total, goal) => total + this.getCompletedChecklistCount(goal), 0);
+    const weeklyCount = weeklyGoals.reduce((total, goal) => total + this.getCompletedChecklistCount(goal), 0);
+    const monthlyCount = monthlyGoals.reduce((total, goal) => total + this.getCompletedChecklistCount(goal), 0);
 
     document.getElementById('dailyGoalsCount').textContent = `${dailyCount} completed`;
     document.getElementById('weeklyGoalsCount').textContent = `${weeklyCount} completed`;
@@ -208,8 +231,8 @@ class EmployeeGoalsDashboard {
     const checklistItems = goal.checklist && goal.checklist.length > 0
       ? goal.checklist.map((item, index) => `
         <div class="checklist-detail-item">
-          <span class="checklist-detail-icon">${item.completed ? '✅' : '☐'}</span>
-          <span class="checklist-detail-text ${item.completed ? 'completed' : ''}">${item}</span>
+          <span class="checklist-detail-icon">${goal.completed ? '✅' : '☐'}</span>
+          <span class="checklist-detail-text ${goal.completed ? 'completed' : ''}">${item}</span>
         </div>
       `).join('')
       : '<p class="empty-checklist">No checklist items</p>';
@@ -231,7 +254,7 @@ class EmployeeGoalsDashboard {
           <strong>Created by:</strong> ${goal.createdBy?.name}
         </div>
         <div class="goal-detail-item">
-          <strong>Progress:</strong> ${this.getCompletedChecklistCount(goal.checklist)} / ${goal.checklist?.length || 0} items
+          <strong>Progress:</strong> ${this.getCompletedChecklistCount(goal)} / ${goal.checklist?.length || 0} items
         </div>
         <div class="goal-detail-item">
           <strong>Checklist:</strong>
