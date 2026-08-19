@@ -23,7 +23,7 @@ Tracked on branch `main`. Each row is one pushed commit after a major completed 
 | 2026-08-19 | `a46eb76` | docs(qa): mark Phase 3 mobile UX fixes committed | 3 | done |
 | 2026-08-19 | `b34b302` | docs(qa): mark Phase 2 mobile audit committed | 2 | done |
 | 2026-08-19 | `7c1ec04` | docs(qa): mark Phase 1 mobile implementation committed | 1 | done |
-| — | — | Final QA phase commit + push | 10 | pending |
+| 2026-08-19 | `7cfc72a` | Final QA phase — all 10 phases complete | 10 | done |
 
 Rules:
 - Run tests, verify the app works, update TASKS4.md + this file, then commit + push after every major phase.
