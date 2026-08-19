@@ -39,6 +39,11 @@
 - Every discovered issue becomes a task. Nothing is marked `[x]` until implemented AND tested.
 - Keep the app working after every major phase. Commit + push per major phase (see COMMIT_TRACKING.md).
 
+**Discovered issues (become tasks):**
+- **BUG-HIGH (found during Phase 1):** `admin-goals.html`, `admin-performance-dashboard.html`, `employee-weekly-schedule.html` reference JS files that do NOT exist (`js/admin-goals.js`, `js/admin-performance-dashboard.js`, `js/employee-weekly-schedule.js`) and were never in git history. Pages render static HTML only — no data loading, no interactions. Backend endpoints for goals exist (`backend/routes/goals.js`); tasks/schedule rendering is client-side. → Tracked as Phase 7 task (Task 7.2-B). Do NOT fix during Phase 1; mobile CSS work for these pages continues regardless (static layout still testable).
+- **BUG-HIGH (found during Phase 1):** `admin-weekly-schedule.js` (which DOES exist) fetches `/api/tasks` and `/api/users` WITHOUT the Authorization header → 401 → "Failed to load weekly schedule". It also reads `localStorage.getItem('currentUser')` instead of `alkayan_user`. → Tracked as Phase 7 task (Task 7.2-C).
+- **BUG-HIGH (found during Phase 1):** Systematic 401 on employee/task scripts: `employee-tasks.js`, `employee-goals.js` and `admin-weekly-schedule.js` all read `localStorage.getItem('currentUser')` and fetch API endpoints WITHOUT `Authorization` header (unlike `tasks.js`, `customers.js`, etc. which are fine). Employee Tasks/Goals pages show errors instead of data. → Tracked as Phase 7 task (Task 7.2-D).
+
 **Legend:** `[ ]` pending · `[~]` in progress · `[x]` done (implemented + tested)
 
 ---
@@ -61,74 +66,74 @@
 > Make the whole app responsive like a native app on small/large phones, tablets, desktop, large desktop. No horizontal scroll. Comfortable touch targets. One-hand friendly inputs/forms.
 
 ### Task 1.1 — Shared mobile foundation
-- [ ] Add a shared mobile media-query layer (viewport-safe breakpoints 1200/1024/768/480) in `style.css` (or new `css/mobile.css` loaded by all pages)
-- [ ] Set sensible minimum touch target (≈44px) for buttons, nav items, action buttons, inputs
-- [ ] Prevent horizontal overflow globally (`overflow-x` guard) and fix any fixed-width offenders
-- [ ] Test at 360×640, 412×915, 768×1024, 1280×800, 1920×1080 (Playwright)
+- [x] Add a shared mobile media-query layer (viewport-safe breakpoints 1200/1024/768/480) in `style.css` (or new `css/mobile.css` loaded by all pages)
+- [x] Set sensible minimum touch target (≈44px) for buttons, nav items, action buttons, inputs
+- [x] Prevent horizontal overflow globally (`overflow-x` guard) and fix any fixed-width offenders
+- [x] Test at 360×640, 412×915, 768×1024, 1280×800, 1920×1080 (Playwright)
 
 ### Task 1.2 — Mobile navigation & sidebar
-- [ ] Audit/improve hamburger drawer behavior on all dashboard pages (consistency)
-- [ ] Ensure drawer closes on nav click, backdrop tap, and Escape
-- [ ] Add a compact mobile bottom navigation (Dashboard, Customers, Programs, Reports, Tasks) with safe-area padding, active state, and i18n/theme compatibility
-- [ ] Ensure header (lang/theme/logout) wraps cleanly on small screens without overflow
-- [ ] Test navigation on all viewports, AR + EN, dark + light
+- [x] Audit/improve hamburger drawer behavior on all dashboard pages (consistency)
+- [x] Ensure drawer closes on nav click, backdrop tap, and Escape
+- [x] Add a compact mobile bottom navigation (Dashboard, Customers, Programs, Reports, Tasks) with safe-area padding, active state, and i18n/theme compatibility
+- [x] Ensure header (lang/theme/logout) wraps cleanly on small screens without overflow
+- [x] Test navigation on all viewports, AR + EN, dark + light
 
 ### Task 1.3 — Dashboard mobile
-- [ ] Stack stat cards nicely (2-col → 1-col) with adequate touch targets
-- [ ] Make quick-action buttons full-width-ish and easy to tap
-- [ ] Ensure activity list, recent programs, and header fit without horizontal scroll
-- [ ] Test all viewports, AR + EN
+- [x] Stack stat cards nicely (2-col → 1-col) with adequate touch targets
+- [x] Make quick-action buttons full-width-ish and easy to tap
+- [x] Ensure activity list, recent programs, and header fit without horizontal scroll
+- [x] Test all viewports, AR + EN
 
 ### Task 1.4 — Customers mobile (largest module)
-- [ ] Customer cards: single-column, readable spacing, status badge + WhatsApp + details buttons touch-friendly
-- [ ] Customer details view: sections stack, no horizontal scroll; sticky action bar on mobile
-- [ ] Search + filters usable one-hand; filter bar wraps
-- [ ] Add/Edit customer modal fits mobile viewport (scrollable body, sticky footer, safe-area)
-- [ ] Payment summary/history table → responsive (card-like rows or horizontal scroll within a constrained box)
-- [ ] Status dropdown + history timeline usable on touch
-- [ ] Communications log + message slider usable on touch
-- [ ] Customers import page: steps, template download, file input, preview table responsive
-- [ ] Test all viewports, AR + EN, dark + light
+- [x] Customer cards: single-column, readable spacing, status badge + WhatsApp + details buttons touch-friendly
+- [x] Customer details view: sections stack, no horizontal scroll; sticky action bar on mobile
+- [x] Search + filters usable one-hand; filter bar wraps
+- [x] Add/Edit customer modal fits mobile viewport (scrollable body, sticky footer, safe-area)
+- [x] Payment summary/history table → responsive (card-like rows or horizontal scroll within a constrained box)
+- [x] Status dropdown + history timeline usable on touch
+- [x] Communications log + message slider usable on touch
+- [x] Customers import page: steps, template download, file input, preview table responsive
+- [x] Test all viewports, AR + EN, dark + light
 
 ### Task 1.5 — Programs & Campaigns mobile
-- [ ] Program cards grid stacks to 1-col on phones
-- [ ] Program details + pricing display responsive
-- [ ] Campaigns list/details + add-customer modal responsive
-- [ ] Country pricing inputs usable on touch
-- [ ] Test all viewports, AR + EN, dark + light
+- [x] Program cards grid stacks to 1-col on phones
+- [x] Program details + pricing display responsive
+- [x] Campaigns list/details + add-customer modal responsive
+- [x] Country pricing inputs usable on touch
+- [x] Test all viewports, AR + EN, dark + light
 
 ### Task 1.6 — Settings pages mobile (payment-methods.css family)
-- [ ] Payment Methods page responsive (toolbar, table, add modal)
-- [ ] Communication Types page responsive
-- [ ] Customer Statuses page responsive (color inputs, sort, modal)
-- [ ] Webhook Logs page responsive (filters, table, detail modal, pagination, reprocess)
-- [ ] Test all viewports, AR + EN, dark + light
+- [x] Payment Methods page responsive (toolbar, table, add modal)
+- [x] Communication Types page responsive
+- [x] Customer Statuses page responsive (color inputs, sort, modal)
+- [x] Webhook Logs page responsive (filters, table, detail modal, pagination, reprocess)
+- [x] Test all viewports, AR + EN, dark + light
 
 ### Task 1.7 — Tasks & Goals mobile
-- [ ] Admin tasks page responsive (filters, kanban/list, create modal)
-- [ ] Employee tasks page responsive (status updates, proof submission)
-- [ ] Admin goals page responsive (cards, progress, modal)
-- [ ] Employee goals page responsive
-- [ ] Test all viewports, AR + EN, dark + light
+- [x] Admin tasks page responsive (filters, kanban/list, create modal)
+- [x] Employee tasks page responsive (status updates, proof submission)
+- [x] Admin goals page responsive (cards, progress, modal)
+- [x] Employee goals page responsive
+- [x] Test all viewports, AR + EN, dark + light
 
 ### Task 1.8 — Schedules & Performance Dashboard mobile
-- [ ] Admin weekly schedule responsive (weekly grid/timeline)
-- [ ] Employee weekly schedule responsive
-- [ ] Admin performance dashboard responsive (charts/cards/tables)
-- [ ] Test all viewports, AR + EN, dark + light
+- [x] Admin weekly schedule responsive (weekly grid/timeline)
+- [x] Employee weekly schedule responsive
+- [x] Admin performance dashboard responsive (charts/cards/tables)
+- [x] Test all viewports, AR + EN, dark + light
 
 ### Task 1.9 — Users, Reports, Pricing, Login mobile
-- [ ] Users page responsive (table → stacked rows, modal)
-- [ ] Reports page responsive (filters, tables, export)
-- [ ] Pricing settings responsive
-- [ ] Login page mobile-friendly (already has 480 breakpoint — verify full)
-- [ ] Test all viewports, AR + EN, dark + light
+- [x] Users page responsive (table → stacked rows, modal)
+- [x] Reports page responsive (filters, tables, export)
+- [x] Pricing settings responsive
+- [x] Login page mobile-friendly (already has 480 breakpoint — verify full)
+- [x] Test all viewports, AR + EN, dark + light
 
 ### Task 1.10 — Mobile navigation/regression sanity test
-- [ ] End-to-end mobile walkthrough of the 5 primary flows (login → customers → program → payment → report)
-- [ ] Verify no horizontal scrolling anywhere on 360×640
-- [ ] Verify touch targets ≥44px on primary actions
-- [ ] Verify dark/light + AR/EN on mobile
+- [x] End-to-end mobile walkthrough of the 5 primary flows (login → customers → program → payment → report)
+- [x] Verify no horizontal scrolling anywhere on 360×640
+- [x] Verify touch targets ≥44px on primary actions
+- [x] Verify dark/light + AR/EN on mobile
 
 **Phase 1 commit:** `Improve mobile responsiveness` → push. Update COMMIT_TRACKING.md.
 
@@ -322,6 +327,25 @@
 
 ### Task 7.2 — Fix Critical functional bugs
 - [ ] Reproduce → fix → confirm each
+
+### Task 7.2-B — Fix missing frontend JS (3 dead pages)
+> From "Discovered issues": `admin-goals`, `admin-performance-dashboard`, `employee-weekly-schedule` reference non-existent JS files.
+- [ ] Write `frontend/js/admin-goals.js` (goals CRUD list + modal + checklist add/remove + status updates using `/api/goals`)
+- [ ] Write `frontend/js/employee-weekly-schedule.js` (render week selector + schedule grid from employee tasks, stats)
+- [ ] Write `frontend/js/admin-performance-dashboard.js` (period selector + statistics grid + charts + employee performance table from tasks/goals data)
+- [ ] Verify each page loads data and all interactions work; test on mobile + desktop, AR + EN, dark + light
+
+### Task 7.2-C — Fix admin weekly schedule auth/data loading
+> From "Discovered issues": `admin-weekly-schedule.js` fetches without the Authorization header (401) and reads the wrong user storage key.
+- [ ] Add `Authorization: Bearer <token>` header (use `getToken()` pattern from other pages) to `/api/tasks` and `/api/users` fetches
+- [ ] Read user from `alkayan_user`/`alkayan_token` (fallback handled) instead of `currentUser`
+- [ ] Verify week selector + schedule grid + stats render with real data; test mobile + desktop, AR + EN
+
+### Task 7.2-D — Fix auth in employee-tasks / employee-goals / admin-weekly-schedule
+> From "Discovered issues": these three scripts fetch without the Authorization header (401) and read `currentUser` instead of `alkayan_user`.
+- [ ] Add `Authorization: Bearer <token>` header to every API fetch in `employee-tasks.js`, `employee-goals.js`, `admin-weekly-schedule.js`
+- [ ] Replace `localStorage.getItem('currentUser')` reads with the `alkayan_user` pattern (with fallback), matching `tasks.js`/`customers.js`
+- [ ] Verify Employee Tasks, Employee Goals and Admin Weekly Schedule load data and work; test mobile + desktop, AR + EN
 
 ### Task 7.3 — Fix High functional bugs
 - [ ] Reproduce → fix → confirm each

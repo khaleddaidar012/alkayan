@@ -282,3 +282,38 @@
   50% { opacity: 0.5; }
   100% { opacity: 1; }
 }
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .weekly-overview {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .stats-grid-employee {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .employee-weekly-schedule-content {
+    padding: 16px;
+  }
+
+  .weekly-overview {
+    grid-template-columns: 1fr;
+  }
+
+  .overview-card {
+    padding: 16px;
+  }
+
+  .overview-content h3 {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid-employee {
+    grid-template-columns: 1fr;
+  }
+}

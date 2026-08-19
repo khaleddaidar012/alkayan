@@ -304,3 +304,28 @@
 .notification-info {
   background: var(--info);
 }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .goals-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+    padding: 16px;
+  }
+
+  .toolbar-left,
+  .toolbar-right {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .goal-card-header-admin {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .goal-actions-admin {
+    flex-wrap: wrap;
+  }
+}

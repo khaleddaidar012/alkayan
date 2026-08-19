@@ -147,6 +147,7 @@
 /* Main content */
 .main-content {
   flex: 1;
+  min-width: 0;
   margin-left: 260px;
   padding: 24px 32px;
   transition: margin var(--transition);

@@ -316,3 +316,44 @@
   50% { opacity: 0.5; }
   100% { opacity: 1; }
 }
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .statistics-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .charts-section {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .statistics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .period-selector {
+    gap: 8px;
+  }
+
+  .period-btn {
+    flex: 1;
+    text-align: center;
+    min-width: 90px;
+  }
+}
+
+@media (max-width: 480px) {
+  .statistics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .goal-completion-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .table-header {
+    min-width: 640px;
+  }
+}

@@ -247,3 +247,18 @@
   padding: 6px 12px;
   border-radius: var(--radius-sm);
 }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .goals-section-header,
+  .goals-section-header-employee {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .goal-card-header-employee {
+    flex-direction: column;
+    gap: 10px;
+  }
+}

@@ -178,3 +178,20 @@
   color: var(--success);
   font-size: 16px;
 }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .tasks-section h2 {
+    font-size: 20px;
+  }
+
+  .task-card-header-employee {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .task-status-badge-employee {
+    margin-right: 0;
+    align-self: flex-start;
+  }
+}
