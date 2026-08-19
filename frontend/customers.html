@@ -509,20 +509,17 @@
       </div>
       <form id="payForm" novalidate>
         <div class="modal-body pm-compact-body">
-          <div class="details-row">
-            <span class="details-label" data-i18n="direction">Direction</span>
-            <div class="pm-direction-group" id="payFormDirection">
-              <label class="pm-direction-opt">
-                <input type="radio" name="pm-direction" value="in" checked>
-                <span>⬅ <span data-i18n="in">Customer to Program</span></span>
-              </label>
-              <label class="pm-direction-opt">
-                <input type="radio" name="pm-direction" value="out">
-                <span>➡ <span data-i18n="out">Program to Customer</span></span>
-              </label>
+          <div class="pm-customer-row" style="align-items:center">
+            <div style="display:flex;align-items:center;gap:10px;min-width:0">
+              <div style="width:38px;height:38px;border-radius:50%;background:var(--gold);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0" id="payCustomerAvatar">?</div>
+              <div style="min-width:0">
+                <div style="font-size:14px;font-weight:700;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="payCustomerName">—</div>
+                <div style="font-size:11px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="payCustomerMeta">—</div>
+              </div>
             </div>
+            <span class="customer-status-badge potential" id="payCustomerStatus">&#11088;</span>
           </div>
-          <div class="pm-compact-grid">
+          <div style="display:flex;flex-direction:column;gap:10px">
             <div class="details-row">
               <span class="details-label" data-i18n="amount">Amount</span>
               <input type="number" id="payFormAmount" class="details-input" min="0.01" required step="0.01" placeholder="0.00">
@@ -531,19 +528,19 @@
               <span class="details-label" data-i18n="currency">Currency</span>
               <input type="text" id="payFormCurrency" class="details-input" maxlength="3" readonly>
             </div>
-          </div>
-          <div class="details-row">
-            <span class="details-label" data-i18n="method">Payment Method</span>
-            <select id="payFormMethod" class="details-select"></select>
-          </div>
-          <div class="details-row">
-            <span class="details-label" data-i18n="receipt">Receipt</span>
-            <input type="file" id="payFormReceipt" class="details-input pm-file-input" accept=".jpg,.jpeg,.png,.pdf">
-            <span class="pm-file-hint" data-i18n="receiptHint">Image or PDF (up to 10MB)</span>
-          </div>
-          <div class="details-row">
-            <span class="details-label" data-i18n="notes">Notes</span>
-            <textarea id="payFormNotes" class="details-input" rows="2" placeholder=" "></textarea>
+            <div class="details-row">
+              <span class="details-label" data-i18n="method">Payment Method</span>
+              <select id="payFormMethod" class="details-select"></select>
+            </div>
+            <div class="details-row">
+              <span class="details-label" data-i18n="receipt">Receipt</span>
+              <input type="file" id="payFormReceipt" class="details-input pm-file-input" accept=".jpg,.jpeg,.png,.pdf">
+              <span class="pm-file-hint" data-i18n="receiptHint">Image or PDF (up to 10MB)</span>
+            </div>
+            <div class="details-row">
+              <span class="details-label" data-i18n="notes">Notes</span>
+              <textarea id="payFormNotes" class="details-input" rows="3" placeholder=" "></textarea>
+            </div>
           </div>
         </div>
         <div class="modal-footer">

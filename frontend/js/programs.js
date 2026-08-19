@@ -24,15 +24,15 @@ function showToast(msg, type) {
   setTimeout(() => { t.classList.add('toast-remove'); setTimeout(() => t.remove(), 300); }, 3000);
 }
 function formatDate(d) { return d ? new Date(d).toLocaleDateString(currentLang === 'ar' ? 'ar-SA' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '\u2014'; }
-function formatCurrency(a) { 
+function formatCurrency(a, cur) { 
   if (a == null || isNaN(a)) return '\u2014';
-  return Number(a).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' EGP'; 
+  return Number(a).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' ' + (cur || 'EGP'); 
 }
 function priceDisplay(label, value, opts) {
   const o = opts || {};
   return '<div class="price-display' + (o.size === 'lg' ? ' price-display-lg' : '') + (o.color ? ' price-display-' + o.color : '') + '">' +
     (label ? '<div class="price-label">' + label + '</div>' : '') +
-    '<div class="price-value">' + formatCurrency(value) + '</div></div>';
+    '<div class="price-value">' + formatCurrency(value, o.currency) + '</div></div>';
 }
 
 async function apiFetch(url, opts) {
@@ -146,12 +146,12 @@ function renderPrograms(programs) {
       '<div class="program-card-top"><div class="program-card-icon">📚</div><div class="program-card-title-area"><div class="program-card-name">' + p.name + '</div>' +
       ((p.instructor || p.duration) ? '<div class="program-card-instructor">' + (p.instructor ? '👨‍🏫 ' + p.instructor : '') + (p.instructor && p.duration ? ' \u00b7 ' : '') + (p.duration ? '\u23f1\ufe0f ' + p.duration : '') + '</div>' : '') + '</div>' +
       '<span class="program-status-badge ' + sc + '">' + t(sc) + '</span></div>' +
-      '<div class="program-card-price">' + priceDisplay('💰 ' + priceLabel, dynPrice, { size: 'lg' }) + '</div>' +
+      '<div class="program-card-price">' + priceDisplay('💰 ' + priceLabel, dynPrice, { size: 'lg', currency: p.currency }) + '</div>' +
       '<div class="program-card-stats">' +
       '<div class="program-stat-tile"><div class="program-stat-tile-header"><span class="program-stat-tile-icon">👥</span><span class="program-stat-tile-label">' + t('activeCustomers') + '</span></div><div class="program-stat-tile-value">' + (p.activeCustomers || 0) + '</div></div>' +
       '<div class="program-stat-tile"><div class="program-stat-tile-header"><span class="program-stat-tile-icon">📊</span><span class="program-stat-tile-label">' + t('totalEnrollments') + '</span></div><div class="program-stat-tile-value">' + (p.totalEnrollments || 0) + '</div></div>' +
       '<div class="program-stat-tile"><div class="program-stat-tile-header"><span class="program-stat-tile-icon">📢</span><span class="program-stat-tile-label">' + t('activeCampaigns') + '</span></div><div class="program-stat-tile-value blue">' + (p.activeCampaigns || 0) + '</div></div>' +
-      '<div class="program-stat-tile"><div class="program-stat-tile-header"><span class="program-stat-tile-icon">💰</span><span class="program-stat-tile-label">' + t('price') + '</span></div><div class="program-stat-tile-value gold">' + formatCurrency(p.price) + '</div></div></div>' +
+      '<div class="program-stat-tile"><div class="program-stat-tile-header"><span class="program-stat-tile-icon">💰</span><span class="program-stat-tile-label">' + t('price') + '</span></div><div class="program-stat-tile-value gold">' + formatCurrency(p.price, p.currency) + '</div></div></div>' +
       '<div class="program-card-campaign-badge">📢 ' + (p.activeCampaigns || 0) + ' ' + t('campaigns') + ' \u00b7 ' + (p.totalEnrollments || 0) + ' ' + t('customers') + '</div>' +
       '<div class="program-card-actions">' +
       '<button class="program-action-btn view" data-view="' + p._id + '"><span class="action-icon">👁️</span> ' + t('view') + '</button>' +
@@ -233,7 +233,7 @@ function showProgramDetails(programId) {
       '</div></div>' +
       '<div class="program-info-grid">' +
       '<div class="program-info-item"><span class="program-info-label">' + t('name') + '</span><span class="program-info-value">' + p.name + '</span></div>' +
-      '<div class="program-info-item"><span class="program-info-label">' + t('price') + '</span>' + priceDisplay('', p.price, { color: 'gold' }) + '</div>' +
+      '<div class="program-info-item"><span class="program-info-label">' + t('price') + '</span>' + priceDisplay('', p.price, { color: 'gold', currency: p.currency }) + '</div>' +
       '<div class="program-info-item"><span class="program-info-label">' + t('duration') + '</span><span class="program-info-value">' + (p.duration || '\u2014') + '</span></div>' +
       '<div class="program-info-item"><span class="program-info-label">' + t('instructor') + '</span><span class="program-info-value">' + (p.instructor || '\u2014') + '</span></div>' +
       '<div class="program-info-item"><span class="program-info-label">' + t('startDate') + '</span><span class="program-info-value">' + formatDate(p.startDate) + '</span></div>' +
@@ -426,6 +426,8 @@ function openEditModal(programId) {
   document.getElementById('formName').value = p.name || '';
   document.getElementById('formDescription').value = p.description || '';
   document.getElementById('formPrice').value = p.price || '';
+  const curEl = document.getElementById('formCurrency');
+  if (curEl) curEl.value = p.currency || 'EGP';
   document.getElementById('formDuration').value = p.duration || '';
   document.getElementById('formInstructor').value = p.instructor || '';
   document.getElementById('formStartDate').value = p.startDate ? p.startDate.split('T')[0] : '';
@@ -446,6 +448,7 @@ async function handleFormSubmit(e) {
     name: document.getElementById('formName').value.trim(),
     description: document.getElementById('formDescription').value.trim(),
     price: parseFloat(document.getElementById('formPrice').value) || 0,
+    currency: document.getElementById('formCurrency')?.value || 'EGP',
     duration: document.getElementById('formDuration').value.trim(),
     instructor: document.getElementById('formInstructor').value.trim(),
     startDate: document.getElementById('formStartDate').value || null,
@@ -460,34 +463,42 @@ async function handleFormSubmit(e) {
 }
 
 function openAddCustomerFromCampaign(campaignId, programName) {
-  campaignCustomerContext = { programName, programId: currentProgramId, campaignId };
+  const prog = (allPrograms || []).find(x => x.name === programName);
+  campaignCustomerContext = { programName, programId: currentProgramId || (prog ? prog._id : null), campaignId };
   document.getElementById('customerForm').reset();
   document.getElementById('customerModalTitle').textContent = t('addCustomer');
   document.getElementById('custFormProgram').value = programName || '';
   document.getElementById('custFormDate').value = new Date().toISOString().split('T')[0];
+  document.getElementById('custFormStatus').value = 'potential';
+  document.getElementById('custFormCountry').value = '';
+  const hint = document.getElementById('custCountryDetectHint');
+  if (hint) hint.style.display = 'none';
   document.getElementById('custFormPaymentSection').style.display = 'none';
-  document.getElementById('custFormPayAmount').value = '';
-  document.getElementById('custFormPayMethod').value = 'cash';
-  document.getElementById('custFormPayNotes').value = '';
-  const prog = (allPrograms || []).find(x => x._id === currentProgramId) || (allPrograms || []).find(x => x.name === programName);
+  document.getElementById('custFormPayProgramPrice').value = '';
+  document.getElementById('custFormPayDiscount').value = '';
+  document.getElementById('custFormPayTotal').value = '';
+  document.getElementById('custFormPayInitial').value = '';
+  document.getElementById('custFormPayPaid').value = '';
+  document.getElementById('custFormPayRemaining').textContent = formatCurrency(0);
+  const stEl = document.getElementById('custFormPayStatusDisplay');
+  if (stEl) { stEl.textContent = '—'; stEl.style.color = 'var(--text-muted)'; }
   const priceWrap = document.getElementById('custFormProgramPriceWrap');
   const priceEl = document.getElementById('custFormProgramPrice');
   if (prog && prog.price !== undefined && prog.price !== null && prog.price > 0) {
-    if (priceEl) priceEl.innerHTML = priceDisplay('', prog.price, { size: 'lg', color: 'gold' });
+    if (priceEl) priceEl.innerHTML = priceDisplay('', prog.price, { size: 'lg', color: 'gold', currency: prog.currency });
     if (priceWrap) priceWrap.style.display = '';
-    document.getElementById('custFormPayAmount').value = prog.price;
+    document.getElementById('custFormPayProgramPrice').value = prog.price;
   } else {
     if (priceWrap) priceWrap.style.display = 'none';
   }
   document.getElementById('customerModal').classList.add('show');
   document.body.classList.add('modal-open');
   populateEmployeeDropdown();
-  const statusSelect = document.getElementById('custFormStatus');
-  const togglePaySection = function() {
-    document.getElementById('custFormPaymentSection').style.display = this.value === 'subscribed' ? '' : 'none';
-  };
-  statusSelect.removeEventListener('change', togglePaySection);
-  statusSelect.addEventListener('change', togglePaySection);
+  populateCustCampaignDropdown(campaignId || currentCampaignId || '');
+  setupCustPaymentToggle();
+  setupCustPaymentInputs();
+  setupCustCountryAutoDetect();
+  updateCustPaymentCalcs();
 }
 
 async function populateEmployeeDropdown() {
@@ -497,6 +508,119 @@ async function populateEmployeeDropdown() {
   if (!data) return;
   select.innerHTML = '<option value="">' + t('none') + '</option>';
   (data.users || []).forEach(emp => { const o = document.createElement('option'); o.value = emp._id; o.textContent = emp.name; select.appendChild(o); });
+}
+
+function populateCustCampaignDropdown(selectedId) {
+  const select = document.getElementById('custFormCampaign');
+  if (!select) return;
+  apiFetch('/campaigns').then(data => {
+    if (!data) return;
+    select.innerHTML = '<option value="">' + t('none') + '</option>';
+    (data.campaigns || []).forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c._id;
+      opt.textContent = c.name;
+      if (selectedId && c._id === selectedId) opt.selected = true;
+      select.appendChild(opt);
+    });
+  });
+}
+
+function updateCustCountryHint(country) {
+  const hint = document.getElementById('custCountryDetectHint');
+  if (!hint) return;
+  const info = COUNTRIES[country] || COUNTRIES.other;
+  hint.innerHTML = info.flag + ' ' + (currentLang === 'ar' ? 'تم الكشف تلقائيًا: ' : 'Auto-detected: ') + countryDisplayName(country, currentLang);
+  hint.className = 'country-detect-hint detect-auto';
+  hint.style.display = '';
+}
+
+function setupCustCountryAutoDetect() {
+  const phoneEl = document.getElementById('custFormPhone');
+  const waEl = document.getElementById('custFormWhatsapp');
+  const countryEl = document.getElementById('custFormCountry');
+  if (!phoneEl || !waEl || !countryEl) return;
+  const apply = function() {
+    if (countryEl.value) {
+      const hint = document.getElementById('custCountryDetectHint');
+      if (hint) hint.style.display = 'none';
+      return;
+    }
+    const value = waEl.value || phoneEl.value;
+    if (!value) return;
+    const country = detectCountryFromPhone(value);
+    const hint = document.getElementById('custCountryDetectHint');
+    if (!hint) return;
+    if (country !== 'other') {
+      countryEl.value = country;
+      updateCustCountryHint(country);
+    } else {
+      hint.innerHTML = COUNTRIES.other.flag + ' ' + (currentLang === 'ar' ? 'تم الكشف تلقائيًا: ' : 'Auto-detected: ') + countryDisplayName('other', currentLang);
+      hint.className = 'country-detect-hint detect-auto';
+      hint.style.display = '';
+    }
+  };
+  phoneEl.removeEventListener('input', apply);
+  waEl.removeEventListener('input', apply);
+  phoneEl.addEventListener('input', apply);
+  waEl.addEventListener('input', apply);
+  countryEl.removeEventListener('change', apply);
+  countryEl.addEventListener('change', apply);
+}
+
+function updateCustPaymentCalcs() {
+  const total = parseFloat(document.getElementById('custFormPayTotal')?.value) || 0;
+  const paid = parseFloat(document.getElementById('custFormPayPaid')?.value) || 0;
+  const remaining = Math.max(0, total - paid);
+  const remEl = document.getElementById('custFormPayRemaining');
+  if (remEl) remEl.textContent = formatCurrency(remaining);
+  const statusEl = document.getElementById('custFormPayStatusDisplay');
+  if (!statusEl) return;
+  if (total === 0) {
+    statusEl.textContent = '—';
+    statusEl.style.color = 'var(--text-muted)';
+  } else if (paid >= total) {
+    statusEl.textContent = '🟢 ' + t('fullyPaid');
+    statusEl.style.color = 'var(--success)';
+  } else if (paid > 0) {
+    statusEl.textContent = '🟡 ' + t('partiallyPaid');
+    statusEl.style.color = 'var(--warning)';
+  } else {
+    statusEl.textContent = '🔴 ' + t('notPaid');
+    statusEl.style.color = 'var(--danger)';
+  }
+}
+
+function setupCustPaymentInputs() {
+  const pp = document.getElementById('custFormPayProgramPrice');
+  const disc = document.getElementById('custFormPayDiscount');
+  const total = document.getElementById('custFormPayTotal');
+  const paid = document.getElementById('custFormPayPaid');
+  const initial = document.getElementById('custFormPayInitial');
+  if (!pp || !disc || !total) return;
+  const deriveTotal = function() {
+    const price = parseFloat(pp.value) || 0;
+    const d = parseFloat(disc.value) || 0;
+    total.value = Math.max(0, price - d);
+    updateCustPaymentCalcs();
+  };
+  const derivePaid = function() {
+    const i = parseFloat(initial?.value) || 0;
+    const p = parseFloat(paid?.value) || 0;
+    if (initial && p < i) paid.value = i;
+    updateCustPaymentCalcs();
+  };
+  [pp, disc].forEach(el => { el.removeEventListener('input', deriveTotal); el.addEventListener('input', deriveTotal); });
+  [total, paid, initial].forEach(el => { if (el) { el.removeEventListener('input', derivePaid); el.addEventListener('input', derivePaid); } });
+}
+
+function setupCustPaymentToggle() {
+  const statusSelect = document.getElementById('custFormStatus');
+  const paySection = document.getElementById('custFormPaymentSection');
+  if (!statusSelect || !paySection) return;
+  const handler = function() { paySection.style.display = this.value === 'subscribed' ? '' : 'none'; };
+  statusSelect.removeEventListener('change', handler);
+  statusSelect.addEventListener('change', handler);
 }
 
 function closeCustomerModal() { document.getElementById('customerModal').classList.remove('show'); document.body.classList.remove('modal-open'); campaignCustomerContext = { programName: null, programId: null, campaignId: null }; editingCustomerId = null; }
@@ -587,39 +711,49 @@ async function handleCustomerFormSubmit(e) {
   e.preventDefault();
   const btn = document.getElementById('customerFormSubmit');
   btn.disabled = true; btn.classList.add('loading'); btn.innerHTML = '<span class="spinner"></span>';
+  const status = document.getElementById('custFormStatus').value || 'potential';
   const body = {
     name: document.getElementById('custFormName').value.trim(),
+    name_ar: document.getElementById('custFormNameAr').value.trim(),
+    name_en: document.getElementById('custFormNameEn').value.trim(),
     phone: document.getElementById('custFormPhone').value.trim(),
     whatsapp: document.getElementById('custFormWhatsapp').value.trim(),
+    country: document.getElementById('custFormCountry')?.value || '',
     email: document.getElementById('custFormEmail').value.trim(),
     address: document.getElementById('custFormAddress').value.trim(),
     program: campaignCustomerContext.programName || document.getElementById('custFormProgram').value.trim(),
+    campaign: document.getElementById('custFormCampaign')?.value || campaignCustomerContext.campaignId || null,
     assignedEmployee: document.getElementById('custFormEmployee').value || null,
     registrationDate: document.getElementById('custFormDate').value || null,
-    status: document.getElementById('custFormStatus').value || 'potential',
+    status: status,
     notes: document.getElementById('custFormNotes').value.trim(),
-    campaign: campaignCustomerContext.campaignId || null,
     programRef: campaignCustomerContext.programId || null,
     registrationSource: campaignCustomerContext.campaignId ? 'campaign' : 'direct'
   };
-  if (!body.name || !body.phone) {
-    if (!body.name) document.getElementById('custFormName').style.borderColor = 'var(--danger)';
-    if (!body.phone) document.getElementById('custFormPhone').style.borderColor = 'var(--danger)';
-    showToast('Name and phone are required', 'error');
+  if (!body.phone && !body.whatsapp) {
+    document.getElementById('custFormPhone').style.borderColor = 'var(--danger)';
+    showToast('Phone or WhatsApp is required', 'error');
     btn.disabled = false; btn.classList.remove('loading'); btn.textContent = t('save'); return;
   }
-  if (body.status === 'subscribed') {
-    const payAmount = parseFloat(document.getElementById('custFormPayAmount')?.value) || 0;
-    if (payAmount > 0) {
-      const prog = (allPrograms || []).find(x => x._id === campaignCustomerContext.programId) || (allPrograms || []).find(x => x.name === body.program);
-      const payment = {
-        paidAmount: payAmount,
-        method: document.getElementById('custFormPayMethod')?.value || 'cash',
-        notes: document.getElementById('custFormPayNotes')?.value?.trim() || ''
-      };
-      if (!editingCustomerId && prog && prog.price !== undefined && prog.price > 0) payment.totalAmount = prog.price;
-      body.payment = payment;
-    }
+  if (!body.country) {
+    body.country = detectCountryFromPhone(body.whatsapp || body.phone || '');
+  }
+  if (status === 'subscribed') {
+    const pp = parseFloat(document.getElementById('custFormPayProgramPrice')?.value) || 0;
+    const disc = parseFloat(document.getElementById('custFormPayDiscount')?.value) || 0;
+    const fp = Math.max(0, pp - disc);
+    const ip = parseFloat(document.getElementById('custFormPayInitial')?.value) || 0;
+    const total = parseFloat(document.getElementById('custFormPayTotal')?.value) || 0;
+    const paid = parseFloat(document.getElementById('custFormPayPaid')?.value) || 0;
+    const finalPrice = total > 0 ? total : fp;
+    body.payment = {
+      programPrice: pp,
+      discount: disc,
+      finalPrice: finalPrice,
+      initialPayment: ip,
+      paidAmount: Math.max(paid, ip),
+      remainingAmount: Math.max(0, finalPrice - Math.max(paid, ip))
+    };
   }
   const isEdit = !!editingCustomerId;
   const url = isEdit ? '/customers/' + editingCustomerId : '/customers';
@@ -792,8 +926,13 @@ function openCustomerEditModal(customerId) {
     if (!data || !data.customer) return;
     const cust = data.customer;
     document.getElementById('custFormName').value = cust.name || '';
+    document.getElementById('custFormNameAr').value = cust.name_ar || '';
+    document.getElementById('custFormNameEn').value = cust.name_en || '';
     document.getElementById('custFormPhone').value = cust.phone || '';
     document.getElementById('custFormWhatsapp').value = cust.whatsapp || '';
+    document.getElementById('custFormCountry').value = cust.country || '';
+    const hint = document.getElementById('custCountryDetectHint');
+    if (hint) hint.style.display = 'none';
     document.getElementById('custFormEmail').value = cust.email || '';
     document.getElementById('custFormAddress').value = cust.address || '';
     document.getElementById('custFormProgram').value = cust.program || '';
@@ -803,14 +942,18 @@ function openCustomerEditModal(customerId) {
     document.getElementById('custFormNotes').value = cust.notes || '';
     const isSubscribed = (cust.status || 'potential') === 'subscribed';
     document.getElementById('custFormPaymentSection').style.display = isSubscribed ? '' : 'none';
-    document.getElementById('custFormPayAmount').value = cust.payment?.paidAmount || '';
-    document.getElementById('custFormPayMethod').value = cust.payment?.paymentMethod || 'cash';
-    document.getElementById('custFormPayNotes').value = '';
+    const pay = cust.payment || {};
+    document.getElementById('custFormPayProgramPrice').value = pay.programPrice != null ? pay.programPrice : (pay.finalPrice || '');
+    document.getElementById('custFormPayDiscount').value = pay.discount || '';
+    document.getElementById('custFormPayTotal').value = pay.finalPrice || '';
+    document.getElementById('custFormPayInitial').value = pay.initialPayment || '';
+    document.getElementById('custFormPayPaid').value = pay.paidAmount || '';
+    updateCustPaymentCalcs();
     const prog = (allPrograms || []).find(x => x._id === (cust.programRef?._id || cust.programRef)) || (allPrograms || []).find(x => x.name === cust.program);
     const priceWrap = document.getElementById('custFormProgramPriceWrap');
     const priceEl = document.getElementById('custFormProgramPrice');
     if (isSubscribed && prog && prog.price !== undefined && prog.price > 0) {
-      if (priceEl) priceEl.innerHTML = priceDisplay('', prog.price, { size: 'lg', color: 'gold' });
+      if (priceEl) priceEl.innerHTML = priceDisplay('', prog.price, { size: 'lg', color: 'gold', currency: prog.currency });
       if (priceWrap) priceWrap.style.display = '';
     } else if (priceWrap) {
       priceWrap.style.display = 'none';
@@ -820,12 +963,10 @@ function openCustomerEditModal(customerId) {
     document.getElementById('customerModal').classList.add('show');
     document.body.classList.add('modal-open');
     populateEmployeeDropdown();
-    const statusSelect = document.getElementById('custFormStatus');
-    const togglePaySection = function() {
-      document.getElementById('custFormPaymentSection').style.display = this.value === 'subscribed' ? '' : 'none';
-    };
-    statusSelect.removeEventListener('change', togglePaySection);
-    statusSelect.addEventListener('change', togglePaySection);
+    populateCustCampaignDropdown(currentCampaignId || (cust.campaign?._id || cust.campaign) || '');
+    setupCustPaymentToggle();
+    setupCustPaymentInputs();
+    setupCustCountryAutoDetect();
   });
 }
 

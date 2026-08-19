@@ -19,6 +19,11 @@ const courseSchema = new mongoose.Schema({
     required: [true, 'Price is required'],
     min: 0
   },
+  currency: {
+    type: String,
+    enum: ['EGP', 'SAR', 'LYD', 'OMR', 'USD'],
+    default: 'EGP'
+  },
   duration: {
     type: String,
     default: ''

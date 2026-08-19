@@ -130,10 +130,10 @@ exports.createProgram = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ message: errors.array()[0].msg });
 
-    const { name, description, price, duration, instructor, startDate, endDate, capacity, status, image } = req.body;
+    const { name, description, price, currency, duration, instructor, startDate, endDate, capacity, status, image } = req.body;
 
     const program = await Course.create({
-      name, description, price, duration, instructor,
+      name, description, price, currency, duration, instructor,
       startDate, endDate, capacity, status, image
     });
 
@@ -148,7 +148,7 @@ exports.updateProgram = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ message: errors.array()[0].msg });
 
-    const allowedFields = ['name', 'description', 'price', 'duration', 'instructor', 'startDate', 'endDate', 'capacity', 'status', 'image'];
+    const allowedFields = ['name', 'description', 'price', 'currency', 'duration', 'instructor', 'startDate', 'endDate', 'capacity', 'status', 'image'];
     const updateData = {};
     for (const field of allowedFields) {
       if (req.body[field] !== undefined && req.body[field] !== null) updateData[field] = req.body[field];
@@ -200,6 +200,7 @@ exports.exportPrograms = async (req, res) => {
         name: p.name,
         description: p.description,
         price: p.price,
+        currency: p.currency || 'EGP',
         duration: p.duration,
         instructor: p.instructor,
         status: p.status,

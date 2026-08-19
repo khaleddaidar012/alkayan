@@ -1500,8 +1500,21 @@ function openAddPaymentModal(customer) {
   document.getElementById('payFormReceipt').value = '';
   document.getElementById('payFormCurrency').value = currencyForCountry(customer.country || 'other');
 
-  const dirEls = document.querySelectorAll('input[name="pm-direction"]');
-  dirEls.forEach(el => { el.checked = el.value === 'in'; });
+  const avatar = document.getElementById('payCustomerAvatar');
+  if (avatar) avatar.textContent = (customer.name || '?').trim().charAt(0).toUpperCase();
+  const nameEl = document.getElementById('payCustomerName');
+  if (nameEl) nameEl.textContent = customer.name || '\u2014';
+  const metaEl = document.getElementById('payCustomerMeta');
+  if (metaEl) metaEl.textContent = (customer.phone || customer.whatsapp || '\u2014') + (customer.program ? ' \u00b7 ' + customer.program : '');
+  const stEl = document.getElementById('payCustomerStatus');
+  if (stEl) {
+    const st = customer.status || 'potential';
+    stEl.className = 'customer-status-badge ' + st;
+    let subIcon = '\uD83D\uDFE2';
+    if (st === 'potential') subIcon = '\u2B50';
+    else if (st !== 'subscribed') subIcon = '\uD83D\uDD34';
+    stEl.textContent = subIcon + ' ' + t(st);
+  }
 
   const methodSel = document.getElementById('payFormMethod');
   methodSel.innerHTML = '<option value="">--</option>';
@@ -1542,7 +1555,7 @@ async function handleAddPaymentSubmit(e) {
       return;
     }
 
-    const direction = document.querySelector('input[name="pm-direction"]:checked')?.value || 'in';
+    const direction = 'in';
     const fileInput = document.getElementById('payFormReceipt');
     if (fileInput && fileInput.files && fileInput.files[0]) {
       const f = fileInput.files[0];
