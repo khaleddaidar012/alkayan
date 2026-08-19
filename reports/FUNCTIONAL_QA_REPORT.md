@@ -144,3 +144,42 @@ All fixes implemented and verified against a fresh server running the patched ba
 | 7.2-J malformed ObjectId → 500 | LOW | New `validateObjectId` middleware used via `router.param()` on all param routes (customers, programs, tasks, goals, users, campaigns, payments, payment-methods, communication-types, customer-statuses, webhook logs) | `GET /api/customers|programs|tasks|goals|users|campaigns/not-a-valid-id` all → **400** ✓ |
 
 **Functional Score: 98/100** (all 10 tracked bugs fixed; remaining cosmetic notes: sidebar badges hardcoded, stats stale until reload after delete).
+
+---
+
+# Phase 8 — Final Regression Test (2026-08-19)
+
+Cross-module checks (Customers ↔ Programs ↔ Pricing ↔ Payments ↔ Statuses ↔ Communications ↔ Reports ↔ Dashboard). All API-level checks run against a fresh server with the Phase 7 + Phase 8 patched code; baseline restored after each test (28 customers, 2 programs, 4 users, 0 goals).
+
+| 8.1 Check | Result | Evidence |
+|---|---|---|
+| Program price change → new/edited payments; history untouched | PASS | C1 enrolled @1000; P1 price→1500 → C1.finalPrice stays 1000, history []; new C2 gets 1500; program change w/o history recomputes 2000 |
+| Payment add/edit/delete → dashboard totals + reports | PASS | add 400→paid 400/rem 600/partiallyPaid; add 300→700/300; embedded edit 400→250→650/350; ledger delete→rebuild 300/700; report totalReceived tracked exactly (base+400→+700→+250→+300→base) |
+| Status change → history + badge/card/detail consistent | PASS | status string change (rejected→potential clears reason); status_id changes record CustomerStatusHistory (2 entries); detail.status_id == last change |
+| Communication add / WhatsApp increment → counter + log + dashboard | PASS | log communication → count 1 + log entry; increment → 2; stats total 2 matches |
+| Webhook create/update customer → appears in lists/reports | PASS | dev webhook created then updated same phone; still 1 customer; program_name/source set; cleaned up |
+| User permissions per role | PASS | employee blocked /users(403), program create(403), customer delete(403), payment add(403); manager blocked /users, program delete; employee can create customer, update task status; admin full |
+
+| 8.2 Financial/integral check | Result |
+|---|---|
+| paid/remaining/status after add/edit/delete | PASS (rebuilt from ledger on delete; recomputed on edit) |
+| Report totals match customer payment data | PASS (deltas exact) |
+| Dashboard stat cards match backend counts | PASS (programs/customers/users/tasks counts valid; programs overview totals OK) |
+
+| 8.3 Suite re-run | Result |
+|---|---|
+| Backend test suite | PASS — 65/65 |
+| Mobile + desktop visual spot-check | PASS — all 21 pages serve 200; viewport meta on 20/20 templates; responsive media queries present (mobile.css 19, customers.css 9, programs.css 11); browser-level click test deferred (no browser automation in session) |
+
+## Regression bugs found & fixed during Phase 8
+
+1. **HIGH — embedded payment edit/delete always 404.** `customerController.updatePayment`/`deletePayment` looked up the customer with `req.params.id`, but the routes (`PUT/DELETE /api/customers/:customerId/payments/:paymentId`) pass `customerId`. Every embedded payment edit/delete returned `404 Customer not found`. Fixed to use `req.params.customerId`. Verified: edit 400→250 → paid 250/remaining 750/partiallyPaid; embedded delete → paid 0/notPaid.
+2. **LOW — invalid task status → 500.** `taskController.updateTaskStatus` relied on Mongoose validation (500) for bad enum values. Now returns 400 for anything not in `pending|in_progress|completed`.
+
+## Findings (documented, not blocking)
+
+- `/api/reports/aggregated` uses `protect` only — the `reports.view` permission is not enforced, so employee/manager can access reports (UI hides the page, but API is open). LOW/security note.
+- Ledger payment `_id` ≠ embedded history record `_id` (two systems). The API edit route targets embedded history; the UI only adds (ledger) and deletes (ledger rows → `/api/payments/:id`; history rows → `/api/customers/:id/payments/:pid`). No user-facing edit exists today; latent if an edit UI is added.
+- Status changes via the plain `status` string field do not write `CustomerStatusHistory` — only `status_id` changes do. The UI uses `status_id`, so history is complete in the real flow.
+
+**Functional Score: 99/100** (regression-found HIGH bug fixed; two LOW robustness/security notes remain).

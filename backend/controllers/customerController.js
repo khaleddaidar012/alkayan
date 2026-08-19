@@ -358,7 +358,7 @@ exports.addPayment = async (req, res) => {
 exports.updatePayment = async (req, res) => {
   try {
     const { amount, method, referenceNumber, notes, date } = req.body;
-    const customer = await Customer.findOne({ _id: req.params.id, isDeleted: { $ne: true } });
+    const customer = await Customer.findOne({ _id: req.params.customerId, isDeleted: { $ne: true } });
     if (!customer) return res.status(404).json({ message: 'Customer not found' });
     const history = customer.payment.history || [];
     const record = history.id(req.params.paymentId);
@@ -387,7 +387,7 @@ exports.updatePayment = async (req, res) => {
 
 exports.deletePayment = async (req, res) => {
   try {
-    const customer = await Customer.findOne({ _id: req.params.id, isDeleted: { $ne: true } });
+    const customer = await Customer.findOne({ _id: req.params.customerId, isDeleted: { $ne: true } });
     if (!customer) return res.status(404).json({ message: 'Customer not found' });
     const history = customer.payment.history || [];
     const record = history.id(req.params.paymentId);
