@@ -14,6 +14,15 @@ Tracked on branch `main`. Each row is one pushed commit after a major completed 
 | 2026-08-19 | `f9992db` | Fix functional issues | 7 | done |
 | 2026-08-19 | `0610cfd` | Add final regression testing | 8 | done |
 | 2026-08-19 | `feae94d` | Add deployment guide | 9 | done |
+| 2026-08-19 | `b29660c` | docs(qa): mark Phase 9 committed | 9 | done |
+| 2026-08-19 | `ce2fa0b` | docs(qa): mark Phase 8 regression committed | 8 | done |
+| 2026-08-19 | `861c939` | docs(qa): mark Phase 7 functional fixes committed | 7 | done |
+| 2026-08-19 | `2147aec` | docs(qa): mark Phase 6 functional QA committed | 6 | done |
+| 2026-08-19 | `f280faa` | docs(qa): mark Phase 5 desktop UX fixes committed | 5 | done |
+| 2026-08-19 | `5058f2a` | docs(qa): mark Phase 4 desktop audit committed | 4 | done |
+| 2026-08-19 | `a46eb76` | docs(qa): mark Phase 3 mobile UX fixes committed | 3 | done |
+| 2026-08-19 | `b34b302` | docs(qa): mark Phase 2 mobile audit committed | 2 | done |
+| 2026-08-19 | `7c1ec04` | docs(qa): mark Phase 1 mobile implementation committed | 1 | done |
 | — | — | Final QA phase commit + push | 10 | pending |
 
 Rules:
