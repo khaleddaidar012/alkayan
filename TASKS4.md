@@ -415,14 +415,14 @@
 ## Phase 9 — Deployment Documentation
 
 ### Task 9.1 — Create `docs/DEPLOYMENT_GUIDE.md`
-- [ ] Requirements (Node.js, MongoDB Atlas, env vars, Git)
-- [ ] Backend deployment (install deps, env vars, MongoDB connection, start, production mode)
-- [ ] MongoDB (create DB, create user, connection string, network access, security)
-- [ ] Frontend (build/serve, connecting to backend API URL)
-- [ ] Hosting options (frontend, backend, MongoDB) + recommended architecture diagram
-- [ ] Environment variables documented (MONGODB_URI, JWT_SECRET, JWT_EXPIRE, PORT, WHATSAPP_WEBHOOK_SECRET, WEBHOOK_AUTH_MODE) — no real secrets in repo
-- [ ] Production security (JWT, CORS, HTTPS, MongoDB access, env vars, rate limiting, password hashing, token handling, backup)
-- [ ] Backup strategy (automatic backups, retention, restore process, manual backup, recovery)
+- [x] Requirements (Node.js, MongoDB Atlas, env vars, Git)
+- [x] Backend deployment (install deps, env vars, MongoDB connection, start, production mode)
+- [x] MongoDB (create DB, create user, connection string, network access, security)
+- [x] Frontend (build/serve, connecting to backend API URL)
+- [x] Hosting options (frontend, backend, MongoDB) + recommended architecture diagram
+- [x] Environment variables documented (MONGODB_URI, JWT_SECRET, JWT_EXPIRE, PORT, WHATSAPP_WEBHOOK_SECRET, WEBHOOK_AUTH_MODE) — no real secrets in repo
+- [x] Production security (JWT, CORS, HTTPS, MongoDB access, env vars, rate limiting, password hashing, token handling, backup)
+- [x] Backup strategy (automatic backups, retention, restore process, manual backup, recovery)
 
 **Phase 9 commit:** `Add deployment guide` → push. Update COMMIT_TRACKING.md.
 
