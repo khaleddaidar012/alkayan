@@ -207,31 +207,31 @@
 ## Phase 5 — Fix Desktop UI/UX Problems
 
 ### Task 5.1 — Convert desktop findings into tasks
-- [ ] Task entries per Critical issue
-- [ ] Task entries per High issue
-- [ ] Task entries per Medium issue
-- [ ] Task entries per Low issue
+- [x] Task entries per Critical issue (none found — note in tracking)
+- [x] Task entries per High issue (H1 unstyled `.modal` → Task 5.7)
+- [x] Task entries per Medium issue (none)
+- [x] Task entries per Low issue (L1–L3 all contained/intentional — no action needed)
 
 ### Task 5.2 — Fix Critical desktop issues
-- [ ] Fix each; test on desktop after each fix
+- [x] No Critical findings (N/A)
 
 ### Task 5.3 — Fix High desktop issues
-- [ ] Fix each; test after each fix
+- [x] Fix each; test on desktop after each fix (Task 5.7 completed)
 
 ### Task 5.4 — Fix Medium desktop issues
-- [ ] Fix each; test after each fix
+- [x] No Medium findings (N/A)
 
 ### Task 5.5 — Fix Low desktop issues
-- [ ] Fix each; test after each fix
+- [x] L1/L2 contained inner-scroll confirmed acceptable; L3 decorative orbs intentional (N/A)
 
 ### Task 5.6 — Re-run desktop audit
-- [ ] Produce `reports/DESKTOP_UI_UX_FINAL.md` with Before/After
+- [x] Produce `reports/DESKTOP_UI_UX_FINAL.md` with Before/After (85 → 92/100)
 
 ### Task 5.7 — Fix unstyled `.modal` divs on employee/admin pages
 > From "Discovered issues": 6 pages use `class="modal"` but never load `tasks.css` (the only CSS defining `.modal`), so modals render visible inline in the flex flow and squeeze main-content width.
-- [ ] Give each affected page a proper modal overlay style (load `tasks.css` OR add matching `.modal` rules to each page's stylesheet)
-- [ ] Verify modals are hidden by default (`display:none`), main-content width is normal (~1014px at 1280), and modal opens/closes with overlay backdrop
-- [ ] Test all 6 pages on desktop + mobile, AR + EN
+- [x] Give each affected page a proper modal overlay style (added shared `.modal` base block to `dashboard.css`, loaded by all dashboard pages; values mirror tasks.css)
+- [x] Verify modals are hidden by default (`display:none`), main-content width is normal (~1014px at 1280), and modal opens/closes with overlay backdrop
+- [x] Test all 6 pages on desktop + mobile, AR + EN
 
 **Phase 5 commit:** `Fix desktop UI UX issues` → push. Update COMMIT_TRACKING.md.
 
