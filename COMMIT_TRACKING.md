@@ -12,7 +12,7 @@ Tracked on branch `main`. Each row is one pushed commit after a major completed 
 | 2026-08-19 | `f946b35` | Fix desktop UI UX issues | 5 | done |
 | 2026-08-19 | `93400ab` | Add functional QA testing | 6 | done |
 | 2026-08-19 | `f9992db` | Fix functional issues | 7 | done |
-| — | — | Add final regression testing | 8 | pending |
+| 2026-08-19 | `0610cfd` | Add final regression testing | 8 | done |
 | — | — | Add deployment guide | 9 | pending |
 | — | — | Final QA phase commit + push | 10 | pending |
 
