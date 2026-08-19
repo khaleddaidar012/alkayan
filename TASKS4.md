@@ -162,25 +162,27 @@
 > Fix findings from the audit, in order: Critical → High → Medium → Low. Keep existing design language.
 
 ### Task 3.1 — Convert audit findings into tasks
-- [ ] Create individual task entries for every Critical finding
-- [ ] Create individual task entries for every High finding
-- [ ] Create individual task entries for every Medium finding
-- [ ] Create individual task entries for every Low finding (batch by page/area)
+- [x] Create individual task entries for every Critical finding (none found — note in tracking)
+- [x] Create individual task entries for every High finding (H1–H3 are **functional**, tracked under Phase 7 Tasks 7.2-B/C/D)
+- [x] Create individual task entries for every Medium finding (M1 functional → Task 7.2-E)
+- [x] Create individual task entries for every Low finding (batch by page/area: L1–L4)
 
 ### Task 3.2 — Fix Critical mobile issues
-- [ ] Fix each critical finding; test on mobile viewports after each fix
+- [x] No Critical layout findings from Phase 2 audit (N/A)
 
 ### Task 3.3 — Fix High mobile issues
-- [ ] Fix each high finding; test after each fix
+- [x] No High *layout* findings; functional H1–H3 intentionally deferred to Phase 7 (kept in TASKS4.md as BUG-HIGH)
 
 ### Task 3.4 — Fix Medium mobile issues
-- [ ] Fix each medium finding; test after each fix
+- [x] No Medium *layout* findings; M1 functional → deferred to Phase 7 (Task 7.2-E)
 
 ### Task 3.5 — Fix Low mobile issues
-- [ ] Fix each low finding; test after each fix
+- [x] Fix each low finding; test after each fix (L1–L4: touch-target block in `css/mobile.css` ≤768px; L5 accepted as-is)
+- [x] Bump `css/mobile.css?v=2` across all 20 HTML files (cache bust)
 
 ### Task 3.6 — Re-run mobile audit
-- [ ] Produce `reports/MOBILE_UI_UX_FINAL.md` with Before vs After comparison and updated scores
+- [x] Re-verify all pages at 360×640/412×915/768×1024 (no h-scroll; 0 action buttons < 40px; modal close ≥ 32px; desktop untouched)
+- [x] Produce `reports/MOBILE_UI_UX_FINAL.md` with Before vs After comparison and updated scores (83 → 90/100)
 
 **Phase 3 commit:** `Fix mobile UI UX issues` → push. Update COMMIT_TRACKING.md.
 

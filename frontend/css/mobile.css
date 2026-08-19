@@ -352,3 +352,46 @@ html, body {
     padding: 12px;
   }
 }
+
+/* --- Touch target polish for secondary actions (audit L1-L4) */
+@media (max-width: 768px) {
+  .card-action-btn,
+  .pay-row-btn,
+  .program-action-btn,
+  .campaign-detail-btn,
+  .action-btn,
+  .pm-action-btn {
+    min-width: 40px;
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 12px;
+  }
+
+  .period-btn {
+    min-height: 40px;
+    padding: 10px 16px;
+  }
+
+  .modal-close,
+  .modal-header .modal-close,
+  .modal-close-btn,
+  .modal-premium-close {
+    min-width: 32px;
+    min-height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+  }
+}
+
+@media (max-width: 480px) {
+  .toggle-btn,
+  .theme-toggle,
+  .header-btn {
+    min-height: 40px;
+    padding: 8px 12px;
+  }
+}
