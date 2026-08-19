@@ -10,7 +10,6 @@ Tracked on branch `main`. Each row is one pushed commit after a major completed 
 | 2026-08-19 | `0a0c6d0` | Fix mobile UI UX issues | 3 | done |
 | 2026-08-19 | `0e9b480` | Add desktop UI UX audit | 4 | done |
 | 2026-08-19 | `f946b35` | Fix desktop UI UX issues | 5 | done |
-| — | — | Fix desktop UI UX issues | 5 | pending |
 | — | — | Add functional QA testing | 6 | pending |
 | — | — | Fix functional issues | 7 | pending |
 | — | — | Add final regression testing | 8 | pending |
