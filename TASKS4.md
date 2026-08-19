@@ -44,6 +44,7 @@
 - **BUG-HIGH (found during Phase 1):** `admin-weekly-schedule.js` (which DOES exist) fetches `/api/tasks` and `/api/users` WITHOUT the Authorization header → 401 → "Failed to load weekly schedule". It also reads `localStorage.getItem('currentUser')` instead of `alkayan_user`. → Tracked as Phase 7 task (Task 7.2-C).
 - **BUG-HIGH (found during Phase 1):** Systematic 401 on employee/task scripts: `employee-tasks.js`, `employee-goals.js` and `admin-weekly-schedule.js` all read `localStorage.getItem('currentUser')` and fetch API endpoints WITHOUT `Authorization` header (unlike `tasks.js`, `customers.js`, etc. which are fine). Employee Tasks/Goals pages show errors instead of data. → Tracked as Phase 7 task (Task 7.2-D).
 - **BUG-MED (found during Phase 2 audit):** Dashboard reads the "Programs" stat from `GET /api/courses` (endpoint does not exist — 404). Program stat card shows `0` instead of the real count. Should read from `/api/programs`. → Tracked as Phase 7 task (Task 7.2-E).
+- **BUG-HIGH (found during Phase 4 desktop audit):** Six pages use `class="modal"` but only `tasks.css` defines `.modal` (with `display:none`), and those pages do NOT load `tasks.css`. Result: their modal divs render **visible and unstyled inline in the flex flow** at the bottom of the page, and on some pages squeeze the main-content width (employee-tasks 563px, employee-goals 716px, admin-goals 758px at 1280×800 vs ~1014px elsewhere). Affected: `admin-goals.html`, `admin-performance-dashboard.html`, `admin-weekly-schedule.html`, `employee-goals.html`, `employee-tasks.html`, `employee-weekly-schedule.html`. → Tracked as Phase 5 task (Task 5.7).
 
 **Legend:** `[ ]` pending · `[~]` in progress · `[x]` done (implemented + tested)
 
@@ -191,12 +192,13 @@
 ## Phase 4 — Desktop / Browser UI/UX Audit (report only)
 
 ### Task 4.1 — Desktop audit methodology
-- [ ] Checklist: layout, navigation, sidebar, navbar, cards, forms, tables, modals, dropdowns, search, typography, spacing, icons, RTL/LTR, dark/light, loading/error/empty states, accessibility, visual consistency
-- [ ] Test browsers: Chrome, Edge (Firefox optional) at 1280×800 and 1920×1080
-- [ ] Visit EVERY page and record findings
+- [x] Checklist: layout, navigation, sidebar, navbar, cards, forms, tables, modals, dropdowns, search, typography, spacing, icons, RTL/LTR, dark/light, loading/error/empty states, accessibility, visual consistency
+- [x] Test browsers: Chrome, Edge (Firefox optional) at 1280×800 and 1920×1080
+- [x] Visit EVERY page and record findings
 
 ### Task 4.2 — Produce `reports/DESKTOP_UI_UX_AUDIT.md`
-- [ ] Executive summary, Critical/High/Medium/Low issues, page-by-page results, recommendations, score /100
+- [x] Executive summary, Critical/High/Medium/Low issues, page-by-page results, recommendations, score /100
+- [x] Record found High bug (unstyled `.modal` on 6 employee/admin pages) → Task 5.7 + BUG-HIGH in Discovered issues
 
 **Phase 4 commit:** `Add desktop UI UX audit` → push. Update COMMIT_TRACKING.md.
 
@@ -224,6 +226,12 @@
 
 ### Task 5.6 — Re-run desktop audit
 - [ ] Produce `reports/DESKTOP_UI_UX_FINAL.md` with Before/After
+
+### Task 5.7 — Fix unstyled `.modal` divs on employee/admin pages
+> From "Discovered issues": 6 pages use `class="modal"` but never load `tasks.css` (the only CSS defining `.modal`), so modals render visible inline in the flex flow and squeeze main-content width.
+- [ ] Give each affected page a proper modal overlay style (load `tasks.css` OR add matching `.modal` rules to each page's stylesheet)
+- [ ] Verify modals are hidden by default (`display:none`), main-content width is normal (~1014px at 1280), and modal opens/closes with overlay backdrop
+- [ ] Test all 6 pages on desktop + mobile, AR + EN
 
 **Phase 5 commit:** `Fix desktop UI UX issues` → push. Update COMMIT_TRACKING.md.
 
