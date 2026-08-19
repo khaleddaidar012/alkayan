@@ -43,6 +43,7 @@
 - **BUG-HIGH (found during Phase 1):** `admin-goals.html`, `admin-performance-dashboard.html`, `employee-weekly-schedule.html` reference JS files that do NOT exist (`js/admin-goals.js`, `js/admin-performance-dashboard.js`, `js/employee-weekly-schedule.js`) and were never in git history. Pages render static HTML only — no data loading, no interactions. Backend endpoints for goals exist (`backend/routes/goals.js`); tasks/schedule rendering is client-side. → Tracked as Phase 7 task (Task 7.2-B). Do NOT fix during Phase 1; mobile CSS work for these pages continues regardless (static layout still testable).
 - **BUG-HIGH (found during Phase 1):** `admin-weekly-schedule.js` (which DOES exist) fetches `/api/tasks` and `/api/users` WITHOUT the Authorization header → 401 → "Failed to load weekly schedule". It also reads `localStorage.getItem('currentUser')` instead of `alkayan_user`. → Tracked as Phase 7 task (Task 7.2-C).
 - **BUG-HIGH (found during Phase 1):** Systematic 401 on employee/task scripts: `employee-tasks.js`, `employee-goals.js` and `admin-weekly-schedule.js` all read `localStorage.getItem('currentUser')` and fetch API endpoints WITHOUT `Authorization` header (unlike `tasks.js`, `customers.js`, etc. which are fine). Employee Tasks/Goals pages show errors instead of data. → Tracked as Phase 7 task (Task 7.2-D).
+- **BUG-MED (found during Phase 2 audit):** Dashboard reads the "Programs" stat from `GET /api/courses` (endpoint does not exist — 404). Program stat card shows `0` instead of the real count. Should read from `/api/programs`. → Tracked as Phase 7 task (Task 7.2-E).
 
 **Legend:** `[ ]` pending · `[~]` in progress · `[x]` done (implemented + tested)
 
@@ -142,16 +143,16 @@
 ## Phase 2 — Mobile UI/UX Audit (report only, no code fixes yet)
 
 ### Task 2.1 — Audit methodology
-- [ ] Define checklist: layout, spacing, typography, RTL/LTR, navigation, sidebar, buttons, icons, forms, modals, bottom sheets, dropdowns, search, cards, tables, empty/loading/error states, toasts, accessibility, touch targets, visual hierarchy, consistency, dark/light, AR/EN
-- [ ] Define viewport matrix (360×640, 412×915, 768×1024) × 2 themes × 2 languages
-- [ ] Systematically visit EVERY page and record findings (Playwright screenshots + snapshots)
+- [x] Define checklist: layout, spacing, typography, RTL/LTR, navigation, sidebar, buttons, icons, forms, modals, bottom sheets, dropdowns, search, cards, tables, empty/loading/error states, toasts, accessibility, touch targets, visual hierarchy, consistency, dark/light, AR/EN
+- [x] Define viewport matrix (360×640, 412×915, 768×1024) × 2 themes × 2 languages
+- [x] Systematically visit EVERY page and record findings (Playwright screenshots + snapshots)
 
 ### Task 2.2 — Produce `reports/MOBILE_UI_UX_AUDIT.md`
-- [ ] Executive summary
-- [ ] Critical / High / Medium / Low priority problem lists (each issue = a finding with location)
-- [ ] Page-by-page analysis
-- [ ] Recommended fixes
-- [ ] Scoring: Mobile UX, Navigation, Typography, Forms, Touch UX, RTL, Visual Consistency, Accessibility (each /100)
+- [x] Executive summary
+- [x] Critical / High / Medium / Low priority problem lists (each issue = a finding with location)
+- [x] Page-by-page analysis
+- [x] Recommended fixes
+- [x] Scoring: Mobile UX, Navigation, Typography, Forms, Touch UX, RTL, Visual Consistency, Accessibility (each /100)
 
 **Phase 2 commit:** `Add mobile UI UX audit` → push. Update COMMIT_TRACKING.md.
 
@@ -346,6 +347,11 @@
 - [ ] Add `Authorization: Bearer <token>` header to every API fetch in `employee-tasks.js`, `employee-goals.js`, `admin-weekly-schedule.js`
 - [ ] Replace `localStorage.getItem('currentUser')` reads with the `alkayan_user` pattern (with fallback), matching `tasks.js`/`customers.js`
 - [ ] Verify Employee Tasks, Employee Goals and Admin Weekly Schedule load data and work; test mobile + desktop, AR + EN
+
+### Task 7.2-E — Fix dashboard programs stat endpoint
+> From "Discovered issues": dashboard fetches `/api/courses` (404) for the Programs stat.
+- [ ] Change `dashboard.js` fetch from `/api/courses` to `/api/programs` (respect the response shape `count`/`length`)
+- [ ] Verify the Programs stat card shows the real count on dashboard; test mobile + desktop
 
 ### Task 7.3 — Fix High functional bugs
 - [ ] Reproduce → fix → confirm each
