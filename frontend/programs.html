@@ -263,26 +263,6 @@
                 </div>
               </div>
               <div class="form-group-premium">
-                <label data-i18n="price">Price</label>
-                <div class="input-wrapper">
-                  <span class="input-icon">💰</span>
-                  <input type="number" id="formPrice" min="0" placeholder=" ">
-                </div>
-              </div>
-              <div class="form-group-premium">
-                <label data-i18n="currency">Currency</label>
-                <div class="input-wrapper">
-                  <span class="input-icon">💱</span>
-                  <select id="formCurrency">
-                    <option value="EGP">🇪🇬 EGP</option>
-                    <option value="SAR">🇸🇦 SAR</option>
-                    <option value="LYD">🇱🇾 LYD</option>
-                    <option value="OMR">🇴🇲 OMR</option>
-                    <option value="USD">USD</option>
-                  </select>
-                </div>
-              </div>
-              <div class="form-group-premium">
                 <label data-i18n="duration">Duration</label>
                 <div class="input-wrapper">
                   <span class="input-icon">⏱️</span>
@@ -376,7 +356,7 @@
                 <label data-i18n="name">Name</label>
                 <div class="input-wrapper">
                   <span class="input-icon">👤</span>
-                  <input type="text" id="custFormName" required placeholder=" ">
+                  <input type="text" id="custFormName" placeholder=" ">
                 </div>
               </div>
               <div class="form-group-premium">
@@ -491,14 +471,70 @@
                   </select>
                 </div>
               </div>
+</div>
+              </div>
             </div>
           </div>
-
-          <!-- Notes Section -->
+          <div class="modal-section">
+            <div class="modal-section-title">
+              <span class="modal-section-icon">💱</span>
+              <span data-i18n="prices">Prices</span>
+            </div>
+            <div class="modal-two-col">
+              <div class="form-group-premium">
+                <label data-i18n="currency">Primary Currency</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">💱</span>
+                  <select id="formCurrency">
+                    <option value="EGP">🇪🇬 EGP</option>
+                    <option value="SAR">🇸🇦 SAR</option>
+                    <option value="LYD">🇱🇾 LYD</option>
+                    <option value="OMR">🇴🇲 OMR</option>
+                    <option value="USD">USD</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label>🇪🇬 EGP</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">💰</span>
+                  <input type="number" id="formPriceEGP" min="0" placeholder=" ">
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label>🇸🇦 SAR</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">💰</span>
+                  <input type="number" id="formPriceSAR" min="0" placeholder=" ">
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label>🇱🇾 LYD</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">💰</span>
+                  <input type="number" id="formPriceLYD" min="0" placeholder=" ">
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label>🇴🇲 OMR</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">💰</span>
+                  <input type="number" id="formPriceOMR" min="0" placeholder=" ">
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label>USD</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">💰</span>
+                  <input type="number" id="formPriceUSD" min="0" placeholder=" ">
+                </div>
+              </div>
+            </div>
+          </div>
           <div class="modal-section">
             <div class="modal-section-title">
               <span class="modal-section-icon">📝</span>
-              <span data-i18n="notesSection">Notes</span>
+              <span data-i18n="description">Description</span>
             </div>
             <div class="input-wrapper">
               <span class="input-icon input-icon-textarea">📝</span>
@@ -522,6 +558,19 @@
                 <div class="input-wrapper">
                   <span class="input-icon">🏷️</span>
                   <input type="number" id="custFormPayProgramPrice" min="0" step="1" placeholder=" ">
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="currency">Currency</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">💱</span>
+                  <select id="custFormPayCurrency">
+                    <option value="EGP">🇪🇬 EGP</option>
+                    <option value="SAR">🇸🇦 SAR</option>
+                    <option value="LYD">🇱🇾 LYD</option>
+                    <option value="OMR">🇴🇲 OMR</option>
+                    <option value="USD">USD</option>
+                  </select>
                 </div>
               </div>
               <div class="form-group-premium">
@@ -727,6 +776,19 @@
                 <div class="input-wrapper">
                   <span class="input-icon">💵</span>
                   <input type="number" id="payFormAmount" class="details-input" min="0.01" required step="0.01" placeholder="0.00">
+                </div>
+              </div>
+              <div class="form-group-premium">
+                <label data-i18n="currency">Currency</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">💱</span>
+                  <select id="payFormCurrency">
+                    <option value="EGP">🇪🇬 EGP</option>
+                    <option value="SAR">🇸🇦 SAR</option>
+                    <option value="LYD">🇱🇾 LYD</option>
+                    <option value="OMR">🇴🇲 OMR</option>
+                    <option value="USD">USD</option>
+                  </select>
                 </div>
               </div>
               <div class="form-group-premium">

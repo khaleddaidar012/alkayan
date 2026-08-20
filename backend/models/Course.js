@@ -24,6 +24,16 @@ const courseSchema = new mongoose.Schema({
     enum: ['EGP', 'SAR', 'LYD', 'OMR', 'USD'],
     default: 'EGP'
   },
+  prices: {
+    type: new mongoose.Schema({
+      EGP: Number,
+      SAR: Number,
+      LYD: Number,
+      OMR: Number,
+      USD: Number
+    }, { _id: false }),
+    default: () => ({})
+  },
   duration: {
     type: String,
     default: ''

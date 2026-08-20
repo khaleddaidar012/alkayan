@@ -28,9 +28,10 @@ function redirectToLogin() {
   window.location.href = 'login.html';
 }
 
-function formatCurrency(v) {
+function formatCurrency(v, currency) {
   const n = parseFloat(v) || 0;
-  return n.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' EGP';
+  const code = currency || 'EGP';
+  return n.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' ' + code;
 }
 
 function customerDisplayName(c) {
@@ -74,7 +75,7 @@ function priceDisplay(label, value, opts) {
   const o = opts || {};
   return `<div class="price-display ${o.size === 'lg' ? 'price-display-lg' : ''} ${o.color ? 'price-display-' + o.color : ''}">
     ${label ? `<div class="price-label">${label}</div>` : ''}
-    <div class="price-value">${formatCurrency(value)}</div>
+    <div class="price-value">${formatCurrency(value, o.currency)}</div>
   </div>`;
 }
 
@@ -239,8 +240,9 @@ function renderCustomers(filteredCustomers) {
     const paid = pay.paidAmount || 0;
     const remaining = pay.remainingAmount || 0;
     const debtBalance = c.debt_balance || 0;
+    const payCurrency = pay.currency || currencyInfoForCountry(c.country || 'other').code;
     const debtBadge = debtBalance > 0
-      ? `<span class="card-debt-badge">⚠️ ${t('outstanding')}: ${formatCurrency(debtBalance)}</span>`
+      ? `<span class="card-debt-badge">⚠️ ${t('outstanding')}: ${formatCurrency(debtBalance, payCurrency)}</span>`
       : '';
 
     let subIcon = '';
@@ -255,9 +257,9 @@ function renderCustomers(filteredCustomers) {
 
     const paySection = `
       <div class="card-pay-section">
-        <div class="card-pay-total">${priceDisplay(t('totalAmount'), total, { size: 'lg', color: 'default' })}</div>
-        <div class="card-pay-row"><span>✅ ${t('paidAmount')}:</span><span class="card-pay-value green">${formatCurrency(paid)}</span></div>
-        <div class="card-pay-row"><span>⏳ ${t('remainingAmount')}:</span><span class="card-pay-value ${remaining > 0 ? 'gold' : 'green'}">${formatCurrency(remaining)}</span></div>
+        <div class="card-pay-total">${priceDisplay(t('totalAmount'), total, { size: 'lg', color: 'default', currency: payCurrency })}</div>
+        <div class="card-pay-row"><span>✅ ${t('paidAmount')}:</span><span class="card-pay-value green">${formatCurrency(paid, payCurrency)}</span></div>
+        <div class="card-pay-row"><span>⏳ ${t('remainingAmount')}:</span><span class="card-pay-value ${remaining > 0 ? 'gold' : 'green'}">${formatCurrency(remaining, payCurrency)}</span></div>
         <div class="card-pay-footer">
           <span class="payment-badge ${ps}">${subIcon} ${subLabel}</span>
           ${statusClass === 'subscribed' && can('customers', 'edit') ? `<button class="btn btn-xs card-pay-btn" data-pay="${c._id}">➕ ${t('addPayment')}</button>` : ''}
@@ -284,7 +286,7 @@ function renderCustomers(filteredCustomers) {
         <div style="padding:0 16px 8px;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-muted)">
           ${statusBadgeHtml(c, { size: 'sm' })}
           <span>·</span>
-          <span>${t('totalAmount')}: ${formatCurrency(total)}</span>
+          <span>${t('totalAmount')}: ${formatCurrency(total, payCurrency)}</span>
         </div>
         ${debtBadge}
         ${paySection}
@@ -431,6 +433,7 @@ function populateDetails(customer) {
 
   const pay = customer.payment || {};
   const payStatusKey = pay.status || 'notPaid';
+  const payCurrency = pay.currency || currencyInfoForCountry(customer.country || 'other').code;
   const history = pay.history || [];
 
   const methodLabels = { cash: 'Cash', instapay: 'InstaPay', bankTransfer: 'Bank Transfer', vodafoneCash: 'Vodafone Cash', other: 'Other' };
@@ -515,15 +518,15 @@ function populateDetails(customer) {
       ${countryPriceRow(customer)}
       <div class="details-row">
         <span class="details-label">${t('totalAmount')}</span>
-        <span class="details-value">${priceDisplay('', pay.finalPrice, { size: 'lg', color: 'gold' })}</span>
+        <span class="details-value">${priceDisplay('', pay.finalPrice, { size: 'lg', color: 'gold', currency: payCurrency })}</span>
       </div>
       <div class="details-row">
         <span class="details-label">${t('paidAmount')}</span>
-        <span class="details-value" style="color:var(--success)">${formatCurrency(pay.paidAmount)}</span>
+        <span class="details-value" style="color:var(--success)">${formatCurrency(pay.paidAmount, payCurrency)}</span>
       </div>
       <div class="details-row">
         <span class="details-label">${t('remainingAmount')}</span>
-        <span class="details-value" style="color:${(pay.remainingAmount || 0) > 0 ? 'var(--warning)' : 'var(--success)'}">${formatCurrency(pay.remainingAmount)}</span>
+        <span class="details-value" style="color:${(pay.remainingAmount || 0) > 0 ? 'var(--warning)' : 'var(--success)'}">${formatCurrency(pay.remainingAmount, payCurrency)}</span>
       </div>
     </div>
 
@@ -555,7 +558,7 @@ function populateDetails(customer) {
         </div>
         <div class="details-row">
           <span class="details-label">${t('finalPrice')}</span>
-          <span class="details-value" id="payFinalPrice">${formatCurrency(pay.finalPrice)}</span>
+          <span class="details-value" id="payFinalPrice">${formatCurrency(pay.finalPrice, payCurrency)}</span>
         </div>
         <div class="details-row">
           <span class="details-label">${t('initialPayment')}</span>
@@ -563,11 +566,11 @@ function populateDetails(customer) {
         </div>
         <div class="details-row">
           <span class="details-label">${t('paidAmount')}</span>
-          <span class="details-value" id="payPaidDisplay">${formatCurrency(pay.paidAmount)}</span>
+          <span class="details-value" id="payPaidDisplay">${formatCurrency(pay.paidAmount, payCurrency)}</span>
         </div>
         <div class="details-row">
           <span class="details-label">${t('remainingAmount')}</span>
-          <span class="details-value" id="payRemaining">${formatCurrency(pay.remainingAmount)}</span>
+          <span class="details-value" id="payRemaining">${formatCurrency(pay.remainingAmount, payCurrency)}</span>
         </div>
         <div class="details-row">
           <span class="details-label">${t('paymentMethod')}</span>
@@ -1102,7 +1105,8 @@ function updateFormPaymentCalcs() {
   const total = parseFloat(document.getElementById('formPayTotal')?.value) || 0;
   const paid = parseFloat(document.getElementById('formPayPaid')?.value) || 0;
   const remaining = Math.max(0, total - paid);
-  document.getElementById('formPayRemaining').textContent = formatCurrency(remaining);
+  const cur = document.getElementById('formPayCurrency')?.value || 'EGP';
+  document.getElementById('formPayRemaining').textContent = formatCurrency(remaining, cur);
   const statusEl = document.getElementById('formPayStatusDisplay');
   if (total === 0) {
     statusEl.textContent = '—';
@@ -1128,7 +1132,7 @@ async function populateProgramDatalist() {
     programPriceMap = {};
     dl.innerHTML = '';
     programs.forEach(p => {
-      programPriceMap[p.name] = p.price;
+      programPriceMap[p.name] = { price: p.price, currency: p.currency || 'EGP', prices: p.prices || {} };
       const opt = document.createElement('option');
       opt.value = p.name;
       dl.appendChild(opt);
@@ -1141,8 +1145,10 @@ async function populateProgramDatalist() {
 function applyProgramPriceAutoFill() {
   const programEl = document.getElementById('formProgram');
   const name = programEl?.value?.trim();
-  if (!name || programPriceMap[name] === undefined) return;
-  const price = programPriceMap[name];
+  if (!name || !programPriceMap[name]) return;
+  const info = programPriceMap[name];
+  const cur = document.getElementById('formPayCurrency')?.value || 'EGP';
+  const price = info.prices && info.prices[cur] !== undefined ? info.prices[cur] : info.price;
   const ppEl = document.getElementById('formPayProgramPrice');
   const discEl = document.getElementById('formPayDiscount');
   const totalEl = document.getElementById('formPayTotal');
@@ -1150,6 +1156,13 @@ function applyProgramPriceAutoFill() {
   const disc = parseFloat(discEl?.value) || 0;
   if (totalEl) totalEl.value = Math.max(0, price - disc);
   updateFormPaymentCalcs();
+}
+
+function setupCurrencyAutoFill() {
+  const curSel = document.getElementById('formPayCurrency');
+  if (!curSel) return;
+  curSel.removeEventListener('change', applyProgramPriceAutoFill);
+  curSel.addEventListener('change', applyProgramPriceAutoFill);
 }
 
 function setupProgramAutoFill() {
@@ -1262,7 +1275,9 @@ function openAddModal() {
   document.getElementById('formPayTotal').value = '';
   document.getElementById('formPayInitial').value = '';
   document.getElementById('formPayPaid').value = '';
-  document.getElementById('formPayRemaining').textContent = formatCurrency(0);
+  const curSel = document.getElementById('formPayCurrency');
+  if (curSel) curSel.value = 'EGP';
+  document.getElementById('formPayRemaining').textContent = formatCurrency(0, curSel ? curSel.value : 'EGP');
   document.getElementById('formCountry').value = '';
   const hint = document.getElementById('countryDetectHint');
   if (hint) hint.style.display = 'none';
@@ -1275,6 +1290,7 @@ function openAddModal() {
   setupFormPaymentToggle();
   populateProgramDatalist();
   setupProgramAutoFill();
+  setupCurrencyAutoFill();
   setupCountryAutoDetect();
 }
 
@@ -1310,6 +1326,8 @@ async function openEditModal(customerId) {
   document.getElementById('formPayTotal').value = pay.finalPrice || '';
   document.getElementById('formPayInitial').value = pay.initialPayment || '';
   document.getElementById('formPayPaid').value = pay.paidAmount || '';
+  const curSel = document.getElementById('formPayCurrency');
+  if (curSel) curSel.value = pay.currency || currencyForCountry(customer.country || 'other');
   updateFormPaymentCalcs();
   document.getElementById('formPaymentSection').style.display = isSubscribed ? '' : 'none';
   document.getElementById('customerModal').classList.add('show');
@@ -1319,6 +1337,7 @@ async function openEditModal(customerId) {
   setupFormPaymentToggle();
   populateProgramDatalist();
   setupProgramAutoFill();
+  setupCurrencyAutoFill();
   setupCountryAutoDetect();
 }
 
@@ -1398,7 +1417,8 @@ async function handleFormSubmit(e) {
         finalPrice: finalPrice,
         initialPayment: ip,
         paidAmount: Math.max(paid, ip),
-        remainingAmount: Math.max(0, finalPrice - Math.max(paid, ip))
+        remainingAmount: Math.max(0, finalPrice - Math.max(paid, ip)),
+        currency: document.getElementById('formPayCurrency')?.value || 'EGP'
       };
     }
 
@@ -1498,7 +1518,7 @@ function openAddPaymentModal(customer) {
   document.getElementById('payFormAmount').value = '';
   document.getElementById('payFormNotes').value = '';
   document.getElementById('payFormReceipt').value = '';
-  document.getElementById('payFormCurrency').value = currencyForCountry(customer.country || 'other');
+  document.getElementById('payFormCurrency').value = customer.payment?.currency || currencyForCountry(customer.country || 'other');
 
   const avatar = document.getElementById('payCustomerAvatar');
   if (avatar) avatar.textContent = (customer.name || '?').trim().charAt(0).toUpperCase();
@@ -1576,6 +1596,7 @@ async function handleAddPaymentSubmit(e) {
     const fd = new FormData();
     fd.append('amount', amount);
     fd.append('direction', direction);
+    fd.append('currency', document.getElementById('payFormCurrency')?.value || 'EGP');
     const methodId = document.getElementById('payFormMethod')?.value;
     if (methodId) fd.append('method_id', methodId);
     fd.append('notes', (document.getElementById('payFormNotes')?.value || '').trim());

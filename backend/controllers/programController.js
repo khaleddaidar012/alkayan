@@ -130,10 +130,22 @@ exports.createProgram = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ message: errors.array()[0].msg });
 
-    const { name, description, price, currency, duration, instructor, startDate, endDate, capacity, status, image } = req.body;
+    const { name, description, price, currency, prices, duration, instructor, startDate, endDate, capacity, status, image } = req.body;
+
+    const CURRENCY_CODES = ['EGP', 'SAR', 'LYD', 'OMR', 'USD'];
+    const safePrices = {};
+    if (prices && typeof prices === 'object') {
+      CURRENCY_CODES.forEach(code => {
+        if (prices[code] !== undefined && prices[code] !== null && prices[code] !== '') {
+          safePrices[code] = Math.max(0, Number(prices[code]) || 0);
+        }
+      });
+    }
+    const primaryCurrency = currency && CURRENCY_CODES.includes(currency) ? currency : 'EGP';
+    const primaryPrice = safePrices[primaryCurrency] !== undefined ? safePrices[primaryCurrency] : (Number(price) || 0);
 
     const program = await Course.create({
-      name, description, price, currency, duration, instructor,
+      name, description, price: primaryPrice, currency: primaryCurrency, prices: safePrices, duration, instructor,
       startDate, endDate, capacity, status, image
     });
 
@@ -148,10 +160,30 @@ exports.updateProgram = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ message: errors.array()[0].msg });
 
-    const allowedFields = ['name', 'description', 'price', 'currency', 'duration', 'instructor', 'startDate', 'endDate', 'capacity', 'status', 'image'];
+    const allowedFields = ['name', 'description', 'price', 'currency', 'prices', 'duration', 'instructor', 'startDate', 'endDate', 'capacity', 'status', 'image'];
     const updateData = {};
     for (const field of allowedFields) {
       if (req.body[field] !== undefined && req.body[field] !== null) updateData[field] = req.body[field];
+    }
+
+    if (updateData.prices && typeof updateData.prices === 'object') {
+      const CURRENCY_CODES = ['EGP', 'SAR', 'LYD', 'OMR', 'USD'];
+      const safePrices = {};
+      CURRENCY_CODES.forEach(code => {
+        if (updateData.prices[code] !== undefined && updateData.prices[code] !== null && updateData.prices[code] !== '') {
+          safePrices[code] = Math.max(0, Number(updateData.prices[code]) || 0);
+        }
+      });
+      updateData.prices = safePrices;
+    }
+
+    if (updateData.currency || updateData.prices) {
+      const CURRENCY_CODES = ['EGP', 'SAR', 'LYD', 'OMR', 'USD'];
+      const cur = updateData.currency && CURRENCY_CODES.includes(updateData.currency) ? updateData.currency : 'EGP';
+      if (updateData.currency !== undefined) updateData.currency = cur;
+      const current = await Course.findById(req.params.id).select('price');
+      const priceObj = updateData.prices && Object.keys(updateData.prices).length ? updateData.prices : {};
+      updateData.price = priceObj[cur] !== undefined ? priceObj[cur] : (req.body.price !== undefined ? Math.max(0, Number(req.body.price) || 0) : (current ? current.price : 0));
     }
 
     const program = await Course.findByIdAndUpdate(
@@ -201,6 +233,7 @@ exports.exportPrograms = async (req, res) => {
         description: p.description,
         price: p.price,
         currency: p.currency || 'EGP',
+        prices: p.prices || {},
         duration: p.duration,
         instructor: p.instructor,
         status: p.status,

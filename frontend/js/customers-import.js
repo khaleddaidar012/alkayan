@@ -115,15 +115,34 @@ $('fetchGoogleBtn').addEventListener('click', async function () {
   this.disabled = true;
   this.textContent = '...';
   try {
-    const csvUrl = url.replace(/\/edit.*$/, '') + '/export?format=csv';
+    const base = url.split('/edit')[0];
+    let csvUrl = base + '/export?format=csv';
+    const gidMatch = url.match(/[?&#]gid=(\d+)/);
+    if (gidMatch) csvUrl += '&gid=' + gidMatch[1];
+
     const res = await fetch(csvUrl);
+    if (res.status === 401 || res.status === 403) {
+      throw new Error('private');
+    }
     if (!res.ok) throw new Error('Cannot fetch sheet');
+    const contentType = (res.headers.get('content-type') || '').toLowerCase();
+    if (!contentType.includes('csv') && !contentType.includes('text')) {
+      throw new Error('Cannot fetch sheet');
+    }
     const csvText = await res.text();
+    if (!csvText || csvText.trim().length === 0) throw new Error('empty');
     parseCsvData(csvText);
+    if (!importedColumns.length || !importedRows.length) throw new Error('empty');
     nextStep();
     buildMappingUI();
   } catch (err) {
-    showToast('Failed to fetch Google Sheet. Make sure it is publicly accessible.', 'error');
+    if (err.message === 'private') {
+      showToast('Google Sheet is not accessible. Share it as "Anyone with the link — Viewer" and try again.', 'error');
+    } else if (err.message === 'empty') {
+      showToast('The sheet is empty or this tab has no data.', 'error');
+    } else {
+      showToast('Failed to fetch Google Sheet. Make sure it is publicly accessible.', 'error');
+    }
   }
   this.disabled = false;
   this.textContent = t('fetchSheet');
@@ -195,7 +214,8 @@ function handleFile(file) {
 }
 
 function parseCsvData(text) {
-  const lines = text.split(/\r?\n/).filter(l => l.trim());
+  const clean = text.replace(/^\uFEFF/, '');
+  const lines = clean.split(/\r?\n/).filter(l => l.trim());
   if (!lines.length) { showToast('File is empty', 'error'); return; }
   importedColumns = parseCsvLine(lines[0]);
   importedRows = [];
@@ -287,12 +307,13 @@ function buildPreview() {
 
   const displayRows = importedRows.slice(0, 20);
   body.innerHTML = displayRows.map((row, idx) => {
-    const hasError = !row[importedColumns.find(c => {
+    const missingCol = importedColumns.find(c => {
       const field = fieldMappings[c];
       const cfg = crmFields.find(f => f.field === field);
-      return cfg && cfg.required && (!row[c] || row[c].trim() === '');
-    })];
-    return `<tr class="${!hasError ? 'row-error' : ''}">${mappedCols.map(c => `<td>${row[c] || ''}</td>`).join('')}</tr>`;
+      return cfg && cfg.required && (!row[c] || String(row[c]).trim() === '');
+    });
+    const hasError = !!missingCol;
+    return `<tr class="${hasError ? 'row-error' : ''}">${mappedCols.map(c => `<td>${row[c] || ''}</td>`).join('')}</tr>`;
   }).join('');
 
   const total = importedRows.length;

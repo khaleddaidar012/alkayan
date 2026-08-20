@@ -1,13 +1,14 @@
 const Customer = require('../models/Customer');
 const Course = require('../models/Course');
 const User = require('../models/User');
+const { normalizePhone } = require('../utils/countryDetection');
 
 const fieldConfigs = {
   customers: {
     model: Customer,
     uniqueKey: 'phone',
     fields: {
-      'Customer Name': { path: 'name', required: true, type: 'string' },
+      'Customer Name': { path: 'name', required: false, type: 'string' },
       'Phone': { path: 'phone', required: true, type: 'string' },
       'WhatsApp': { path: 'whatsapp', type: 'string' },
       'Email': { path: 'email', type: 'string' },
@@ -102,6 +103,16 @@ exports.importData = async (req, res) => {
       }
 
       doc[targetField] = value;
+    }
+
+    if (collection === 'customers') {
+      const rawPhone = doc.phone || doc.whatsapp || '';
+      const norm = normalizePhone(rawPhone);
+      if (norm) {
+        doc.phone = norm;
+        if (!doc.whatsapp_number) doc.whatsapp_number = norm;
+        else doc.whatsapp_number = normalizePhone(doc.whatsapp_number) || norm;
+      }
     }
 
     const missingRequired = Object.entries(config.fields)

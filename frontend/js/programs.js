@@ -11,6 +11,7 @@ let currentProgramName = '';
 let currentCampaignCustomers = [];
 let editingCustomerId = null;
 let paymentCustomerId = null;
+let currentCustProgram = null;
 
 function can(m, a) { const u = getUser(); if (!u) return false; if (u.role === 'admin') return true; return u.permissions && u.permissions[m] && u.permissions[m][a] === true; }
 function canManageCampaigns() { const u = getUser(); return u && (u.role === 'admin' || u.role === 'manager'); }
@@ -33,6 +34,41 @@ function priceDisplay(label, value, opts) {
   return '<div class="price-display' + (o.size === 'lg' ? ' price-display-lg' : '') + (o.color ? ' price-display-' + o.color : '') + '">' +
     (label ? '<div class="price-label">' + label + '</div>' : '') +
     '<div class="price-value">' + formatCurrency(value, o.currency) + '</div></div>';
+}
+
+const PROG_CURRENCIES = [
+  { code: 'EGP', flag: '🇪🇬' },
+  { code: 'SAR', flag: '🇸🇦' },
+  { code: 'LYD', flag: '🇱🇾' },
+  { code: 'OMR', flag: '🇴🇲' },
+  { code: 'USD', flag: '🌍' }
+];
+
+function collectProgramPrices() {
+  const prices = {};
+  PROG_CURRENCIES.forEach(c => {
+    const el = document.getElementById('formPrice' + c.code);
+    const v = el ? parseFloat(el.value) : NaN;
+    if (el && el.value !== '' && !isNaN(v) && v >= 0) prices[c.code] = v;
+  });
+  return prices;
+}
+
+function programPricesHtml(p) {
+  const prices = p && p.prices && typeof p.prices === 'object' ? p.prices : {};
+  const entries = Object.keys(prices).filter(code => prices[code] !== undefined && prices[code] !== null && prices[code] > 0);
+  if (entries.length > 0) {
+    return entries.map(code => {
+      const info = PROG_CURRENCIES.find(c => c.code === code) || { flag: '💱', code };
+      return '<span class="program-price-chip">' + info.flag + ' ' + Number(prices[code]).toLocaleString('en-US') + ' ' + code + '</span>';
+    }).join('');
+  }
+  if (p && p.price !== undefined && p.price !== null && p.price > 0) {
+    const code = p.currency || 'EGP';
+    const info = PROG_CURRENCIES.find(c => c.code === code) || { flag: '💱', code };
+    return '<span class="program-price-chip">' + info.flag + ' ' + Number(p.price).toLocaleString('en-US') + ' ' + code + '</span>';
+  }
+  return '';
 }
 
 async function apiFetch(url, opts) {
@@ -147,6 +183,7 @@ function renderPrograms(programs) {
       ((p.instructor || p.duration) ? '<div class="program-card-instructor">' + (p.instructor ? '👨‍🏫 ' + p.instructor : '') + (p.instructor && p.duration ? ' \u00b7 ' : '') + (p.duration ? '\u23f1\ufe0f ' + p.duration : '') + '</div>' : '') + '</div>' +
       '<span class="program-status-badge ' + sc + '">' + t(sc) + '</span></div>' +
       '<div class="program-card-price">' + priceDisplay('💰 ' + priceLabel, dynPrice, { size: 'lg', currency: p.currency }) + '</div>' +
+      '<div class="program-card-prices">' + programPricesHtml(p) + '</div>' +
       '<div class="program-card-stats">' +
       '<div class="program-stat-tile"><div class="program-stat-tile-header"><span class="program-stat-tile-icon">👥</span><span class="program-stat-tile-label">' + t('activeCustomers') + '</span></div><div class="program-stat-tile-value">' + (p.activeCustomers || 0) + '</div></div>' +
       '<div class="program-stat-tile"><div class="program-stat-tile-header"><span class="program-stat-tile-icon">📊</span><span class="program-stat-tile-label">' + t('totalEnrollments') + '</span></div><div class="program-stat-tile-value">' + (p.totalEnrollments || 0) + '</div></div>' +
@@ -233,7 +270,7 @@ function showProgramDetails(programId) {
       '</div></div>' +
       '<div class="program-info-grid">' +
       '<div class="program-info-item"><span class="program-info-label">' + t('name') + '</span><span class="program-info-value">' + p.name + '</span></div>' +
-      '<div class="program-info-item"><span class="program-info-label">' + t('price') + '</span>' + priceDisplay('', p.price, { color: 'gold', currency: p.currency }) + '</div>' +
+      '<div class="program-info-item"><span class="program-info-label">' + t('price') + '</span>' + priceDisplay('', p.price, { color: 'gold', currency: p.currency }) + '<div class="program-info-prices">' + programPricesHtml(p) + '</div></div>' +
       '<div class="program-info-item"><span class="program-info-label">' + t('duration') + '</span><span class="program-info-value">' + (p.duration || '\u2014') + '</span></div>' +
       '<div class="program-info-item"><span class="program-info-label">' + t('instructor') + '</span><span class="program-info-value">' + (p.instructor || '\u2014') + '</span></div>' +
       '<div class="program-info-item"><span class="program-info-label">' + t('startDate') + '</span><span class="program-info-value">' + formatDate(p.startDate) + '</span></div>' +
@@ -425,9 +462,14 @@ function openEditModal(programId) {
   document.getElementById('formSubmit').textContent = t('save');
   document.getElementById('formName').value = p.name || '';
   document.getElementById('formDescription').value = p.description || '';
-  document.getElementById('formPrice').value = p.price || '';
   const curEl = document.getElementById('formCurrency');
   if (curEl) curEl.value = p.currency || 'EGP';
+  const pricesMap = p.prices && typeof p.prices === 'object' ? p.prices : {};
+  PROG_CURRENCIES.forEach(c => {
+    const el = document.getElementById('formPrice' + c.code);
+    if (!el) return;
+    el.value = pricesMap[c.code] !== undefined && pricesMap[c.code] !== null ? pricesMap[c.code] : '';
+  });
   document.getElementById('formDuration').value = p.duration || '';
   document.getElementById('formInstructor').value = p.instructor || '';
   document.getElementById('formStartDate').value = p.startDate ? p.startDate.split('T')[0] : '';
@@ -444,11 +486,14 @@ async function handleFormSubmit(e) {
   e.preventDefault();
   const btn = document.getElementById('formSubmit');
   btn.disabled = true; btn.classList.add('loading'); btn.innerHTML = '<span class="spinner"></span>';
+  const prices = collectProgramPrices();
+  const currency = document.getElementById('formCurrency')?.value || 'EGP';
   const body = {
     name: document.getElementById('formName').value.trim(),
     description: document.getElementById('formDescription').value.trim(),
-    price: parseFloat(document.getElementById('formPrice').value) || 0,
-    currency: document.getElementById('formCurrency')?.value || 'EGP',
+    price: prices[currency] !== undefined ? prices[currency] : (Object.values(prices)[0] || 0),
+    currency,
+    prices,
     duration: document.getElementById('formDuration').value.trim(),
     instructor: document.getElementById('formInstructor').value.trim(),
     startDate: document.getElementById('formStartDate').value || null,
@@ -485,10 +530,17 @@ function openAddCustomerFromCampaign(campaignId, programName) {
   const priceWrap = document.getElementById('custFormProgramPriceWrap');
   const priceEl = document.getElementById('custFormProgramPrice');
   if (prog && prog.price !== undefined && prog.price !== null && prog.price > 0) {
-    if (priceEl) priceEl.innerHTML = priceDisplay('', prog.price, { size: 'lg', color: 'gold', currency: prog.currency });
+    currentCustProgram = prog;
+    if (priceEl) priceEl.innerHTML = priceDisplay('', prog.price, { size: 'lg', color: 'gold', currency: prog.currency }) + '<div class="program-card-prices">' + programPricesHtml(prog) + '</div>';
     if (priceWrap) priceWrap.style.display = '';
-    document.getElementById('custFormPayProgramPrice').value = prog.price;
+    const curSel = document.getElementById('custFormPayCurrency');
+    const curCode = curSel ? curSel.value : (prog.currency || 'EGP');
+    const px = prog.prices && prog.prices[curCode] !== undefined ? prog.prices[curCode] : prog.price;
+    document.getElementById('custFormPayProgramPrice').value = px;
+    if (curSel) curSel.value = prog.currency || 'EGP';
+    updateCustPaymentCalcs();
   } else {
+    currentCustProgram = null;
     if (priceWrap) priceWrap.style.display = 'none';
   }
   document.getElementById('customerModal').classList.add('show');
@@ -612,6 +664,20 @@ function setupCustPaymentInputs() {
   };
   [pp, disc].forEach(el => { el.removeEventListener('input', deriveTotal); el.addEventListener('input', deriveTotal); });
   [total, paid, initial].forEach(el => { if (el) { el.removeEventListener('input', derivePaid); el.addEventListener('input', derivePaid); } });
+  const curSel = document.getElementById('custFormPayCurrency');
+  const priceInput = document.getElementById('custFormPayProgramPrice');
+  if (curSel && priceInput) {
+    const onCurrency = function() {
+      const code = curSel.value;
+      const prog = currentCustProgram;
+      if (prog && prog.prices && prog.prices[code] !== undefined && prog.prices[code] !== null) {
+        priceInput.value = prog.prices[code];
+        updateCustPaymentCalcs();
+      }
+    };
+    curSel.removeEventListener('change', onCurrency);
+    curSel.addEventListener('change', onCurrency);
+  }
 }
 
 function setupCustPaymentToggle() {
@@ -653,8 +719,11 @@ function openPaymentModal(customerId) {
   stEl.textContent = subIcon + ' ' + t(st);
 
   const total = cust.payment?.finalPrice || 0;
-  document.getElementById('payFormRemaining').textContent = formatCurrency(cust.payment?.remainingAmount || 0);
-  document.getElementById('payFormTotalHint').textContent = t('totalAmount') + ': ' + formatCurrency(total);
+  const payCurrency = cust.payment?.currency || 'EGP';
+  const curSel = document.getElementById('payFormCurrency');
+  if (curSel) curSel.value = payCurrency;
+  document.getElementById('payFormRemaining').textContent = formatCurrency(cust.payment?.remainingAmount || 0, payCurrency);
+  document.getElementById('payFormTotalHint').textContent = t('totalAmount') + ': ' + formatCurrency(total, payCurrency);
   document.getElementById('paymentModal').classList.add('show');
   document.body.classList.add('modal-open');
   setTimeout(() => { const el = document.getElementById('payFormAmount'); if (el) el.focus(); }, 120);
@@ -675,6 +744,7 @@ async function handlePaymentFormSubmit(e) {
   btn.disabled = true; btn.classList.add('loading'); btn.innerHTML = '<span class="spinner"></span>';
   const body = {
     amount: parseFloat(document.getElementById('payFormAmount')?.value) || 0,
+    currency: document.getElementById('payFormCurrency')?.value || 'EGP',
     method: document.getElementById('payFormMethod')?.value || 'cash',
     referenceNumber: (document.getElementById('payFormReference')?.value || '').trim(),
     notes: (document.getElementById('payFormNotes')?.value || '').trim()
@@ -752,7 +822,8 @@ async function handleCustomerFormSubmit(e) {
       finalPrice: finalPrice,
       initialPayment: ip,
       paidAmount: Math.max(paid, ip),
-      remainingAmount: Math.max(0, finalPrice - Math.max(paid, ip))
+      remainingAmount: Math.max(0, finalPrice - Math.max(paid, ip)),
+      currency: document.getElementById('custFormPayCurrency')?.value || 'EGP'
     };
   }
   const isEdit = !!editingCustomerId;
@@ -950,14 +1021,17 @@ function openCustomerEditModal(customerId) {
     document.getElementById('custFormPayPaid').value = pay.paidAmount || '';
     updateCustPaymentCalcs();
     const prog = (allPrograms || []).find(x => x._id === (cust.programRef?._id || cust.programRef)) || (allPrograms || []).find(x => x.name === cust.program);
+    currentCustProgram = prog || null;
     const priceWrap = document.getElementById('custFormProgramPriceWrap');
     const priceEl = document.getElementById('custFormProgramPrice');
     if (isSubscribed && prog && prog.price !== undefined && prog.price > 0) {
-      if (priceEl) priceEl.innerHTML = priceDisplay('', prog.price, { size: 'lg', color: 'gold', currency: prog.currency });
+      if (priceEl) priceEl.innerHTML = priceDisplay('', prog.price, { size: 'lg', color: 'gold', currency: prog.currency }) + '<div class="program-card-prices">' + programPricesHtml(prog) + '</div>';
       if (priceWrap) priceWrap.style.display = '';
     } else if (priceWrap) {
       priceWrap.style.display = 'none';
     }
+    const curSel = document.getElementById('custFormPayCurrency');
+    if (curSel) curSel.value = pay.currency || (prog ? (prog.currency || 'EGP') : 'EGP');
     campaignCustomerContext = { campaignId: currentCampaignId || null, programId: currentProgramId || null, programName: cust.program };
     document.getElementById('customerModalTitle').textContent = t('editCustomer');
     document.getElementById('customerModal').classList.add('show');

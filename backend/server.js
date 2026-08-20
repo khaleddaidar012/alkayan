@@ -13,6 +13,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json({
+  limit: '20mb',
   verify: (req, res, buf) => { req.rawBody = buf.toString('utf8'); }
 }));
 

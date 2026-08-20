@@ -151,21 +151,34 @@ exports.createCustomer = async (req, res) => {
       const payMethod = payment?.method || 'cash';
       const payNotes = payment?.notes || 'Initial payment';
       const payReference = payment?.referenceNumber || '';
+      const payCurrency = String(payment?.currency || currencyForCountry(detectedCountry)).toUpperCase();
 
       if (programRef) {
         const program = await Course.findById(programRef);
         if (program) {
-          programPrice = program.price;
+          const pricesMap = program.prices && typeof program.prices === 'object' ? program.prices : {};
+          const primaryCurrency = String(program.currency || 'EGP').toUpperCase();
+          programPrice = pricesMap[payCurrency] !== undefined ? pricesMap[payCurrency] : program.price;
+          if (programPrice === undefined || programPrice === null) programPrice = primaryCurrency === payCurrency ? program.price : 0;
           if (total === undefined || total === null) {
-            total = Math.max(0, program.price - discount);
+            total = Math.max(0, programPrice - discount);
           }
         }
       }
-      if (total === undefined || total === null) total = 0;
+      if (total === undefined || total === null) {
+        if (payment?.finalPrice !== undefined && payment?.finalPrice !== null) {
+          total = payment.finalPrice;
+        } else if (programPrice !== undefined && programPrice !== null) {
+          total = Math.max(0, programPrice - discount);
+        } else {
+          total = 0;
+        }
+      }
 
       const payStatus = total > 0 && paid >= total ? 'fullyPaid' : paid > 0 ? 'partiallyPaid' : 'notPaid';
       customerData.payment = {
         status: payStatus,
+        currency: payCurrency,
         programPrice: programPrice || 0,
         discount,
         finalPrice: total,
@@ -215,10 +228,14 @@ exports.updateCustomer = async (req, res) => {
       const explicitPayment = req.body.payment !== undefined;
       let programPrice = p.programPrice !== undefined ? p.programPrice : (exPay.programPrice || 0);
       let program = null;
+      const currency = String(p.currency !== undefined ? p.currency : (exPay.currency || 'EGP')).toUpperCase();
 
       if (programChanged && !explicitPayment) {
         program = req.body.programRef ? await Course.findById(req.body.programRef) : null;
-        if (program) programPrice = program.price;
+        if (program) {
+          const pricesMap = program.prices && typeof program.prices === 'object' ? program.prices : {};
+          programPrice = pricesMap[currency] !== undefined ? pricesMap[currency] : program.price;
+        }
       }
 
       const discount = p.discount !== undefined ? p.discount : (exPay.discount || 0);
@@ -241,6 +258,7 @@ exports.updateCustomer = async (req, res) => {
       const payStatus = total > 0 && paid >= total ? 'fullyPaid' : paid > 0 ? 'partiallyPaid' : 'notPaid';
       updateData.payment = {
         status: payStatus,
+        currency,
         programPrice,
         discount,
         finalPrice: total,
@@ -298,8 +316,10 @@ exports.updateCustomerStatus = async (req, res) => {
           : (exPay.paidAmount || 0);
         const history = Array.isArray(payment.history) ? payment.history : (exPay.history || []);
         const payStatus = total > 0 && paid >= total ? 'fullyPaid' : paid > 0 ? 'partiallyPaid' : 'notPaid';
+        const currency = String(payment.currency !== undefined ? payment.currency : (exPay.currency || 'EGP')).toUpperCase();
         updateData.payment = {
           status: payStatus,
+          currency,
           programPrice: payment.programPrice !== undefined ? payment.programPrice : (exPay.programPrice || 0),
           discount: payment.discount !== undefined ? payment.discount : (exPay.discount || 0),
           finalPrice: total,

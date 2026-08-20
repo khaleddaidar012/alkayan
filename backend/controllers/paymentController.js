@@ -55,11 +55,10 @@ exports.createPayment = async (req, res) => {
     const { amount, currency, direction, method_id, notes, method } = req.body;
     const dir = direction || 'in';
 
-    if (currency) {
-      const expected = currencyForCountry(customer.country || 'other');
-      if (currency !== expected && currency !== 'USD') {
-        return res.status(400).json({ message: `Currency mismatch: expected ${expected} for this customer's country` });
-      }
+    const CURRENCY_CODES = ['EGP', 'SAR', 'LYD', 'OMR', 'USD'];
+    const payCurrency = String(currency || currencyForCountry(customer.country || 'other')).toUpperCase();
+    if (!CURRENCY_CODES.includes(payCurrency)) {
+      return res.status(400).json({ message: `Invalid currency: must be one of ${CURRENCY_CODES.join(', ')}` });
     }
 
     const methodDoc = method_id ? await PaymentMethod.findById(method_id) : null;
@@ -68,7 +67,7 @@ exports.createPayment = async (req, res) => {
     const payment = await Payment.create({
       customer: customer._id,
       amount,
-      currency: (currency || currencyForCountry(customer.country || 'other')).toUpperCase(),
+      currency: payCurrency,
       direction: dir,
       method: methodDoc ? methodDoc._id : null,
       methodName: methodDoc ? methodDoc.name : (method || 'cash'),
@@ -93,6 +92,7 @@ exports.createPayment = async (req, res) => {
       const newPaid = (Number(customer.payment.paidAmount) || 0) + Number(amount);
       const fp = customer.payment.finalPrice || 0;
       customer.payment.paidAmount = newPaid;
+      customer.payment.currency = payCurrency;
       customer.payment.remainingAmount = Math.max(0, fp - newPaid);
       customer.payment.status = fp > 0 && newPaid >= fp ? 'fullyPaid' : newPaid > 0 ? 'partiallyPaid' : 'notPaid';
       await customer.save();

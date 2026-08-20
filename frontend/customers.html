@@ -430,6 +430,19 @@
                 </div>
               </div>
               <div class="form-group-premium">
+                <label data-i18n="currency">العملة</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">💱</span>
+                  <select id="formPayCurrency">
+                    <option value="EGP">🇪🇬 EGP</option>
+                    <option value="SAR">🇸🇦 SAR</option>
+                    <option value="LYD">🇱🇾 LYD</option>
+                    <option value="OMR">🇴🇲 OMR</option>
+                    <option value="USD">USD</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group-premium">
                 <label data-i18n="discount">الخصم</label>
                 <div class="input-wrapper">
                   <span class="input-icon">➖</span>
@@ -526,7 +539,13 @@
             </div>
             <div class="details-row">
               <span class="details-label" data-i18n="currency">Currency</span>
-              <input type="text" id="payFormCurrency" class="details-input" maxlength="3" readonly>
+              <select id="payFormCurrency" class="details-select">
+                <option value="EGP">🇪🇬 EGP</option>
+                <option value="SAR">🇸🇦 SAR</option>
+                <option value="LYD">🇱🇾 LYD</option>
+                <option value="OMR">🇴🇲 OMR</option>
+                <option value="USD">USD</option>
+              </select>
             </div>
             <div class="details-row">
               <span class="details-label" data-i18n="method">Payment Method</span>

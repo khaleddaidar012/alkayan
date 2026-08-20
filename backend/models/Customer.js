@@ -16,6 +16,11 @@ const paymentSchema = new mongoose.Schema({
     enum: ['notPaid', 'partiallyPaid', 'fullyPaid'],
     default: 'notPaid'
   },
+  currency: {
+    type: String,
+    enum: ['EGP', 'SAR', 'LYD', 'OMR', 'USD'],
+    default: 'EGP'
+  },
   programPrice: { type: Number, default: 0, min: 0 },
   discount: { type: Number, default: 0, min: 0 },
   finalPrice: { type: Number, default: 0, min: 0 },
@@ -61,7 +66,7 @@ const customerSchema = new mongoose.Schema({
   payment: {
     type: paymentSchema,
     default: () => ({
-      status: 'notPaid', programPrice: 0, discount: 0, finalPrice: 0,
+      status: 'notPaid', currency: 'EGP', programPrice: 0, discount: 0, finalPrice: 0,
       initialPayment: 0, paidAmount: 0, remainingAmount: 0,
       nextPaymentDate: null, paymentMethod: 'cash', history: []
     })
